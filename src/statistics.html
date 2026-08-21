@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>选育数据统计分析 - 羊只品种选育系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.544.0/dist/umd/lucide.min.js"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <!--<script src="https://cdn.tailwindcss.com"></script>-->
+
+    <style>
+        :root {
+            --primary-color: #4F46E5;
+            --secondary-color: #EC4899;
+            --background-color: #F3F4F6;
+            --card-background: #FFFFFF;
+            --text-color: #1F2937;
+            --muted-text-color: #6B7280;
+        }
+        .dark {
+            --primary-color: #6366F1;
+            --secondary-color: #F472B6;
+            --background-color: #111827;
+            --card-background: #1F2937;
+            --text-color: #F9FAFB;
+            --muted-text-color: #9CA3AF;
+        }
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+        }
+        .card {
+            background-color: var(--card-background);
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: all 0.3s ease-in-out;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #4338CA;
+        }
+        .dark .btn-primary:hover {
+            background-color: #4F46E5;
+        }
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #DB2777;
+        }
+        .dark .btn-secondary:hover {
+            background-color: #EC4899;
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(79, 70, 229, 0.1);
+            border-left-color: var(--primary-color);
+        }
+        .dark .nav-link:hover, .dark .nav-link.active {
+            background-color: rgba(79, 70, 229, 0.2);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .form-input, .form-select {
+            background-color: var(--card-background);
+            border: 1px solid #D1D5DB;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+        .dark .form-input, .dark .form-select {
+            border-color: #374151;
+            background-color: #374151;
+        }
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-success {
+            background-color: #D1FAE5;
+            color: #065F46;
+        }
+        .dark .badge-success {
+            background-color: #065F46;
+            color: #D1FAE5;
+        }
+        .badge-warning {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
+        .dark .badge-warning {
+            background-color: #92400E;
+            color: #FEF3C7;
+        }
+        .badge-danger {
+            background-color: #FEE2E2;
+            color: #991B1B;
+        }
+        .dark .badge-danger {
+            background-color: #991B1B;
+            color: #FEE2E2;
+        }
+        .table-header {
+            background-color: #F9FAFB;
+            color: #374151;
+            font-weight: 600;
+        }
+        .dark .table-header {
+            background-color: #374151;
+            color: #F9FAFB;
+        }
+        .table-row {
+            transition: background-color 0.2s ease;
+        }
+        .table-row:hover {
+            background-color: #F3F4F6;
+        }
+        .dark .table-row:hover {
+            background-color: #374151;
+        }
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+        }
+        .modal-content {
+            background-color: var(--card-background);
+            border-radius: 0.75rem;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #1F2937;
+            color: #F9FAFB;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            z-index: 100;
+            transform: translateX(400px);
+            transition: transform 0.3s ease-in-out;
+        }
+        .toast.show {
+            transform: translateX(0);
+        }
+        .toast-success {
+            background-color: #065F46;
+        }
+        .toast-error {
+            background-color: #991B1B;
+        }
+        .toast-warning {
+            background-color: #92400E;
+        }
+
+    </style>
+
+    <!-- 统一的 Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb', // 主色调 - 专业蓝
+                        secondary: '#10b981', // 辅助色 - 成功绿
+                        accent: '#f59e0b', // 强调色 - 警告黄
+                        danger: '#ef4444', // 危险色 - 错误红
+                        dark: '#1e293b', // 深色
+                        light: '#f8fafc', // 浅色
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }
+            .transition-all {
+                transition: all 0.3s ease;
+            }
+            .chart-container {
+                position: relative;
+                height: 300px;
+                width: 100%;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        }
+    </style>
+</head>
+<body class="flex h-screen">
+    <aside class="hidden md:flex md:flex-shrink-0">
+        <div class="flex flex-col w-64 bg-white border-r border-gray-200">
+            <div class="flex items-center justify-center h-16 px-4 border-b border-gray-200 bg-primary">
+                <h2 class="text-xl font-bold text-white">羊只选育系统</h2>
+            </div>
+            <div class="flex flex-col flex-grow px-4 py-4 overflow-y-auto">
+                <div class="flex flex-col flex-grow space-y-1">
+                    <a href="index.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                        <i class="fa fa-dashboard mr-3"></i>
+                        <span>选育看板</span>
+                    </a>
+                    <a href="sheepinfo.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                        <i class="fa fa-users mr-3 text-gray-500"></i>
+                        <span >羊群管理</span>
+                    </a>
+                    <a href="evaluation.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                        <i class="fa fa-line-chart mr-3 text-gray-500"></i>
+                        <span>选育评估</span>
+                    </a>
+                    <a href="mating.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                        <i class="fa fa-calendar mr-3 text-gray-500"></i>
+                        <span>配种管理</span>
+                    </a>
+                    <a href="pedigree.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                        <i class="fa fa-file-text mr-3 text-gray-500"></i>
+                        <span>系谱追溯</span>
+                    </a>
+                    <a href="gene-selection.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                        <i class="fa fa-file-text mr-3 text-gray-500"></i>
+                        <span>基因选育</span>
+                    </a>
+
+                    <a href="statistics.html" class="flex items-center px-4 py-3 text-gray-700 bg-gray-100 rounded-md">
+                        <i class="fa fa-file-text mr-3 text-gray-500 text-primary"></i>
+                        <span class="font-medium">选育数据统计分析</span>
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                        <i class="fa fa-cog mr-3 text-gray-500"></i>
+                        <span>系统设置</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </aside>
+    <!-- Main Content -->
+    <main class="flex-1 p-8 overflow-y-auto">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-3xl font-bold">选育数据统计分析</h2>
+            <button id="theme-toggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700">
+                <i data-lucide="sun" class="w-6 h-6 dark:hidden"></i>
+                <i data-lucide="moon" class="w-6 h-6 hidden dark:block"></i>
+            </button>
+        </div>
+
+        <!-- Filters -->
+        <div class="card p-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">时间范围</label>
+                    <select id="time-range-filter" class="form-select w-full px-4 py-2 rounded-lg">
+                        <option value="day">日</option>
+                        <option value="week">周</option>
+                        <option value="month" selected>月</option>
+                        <option value="year">年</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">羊只品种</label>
+                    <select id="breed-filter" class="form-select w-full px-4 py-2 rounded-lg">
+                        <option value="all">全部</option>
+                        <option value="肉羊">肉羊</option>
+                        <option value="绒羊">绒羊</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">选育批次</label>
+                    <select id="batch-filter" class="form-select w-full px-4 py-2 rounded-lg">
+                        <option value="all">全部</option>
+                        <option value="202401">202401</option>
+                        <option value="202402">202402</option>
+                        <option value="202403">202403</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button id="export-report-btn" class="btn-secondary w-full px-4 py-2 rounded-lg flex items-center justify-center">
+                        <i data-lucide="download" class="w-5 h-5 mr-2"></i>导出报表
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="mb-6 border-b border-gray-200 dark:border-gray-700">
+            <button class="tab-link active px-6 py-3 text-lg font-semibold text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400" data-tab="overview">数据概览</button>
+            <button class="tab-link px-6 py-3 text-lg font-semibold text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400" data-tab="breeding">选育评估分析</button>
+            <button class="tab-link px-6 py-3 text-lg font-semibold text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400" data-tab="mating">配种妊娠分析</button>
+            <button class="tab-link px-6 py-3 text-lg font-semibold text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400" data-tab="gene">基因选育分析</button>
+            <button class="tab-link px-6 py-3 text-lg font-semibold text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400" data-tab="trend">趋势预测</button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div id="overview" class="tab-content active">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="card p-6 text-center">
+                    <div class="text-4xl font-bold text-indigo-600 dark:text-indigo-400 mb-2">1200</div>
+                    <div class="text-gray-600 dark:text-gray-400">总羊只数</div>
+                </div>
+                <div class="card p-6 text-center">
+                    <div class="text-4xl font-bold text-green-600 dark:text-green-400 mb-2">85%</div>
+                    <div class="text-gray-600 dark:text-gray-400">选育评估优秀率</div>
+                </div>
+                <div class="card p-6 text-center">
+                    <div class="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">78%</div>
+                    <div class="text-gray-600 dark:text-gray-400">配种成功率</div>
+                </div>
+                <div class="card p-6 text-center">
+                    <div class="text-4xl font-bold text-purple-600 dark:text-purple-400 mb-2">65</div>
+                    <div class="text-gray-600 dark:text-gray-400">优良基因携带羊只数</div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold mb-4">羊只品种分布</h3>
+                    <div style="height: 300px;">
+                        <canvas id="breed-distribution-chart"></canvas>
+                    </div>
+                </div>
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold mb-4">月度选育评估趋势</h3>
+                    <div style="height: 300px;">
+                        <canvas id="evaluation-trend-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Breeding Evaluation Tab -->
+        <div id="breeding" class="tab-content">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold mb-4">选育评估结果统计</h3>
+                    <div style="height: 300px;">
+                        <canvas id="evaluation-result-chart"></canvas>
+                    </div>
+                </div>
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold mb-4">不同品种选育评估对比</h3>
+                    <div style="height: 300px;">
+                        <canvas id="breed-evaluation-comparison-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="card p-6">
+                <h3 class="text-xl font-bold mb-4">后代羊只性能统计</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="table-header">
+                            <tr>
+                                <th class="px-4 py-3">指标</th>
+                                <th class="px-4 py-3">肉羊 (平均值)</th>
+                                <th class="px-4 py-3">绒羊 (平均值)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="table-row border-b border-gray-200 dark:border-gray-700">
+                                <td class="px-4 py-3">出生体重 (kg)</td>
+                                <td class="px-4 py-3">4.5</td>
+                                <td class="px-4 py-3">3.8</td>
+                            </tr>
+                            <tr class="table-row border-b border-gray-200 dark:border-gray-700">
+                                <td class="px-4 py-3">断奶体重 (kg)</td>
+                                <td class="px-4 py-3">18.2</td>
+                                <td class="px-4 py-3">15.1</td>
+                            </tr>
+                            <tr class="table-row border-b border-gray-200 dark:border-gray-700">
+                                <td class="px-4 py-3">产肉率 (%)</td>
+                                <td class="px-4 py-3">52.3</td>
+                                <td class="px-4 py-3">48.7</td>
+                            </tr>
+                            <tr class="table-row border-b border-gray-200 dark:border-gray-700">
+                                <td class="px-4 py-3">产绒量 (kg)</td>
+                                <td class="px-4 py-3">-</td>
+                                <td class="px-4 py-3">1.2</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="px-4 py-3">绒细度 (μm)</td>
+                                <td class="px-4 py-3">-</td>
+                                <td class="px-4 py-3">16.5</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mating and Pregnancy Tab -->
+        <div id="mating" class="tab-content">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold mb-4">配种成功率统计</h3>
+                    <div style="height: 300px;">
+                        <canvas id="mating-success-chart"></canvas>
+                    </div>
+                </div>
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold mb-4">妊娠率统计</h3>
+                    <div style="height: 300px;">
+                        <canvas id="pregnancy-rate-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gene Selection Tab -->
+        <div id="gene" class="tab-content">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold mb-4">基因检测数量统计</h3>
+                    <div style="height: 300px;">
+                        <canvas id="gene-detection-count-chart"></canvas>
+                    </div>
+                </div>
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold mb-4">优良基因携带羊只统计</h3>
+                    <div style="height: 300px;">
+                        <canvas id="good-gene-carried-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="card p-6">
+                <h3 class="text-xl font-bold mb-4">基因选育方案实施成效</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="table-header">
+                            <tr>
+                                <th class="px-4 py-3">方案编号</th>
+                                <th class="px-4 py-3">方案名称</th>
+                                <th class="px-4 py-3">适配品种</th>
+                                <th class="px-4 py-3">实施进度</th>
+                                <th class="px-4 py-3">评估结果</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="table-row border-b border-gray-200 dark:border-gray-700">
+                                <td class="px-4 py-3">FA-202401</td>
+                                <td class="px-4 py-3">肉羊高产肉率选育方案</td>
+                                <td class="px-4 py-3">肉羊</td>
+                                <td class="px-4 py-3"><span class="badge badge-warning">进行中</span></td>
+                                <td class="px-4 py-3"><span class="badge badge-success">良好</span></td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="px-4 py-3">FA-202402</td>
+                                <td class="px-4 py-3">绒羊高产量优质绒选育方案</td>
+                                <td class="px-4 py-3">绒羊</td>
+                                <td class="px-4 py-3"><span class="badge badge-danger">未开始</span></td>
+                                <td class="px-4 py-3"><span class="badge badge-warning">待评估</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trend Prediction Tab -->
+        <div id="trend" class="tab-content">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold mb-4">选育评估趋势预测</h3>
+                    <div style="height: 300px;">
+                        <canvas id="evaluation-prediction-chart"></canvas>
+                    </div>
+                </div>
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold mb-4">优良基因携带趋势</h3>
+                    <div style="height: 300px;">
+                        <canvas id="gene-trend-prediction-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            // Re-render charts to apply new theme colors
+            renderAllCharts();
+        });
+
+        // Tab switching
+        const tabLinks = document.querySelectorAll('.tab-link');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                const tab = link.dataset.tab;
+
+                tabLinks.forEach(l => l.classList.remove('active', 'text-indigo-600', 'dark:text-indigo-400', 'border-b-2', 'border-indigo-600', 'dark:border-indigo-400'));
+                tabLinks.forEach(l => l.classList.add('text-gray-500', 'dark:text-gray-400'));
+
+                tabContents.forEach(c => c.classList.remove('active'));
+
+                link.classList.add('active', 'text-indigo-600', 'dark:text-indigo-400', 'border-b-2', 'border-indigo-600', 'dark:border-indigo-400');
+                link.classList.remove('text-gray-500', 'dark:text-gray-400');
+                document.getElementById(tab).classList.add('active');
+            });
+        });
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast toast-${type}`;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Export Report
+        document.getElementById('export-report-btn').addEventListener('click', () => {
+            showToast('报表导出中，请稍候...', 'warning');
+            setTimeout(() => {
+                showToast('报表导出成功！');
+            }, 1500);
+        });
+
+        // Chart Colors
+        const getChartColors = () => {
+            const isDark = html.classList.contains('dark');
+            return {
+                primary: isDark ? '#6366F1' : '#4F46E5',
+                secondary: isDark ? '#F472B6' : '#EC4899',
+                success: isDark ? '#34D399' : '#10B981',
+                warning: isDark ? '#FBBF24' : '#F59E0B',
+                danger: isDark ? '#F87171' : '#EF4444',
+                background: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                grid: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                text: isDark ? '#F9FAFB' : '#1F2937',
+            };
+        };
+
+        let charts = {};
+
+        function renderAllCharts() {
+            const colors = getChartColors();
+
+            // Destroy existing charts
+            Object.values(charts).forEach(chart => chart.destroy());
+
+            // Breed Distribution Chart
+            const breedDistributionCtx = document.getElementById('breed-distribution-chart').getContext('2d');
+            charts.breedDistribution = new Chart(breedDistributionCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['肉羊', '绒羊'],
+                    datasets: [{
+                        data: [720, 480],
+                        backgroundColor: [colors.primary, colors.secondary],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: colors.text
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Evaluation Trend Chart
+            const evaluationTrendCtx = document.getElementById('evaluation-trend-chart').getContext('2d');
+            charts.evaluationTrend = new Chart(evaluationTrendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                    datasets: [{
+                        label: '优秀率 (%)',
+                        data: [75, 78, 82, 80, 85, 88],
+                        borderColor: colors.success,
+                        backgroundColor: colors.background,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 70,
+                            max: 100,
+                            grid: {
+                                color: colors.grid
+                            },
+                            ticks: {
+                                color: colors.text
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: colors.grid
+                            },
+                            ticks: {
+                                color: colors.text
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: colors.text
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Evaluation Result Chart
+            const evaluationResultCtx = document.getElementById('evaluation-result-chart').getContext('2d');
+            charts.evaluationResult = new Chart(evaluationResultCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['优秀', '良好', '一般', '较差'],
+                    datasets: [{
+                        label: '数量',
+                        data: [520, 380, 220, 80],
+                        backgroundColor: [colors.success, colors.warning, colors.primary, colors.danger],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: colors.grid
+                            },
+                            ticks: {
+                                color: colors.text
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: colors.grid
+                            },
+                            ticks: {
+                                color: colors.text
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Breed Evaluation Comparison Chart
+            const breedEvaluationComparisonCtx = document.getElementById('breed-evaluation-comparison-chart').getContext('2d');
+            charts.breedEvaluationComparison = new Chart(breedEvaluationComparisonCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['生长速度', '产肉率', '产绒量', '抗病性', '繁殖力'],
+                    datasets: [
+                        {
+                            label: '肉羊',
+                            data: [85, 90, 10, 75, 80],
+                            borderColor: colors.primary,
+                            backgroundColor: `${colors.primary}33`,
+                        },
+                        {
+                            label: '绒羊',
+                            data: [70, 60, 95, 80, 75],
+                            borderColor: colors.secondary,
+                            backgroundColor: `${colors.secondary}33`,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: colors.grid },
+                            grid: { color: colors.grid },
+                            pointLabels: { color: colors.text },
+                            ticks: { backdropColor: 'transparent', color: colors.text }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: colors.text
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Mating Success Chart
+            const matingSuccessCtx = document.getElementById('mating-success-chart').getContext('2d');
+            charts.matingSuccess = new Chart(matingSuccessCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                    datasets: [{
+                        label: '配种成功率 (%)',
+                        data: [72, 75, 78, 82, 79, 85],
+                        backgroundColor: colors.primary,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 60,
+                            max: 100,
+                            grid: {
+                                color: colors.grid
+                            },
+                            ticks: {
+                                color: colors.text
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: colors.grid
+                            },
+                            ticks: {
+                                color: colors.text
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: colors.text
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Pregnancy Rate Chart
+            const pregnancyRateCtx = document.getElementById('pregnancy-rate-chart').getContext('2d');
+            charts.pregnancyRate = new Chart(pregnancyRateCtx, {
+                type: 'line',
+                data: {
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                    datasets: [{
+                        label: '妊娠率 (%)',
+                        data: [68, 70, 73, 77, 75, 80],
+                        borderColor: colors.secondary,
+                        backgroundColor: colors.background,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 60,
+                            max: 100,
+                            grid: {
+                                color: colors.grid
+                            },
+                            ticks: {
+                                color: colors.text
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: colors.grid
+                            },
+                            ticks: {
+                                color: colors.text
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: colors.text
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gene Detection Count Chart
+            const geneDetectionCountCtx = document.getElementById('gene-detection-count-chart').getContext('2d');
+            charts.geneDetectionCount = new Chart(geneDetectionCountCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                    datasets: [{
+                        label: '检测数量',
+                        data: [12, 15, 20, 18, 25, 30],
+                        backgroundColor: colors.primary,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: colors.grid
+                            },
+                            ticks: {
+                                color: colors.text
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: colors.grid
+                            },
+                            ticks: {
+                                color: colors.text
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: colors.text
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Good Gene Carried Chart
+            const goodGeneCarriedCtx = document.getElementById('good-gene-carried-chart').getContext('2d');
+            charts.goodGeneCarried = new Chart(goodGeneCarriedCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['是', '否'],
+                    datasets: [{
+                        data: [65, 55],
+                        backgroundColor: [colors.success, colors.danger],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: colors.text
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Evaluation Prediction Chart
+            const evaluationPredictionCtx = document.getElementById('evaluation-prediction-chart').getContext('2d');
+            charts.evaluationPrediction = new Chart(evaluationPredictionCtx, {
+                type: 'line',
+                data: {
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月'],
+                    datasets: [
+                        {
+                            label: '历史优秀率',
+                            data: [75, 78, 82, 80, 85, 88, null, null, null],
+                            borderColor: colors.primary,
+                            backgroundColor: 'transparent',
+                            borderDash: [],
+                        },
+                        {
+                            label: '预测优秀率',
+                            data: [null, null, null, null, null, 88, 90, 92, 94],
+                            borderColor: colors.secondary,
+                            backgroundColor: 'transparent',
+                            borderDash: [5, 5],
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 70,
+                            max: 100,
+                            grid: {
+                                color: colors.grid
+                            },
+                            ticks: {
+                                color: colors.text
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: colors.grid
+                            },
+                            ticks: {
+                                color: colors.text
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: colors.text
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gene Trend Prediction Chart
+            const geneTrendPredictionCtx = document.getElementById('gene-trend-prediction-chart').getContext('2d');
+            charts.geneTrendPrediction = new Chart(geneTrendPredictionCtx, {
+                type: 'line',
+                data: {
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月'],
+                    datasets: [
+                        {
+                            label: '历史携带数量',
+                            data: [20, 25, 35, 45, 55, 65, null, null, null],
+                            borderColor: colors.success,
+                            backgroundColor: colors.background,
+                            fill: true,
+                            tension: 0.4,
+                        },
+                        {
+                            label: '预测携带数量',
+                            data: [null, null, null, null, null, 65, 78, 92, 105],
+                            borderColor: colors.warning,
+                            backgroundColor: 'transparent',
+                            borderDash: [5, 5],
+                            tension: 0.4,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: colors.grid
+                            },
+                            ticks: {
+                                color: colors.text
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: colors.grid
+                            },
+                            ticks: {
+                                color: colors.text
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: colors.text
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initial chart render
+        renderAllCharts();
+
+        // Filter event listeners
+        document.getElementById('time-range-filter').addEventListener('change', () => {
+            showToast('数据已根据时间范围更新');
+        });
+        document.getElementById('breed-filter').addEventListener('change', () => {
+            showToast('数据已根据羊只品种更新');
+        });
+        document.getElementById('batch-filter').addEventListener('change', () => {
+            showToast('数据已根据选育批次更新');
+        });
+
+    </script>
+</body>
+</html>
