@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>羊只品种选育系统 - 选育看板</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+
+    <!-- 统一的 Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb', // 主色调 - 专业蓝
+                        secondary: '#10b981', // 辅助色 - 成功绿
+                        accent: '#f59e0b', // 强调色 - 警告黄
+                        danger: '#ef4444', // 危险色 - 错误红
+                        dark: '#1e293b', // 深色
+                        light: '#f8fafc', // 浅色
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }
+            .transition-all {
+                transition: all 0.3s ease;
+            }
+            .chart-container {
+                position: relative;
+                height: 300px;
+                width: 100%;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- 侧边栏 -->
+        <aside class="hidden md:flex md:flex-shrink-0">
+            <div class="flex flex-col w-64 bg-white border-r border-gray-200">
+                <div class="flex items-center justify-center h-16 px-4 border-b border-gray-200 bg-primary">
+                    <h2 class="text-xl font-bold text-white">羊只选育系统</h2>
+                </div>
+                <div class="flex flex-col flex-grow px-4 py-4 overflow-y-auto">
+                    <div class="flex flex-col flex-grow space-y-1">
+                        <a href="index.html" class="flex items-center px-4 py-3 text-gray-700 bg-gray-100 rounded-md">
+                            <i class="fa fa-dashboard mr-3 text-primary"></i>
+                            <span class="font-medium">选育看板</span>
+                        </a>
+                        <a href="sheepinfo.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-users mr-3 text-gray-500"></i>
+                            <span>羊群管理</span>
+                        </a>
+                        <a href="evaluation.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-line-chart mr-3 text-gray-500"></i>
+                            <span>选育评估</span>
+                        </a>
+                        <a href="mating.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-calendar mr-3 text-gray-500"></i>
+                            <span>配种管理</span>
+                        </a>
+                        <a href="pedigree.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-file-text mr-3 text-gray-500"></i>
+                            <span>系谱追溯</span>
+                        </a>
+                        <a href="gene-selection.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-file-text mr-3 text-gray-500"></i>
+                            <span>基因选育</span>
+                        </a>
+
+                        <a href="statistics.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-file-text mr-3 text-gray-500"></i>
+                            <span>选育数据统计分析</span>
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-cog mr-3 text-gray-500"></i>
+                            <span>系统设置</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <div class="flex flex-col flex-1 w-0 overflow-hidden">
+            <!-- 顶部导航栏 -->
+            <header class="z-10 py-4 bg-white shadow-sm">
+                <div class="flex items-center justify-between px-4 sm:px-6 lg:px-8">
+                    <div class="flex items-center md:hidden">
+                        <button type="button" class="text-gray-500 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary" id="mobile-menu-button">
+                            <i class="fa fa-bars text-xl"></i>
+                        </button>
+                    </div>
+                    <div class="flex items-center">
+                        <h1 class="text-xl font-semibold text-gray-800">选育看板</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button type="button" class="text-gray-500 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                            <span class="sr-only">查看通知</span>
+                            <i class="fa fa-bell text-xl"></i>
+                            <span class="absolute top-3 right-3 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-danger rounded-full">3</span>
+                        </button>
+                        <div class="relative">
+                            <button type="button" class="flex items-center space-x-2 focus:outline-none">
+                                <img class="w-8 h-8 rounded-full" src="https://randomuser.me/api/portraits/men/1.jpg" alt="用户头像">
+                                <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+                                <i class="fa fa-chevron-down text-xs text-gray-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 移动端侧边栏 -->
+            <div class="fixed inset-0 z-40 hidden bg-gray-600 bg-opacity-75" id="mobile-menu-overlay"></div>
+            <div class="fixed inset-y-0 left-0 z-50 w-64 -translate-x-full bg-white shadow-xl" id="mobile-menu">
+                <div class="flex items-center justify-between h-16 px-4 border-b border-gray-200 bg-primary">
+                    <h2 class="text-xl font-bold text-white">羊只选育系统</h2>
+                    <button type="button" class="text-white hover:text-gray-200 focus:outline-none" id="mobile-menu-close">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div class="px-4 py-4 overflow-y-auto">
+                    <div class="space-y-1">
+                        <a href="index.html" class="flex items-center px-4 py-3 text-gray-700 bg-gray-100 rounded-md">
+                            <i class="fa fa-dashboard mr-3 text-primary"></i>
+                            <span class="font-medium">选育看板</span>
+                        </a>
+                        <a href="sheepinfo.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-users mr-3 text-gray-500"></i>
+                            <span>羊群管理</span>
+                        </a>
+                        <a href="evaluation.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-line-chart mr-3 text-gray-500"></i>
+                            <span>选育评估</span>
+                        </a>
+                        <a href="mating.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-calendar mr-3 text-gray-500"></i>
+                            <span>配种管理</span>
+                        </a>
+                        <a href="pedigree.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-calendar mr-3 text-gray-500"></i>
+                            <span>系谱追溯</span>
+                        </a>
+                        <a href="gene-selection.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-dna mr-3 text-gray-500"></i>
+                            <span>基因选育</span>
+                        </a>
+
+                        <a href="statistics.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-file-text mr-3 text-gray-500"></i>
+                            <span>选育数据统计分析</span>
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-cog mr-3 text-gray-500"></i>
+                            <span>系统设置</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 主内容 -->
+            <main class="flex-1 overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
+                <!-- 筛选条件区 -->
+                <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+                    <div class="flex flex-wrap items-center gap-4">
+                        <div class="w-full sm:w-auto">
+                            <label for="time-range" class="block text-sm font-medium text-gray-700 mb-1">时间范围</label>
+                            <select id="time-range" name="time-range" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                <option value="day">日</option>
+                                <option value="week">周</option>
+                                <option value="month" selected>月</option>
+                                <option value="year">年</option>
+                            </select>
+                        </div>
+                        <div class="w-full sm:w-auto">
+                            <label for="sheep-breed" class="block text-sm font-medium text-gray-700 mb-1">羊只品种</label>
+                            <select id="sheep-breed" name="sheep-breed" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                <option value="all" selected>全部</option>
+                                <option value="meat">肉羊</option>
+                                <option value="wool">绒羊</option>
+                            </select>
+                        </div>
+                        <div class="w-full sm:w-auto">
+                            <label for="breeding-stage" class="block text-sm font-medium text-gray-700 mb-1">选育阶段</label>
+                            <select id="breeding-stage" name="breeding-stage" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                <option value="all" selected>全部</option>
+                                <option value="stage1">选育阶段1</option>
+                                <option value="stage2">选育阶段2</option>
+                                <option value="stage3">选育阶段3</option>
+                            </select>
+                        </div>
+                        <div class="w-full sm:w-auto">
+                            <label for="sheep-house" class="block text-sm font-medium text-gray-700 mb-1">羊舍编号</label>
+                            <select id="sheep-house" name="sheep-house" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                <option value="all" selected>全部</option>
+                                <option value="house1">羊舍1</option>
+                                <option value="house2">羊舍2</option>
+                                <option value="house3">羊舍3</option>
+                                <option value="house4">羊舍4</option>
+                            </select>
+                        </div>
+                        <div class="w-full sm:w-auto">
+                            <label for="gene-type" class="block text-sm font-medium text-gray-700 mb-1">基因类型</label>
+                            <select id="gene-type" name="gene-type" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                <option value="all" selected>全部</option>
+                                <option value="gene1">高产基因</option>
+                                <option value="gene2">抗病基因</option>
+                                <option value="gene3">优质肉基因</option>
+                                <option value="gene4">优质绒基因</option>
+                            </select>
+                        </div>
+                        <div class="w-full sm:w-auto sm:ml-auto flex items-end gap-2">
+                            <button type="button" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" id="filter-btn">
+                                筛选
+                            </button>
+                            <button type="button" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" id="reset-btn">
+                                重置
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 数据总览卡片区 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                    <!-- 羊只总数量 -->
+                    <div class="bg-white overflow-hidden shadow-sm rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                                    <i class="fa fa-users text-blue-600 text-xl"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">羊只总数量</dt>
+                                        <dd class="flex items-baseline">
+                                            <div class="text-2xl font-semibold text-gray-900" id="total-sheep">3,245</div>
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 种羊数量 -->
+                    <div class="bg-white overflow-hidden shadow-sm rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
+                                    <i class="fa fa-star text-green-600 text-xl"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">种羊数量</dt>
+                                        <dd class="flex items-baseline">
+                                            <div class="text-2xl font-semibold text-gray-900" id="breeding-sheep">876</div>
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 选育批次 -->
+                    <div class="bg-white overflow-hidden shadow-sm rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 bg-purple-100 rounded-md p-3">
+                                    <i class="fa fa-cubes text-purple-600 text-xl"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">选育批次</dt>
+                                        <dd class="flex items-baseline">
+                                            <div class="text-2xl font-semibold text-gray-900" id="breeding-batches">12</div>
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 配种成功率 -->
+                    <div class="bg-white overflow-hidden shadow-sm rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 bg-yellow-100 rounded-md p-3">
+                                    <i class="fa fa-heart text-yellow-600 text-xl"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">配种成功率</dt>
+                                        <dd class="flex items-baseline">
+                                            <div class="text-2xl font-semibold text-gray-900" id="mating-success-rate">78.5%</div>
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 优良种羊数量 -->
+                    <div class="bg-white overflow-hidden shadow-sm rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 bg-red-100 rounded-md p-3">
+                                    <i class="fa fa-trophy text-red-600 text-xl"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">优良种羊数量</dt>
+                                        <dd class="flex items-baseline">
+                                            <div class="text-2xl font-semibold text-gray-900" id="excellent-sheep">342</div>
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 系谱完善率 -->
+                    <div class="bg-white overflow-hidden shadow-sm rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 bg-indigo-100 rounded-md p-3">
+                                    <i class="fa fa-sitemap text-indigo-600 text-xl"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">系谱完善率</dt>
+                                        <dd class="flex items-baseline">
+                                            <div class="text-2xl font-semibold text-gray-900" id="pedigree-completeness">92.3%</div>
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 基因检测数量 -->
+                    <div class="bg-white overflow-hidden shadow-sm rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 bg-teal-100 rounded-md p-3">
+                                    <i class="fa fa-dna text-teal-600 text-xl"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">基因检测数量</dt>
+                                        <dd class="flex items-baseline">
+                                            <div class="text-2xl font-semibold text-gray-900" id="gene-test-count">567</div>
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 优良基因携带羊只数量 -->
+                    <div class="bg-white overflow-hidden shadow-sm rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 bg-orange-100 rounded-md p-3">
+                                    <i class="fa fa-dna text-orange-600 text-xl"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">优良基因携带羊只数量</dt>
+                                        <dd class="flex items-baseline">
+                                            <div class="text-2xl font-semibold text-gray-900" id="excellent-gene-carriers">234</div>
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 基因选育批次 -->
+                    <div class="bg-white overflow-hidden shadow-sm rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 bg-pink-100 rounded-md p-3">
+                                    <i class="fa fa-flask text-pink-600 text-xl"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">基因选育批次</dt>
+                                        <dd class="flex items-baseline">
+                                            <div class="text-2xl font-semibold text-gray-900" id="gene-breeding-batches">5</div>
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 数据可视化图表区 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- 种羊生产性能排名 -->
+                    <div class="bg-white rounded-lg shadow-sm p-4">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">种羊生产性能排名</h3>
+                        <div class="chart-container">
+                            <canvas id="performance-ranking-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 选育效果趋势 -->
+                    <div class="bg-white rounded-lg shadow-sm p-4">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">选育效果趋势</h3>
+                        <div class="chart-container">
+                            <canvas id="breeding-trend-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 配种成功率分析 -->
+                    <div class="bg-white rounded-lg shadow-sm p-4">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">配种成功率分析</h3>
+                        <div class="chart-container">
+                            <canvas id="mating-success-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 不同品种羊只性能对比 -->
+                    <div class="bg-white rounded-lg shadow-sm p-4">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">不同品种羊只性能对比</h3>
+                        <div class="chart-container">
+                            <canvas id="breed-comparison-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 基因选育成效分析 -->
+                    <div class="bg-white rounded-lg shadow-sm p-4">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">基因选育成效分析</h3>
+                        <div class="chart-container">
+                            <canvas id="gene-breeding-effect-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 优良基因分布 -->
+                    <div class="bg-white rounded-lg shadow-sm p-4">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">优良基因分布</h3>
+                        <div class="chart-container">
+                            <canvas id="gene-distribution-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 详细数据表格区 -->
+                <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+                    <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">种羊列表</h3>
+                        <p class="mt-1 max-w-2xl text-sm text-gray-500">展示当前筛选条件下的种羊详细信息</p>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        羊只编号
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        品种
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        性别
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        年龄
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        选育等级
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        生产性能评分
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        基因类型
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        状态
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="sheep-table-body">
+                                <!-- 表格数据将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                        <div class="flex-1 flex justify-between sm:hidden">
+                            <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                上一页
+                            </a>
+                            <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                下一页
+                            </a>
+                        </div>
+                        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                            <div>
+                                <p class="text-sm text-gray-700">
+                                    显示 <span class="font-medium">1</span> 到 <span class="font-medium">10</span> 条，共 <span class="font-medium">97</span> 条记录
+                                </p>
+                            </div>
+                            <div>
+                                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                    <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <span class="sr-only">上一页</span>
+                                        <i class="fa fa-chevron-left"></i>
+                                    </a>
+                                    <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                        1
+                                    </a>
+                                    <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-primary text-sm font-medium text-white">
+                                        2
+                                    </a>
+                                    <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                        3
+                                    </a>
+                                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                                        ...
+                                    </span>
+                                    <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                        10
+                                    </a>
+                                    <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <span class="sr-only">下一页</span>
+                                        <i class="fa fa-chevron-right"></i>
+                                    </a>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // 模拟数据
+        const mockData = {
+            summary: {
+                totalSheep: 3245,
+                breedingSheep: 876,
+                breedingBatches: 12,
+                matingSuccessRate: "78.5%",
+                excellentSheep: 342,
+                pedigreeCompleteness: "92.3%",
+                geneTestCount: 567,
+                excellentGeneCarriers: 234,
+                geneBreedingBatches: 5
+            },
+            performanceRanking: {
+                labels: ['种羊001', '种羊002', '种羊003', '种羊004', '种羊005', '种羊006', '种羊007', '种羊008', '种羊009', '种羊010'],
+                data: [95, 92, 88, 86, 84, 82, 78, 76, 72, 70]
+            },
+            breedingTrend: {
+                labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+                data: [65, 68, 70, 72, 75, 78, 80, 82, 85, 87, 89, 92]
+            },
+            matingSuccess: {
+                labels: ['肉羊-青年', '肉羊-成年', '肉羊-老年', '绒羊-青年', '绒羊-成年', '绒羊-老年'],
+                data: [85, 92, 75, 82, 88, 70]
+            },
+            breedComparison: {
+                labels: ['生长速度', '产肉率', '饲料转化率', '抗病性', '适应性', '繁殖力'],
+                meatSheep: [85, 90, 82, 75, 80, 78],
+                woolSheep: [70, 65, 75, 85, 88, 82]
+            },
+            geneBreedingEffect: {
+                labels: ['高产基因', '抗病基因', '优质肉基因', '优质绒基因', '抗逆基因'],
+                data: [88, 92, 85, 90, 78]
+            },
+            geneDistribution: {
+                labels: ['高产基因', '抗病基因', '优质肉基因', '优质绒基因', '抗逆基因', '其他'],
+                data: [25, 20, 18, 15, 12, 10]
+            },
+            sheepList: [
+                { id: 'S001', breed: '肉羊', gender: '公', age: '2岁', grade: '特等', performance: 95, geneType: '高产基因', status: '配种中' },
+                { id: 'S002', breed: '肉羊', gender: '公', age: '3岁', grade: '特等', performance: 92, geneType: '优质肉基因', status: '配种中' },
+                { id: 'S003', breed: '绒羊', gender: '公', age: '2岁', grade: '特等', performance: 88, geneType: '优质绒基因', status: '休息' },
+                { id: 'S004', breed: '肉羊', gender: '母', age: '2岁', grade: '一等', performance: 86, geneType: '高产基因', status: '妊娠' },
+                { id: 'S005', breed: '绒羊', gender: '母', age: '3岁', grade: '一等', performance: 84, geneType: '抗病基因', status: '配种中' },
+                { id: 'S006', breed: '肉羊', gender: '母', age: '4岁', grade: '一等', performance: 82, geneType: '优质肉基因', status: '哺乳' },
+                { id: 'S007', breed: '绒羊', gender: '母', age: '2岁', grade: '二等', performance: 78, geneType: '抗逆基因', status: '配种中' },
+                { id: 'S008', breed: '肉羊', gender: '公', age: '5岁', grade: '二等', performance: 76, geneType: '高产基因', status: '休息' },
+                { id: 'S009', breed: '绒羊', gender: '公', age: '4岁', grade: '二等', performance: 72, geneType: '优质绒基因', status: '配种中' },
+                { id: 'S010', breed: '肉羊', gender: '母', age: '5岁', grade: '三等', performance: 70, geneType: '抗病基因', status: '哺乳' }
+            ]
+        };
+
+        // 初始化图表
+        function initCharts() {
+            // 种羊生产性能排名
+            const performanceRankingCtx = document.getElementById('performance-ranking-chart').getContext('2d');
+            new Chart(performanceRankingCtx, {
+                type: 'bar',
+                data: {
+                    labels: mockData.performanceRanking.labels,
+                    datasets: [{
+                        label: '生产性能评分',
+                        data: mockData.performanceRanking.data,
+                        backgroundColor: 'rgba(37, 99, 235, 0.8)',
+                        borderColor: 'rgba(37, 99, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+
+            // 选育效果趋势
+            const breedingTrendCtx = document.getElementById('breeding-trend-chart').getContext('2d');
+            new Chart(breedingTrendCtx, {
+                type: 'line',
+                data: {
+                    labels: mockData.breedingTrend.labels,
+                    datasets: [{
+                        label: '选育效果指数',
+                        data: mockData.breedingTrend.data,
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 60,
+                            max: 100
+                        }
+                    }
+                }
+            });
+
+            // 配种成功率分析
+            const matingSuccessCtx = document.getElementById('mating-success-chart').getContext('2d');
+            new Chart(matingSuccessCtx, {
+                type: 'pie',
+                data: {
+                    labels: mockData.matingSuccess.labels,
+                    datasets: [{
+                        data: mockData.matingSuccess.data,
+                        backgroundColor: [
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(245, 158, 11, 0.6)',
+                            'rgba(245, 158, 11, 0.4)',
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(59, 130, 246, 0.6)',
+                            'rgba(59, 130, 246, 0.4)'
+                        ],
+                        borderColor: [
+                            'rgba(245, 158, 11, 1)',
+                            'rgba(245, 158, 11, 1)',
+                            'rgba(245, 158, 11, 1)',
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(59, 130, 246, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.raw + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 不同品种羊只性能对比
+            const breedComparisonCtx = document.getElementById('breed-comparison-chart').getContext('2d');
+            new Chart(breedComparisonCtx, {
+                type: 'radar',
+                data: {
+                    labels: mockData.breedComparison.labels,
+                    datasets: [
+                        {
+                            label: '肉羊',
+                            data: mockData.breedComparison.meatSheep,
+                            backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                            borderColor: 'rgba(239, 68, 68, 1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgba(239, 68, 68, 1)'
+                        },
+                        {
+                            label: '绒羊',
+                            data: mockData.breedComparison.woolSheep,
+                            backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                            borderColor: 'rgba(139, 92, 246, 1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgba(139, 92, 246, 1)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: true
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 100
+                        }
+                    }
+                }
+            });
+
+            // 基因选育成效分析
+            const geneBreedingEffectCtx = document.getElementById('gene-breeding-effect-chart').getContext('2d');
+            new Chart(geneBreedingEffectCtx, {
+                type: 'bar',
+                data: {
+                    labels: mockData.geneBreedingEffect.labels,
+                    datasets: [{
+                        label: '选育成效指数',
+                        data: mockData.geneBreedingEffect.data,
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(139, 92, 246, 0.8)',
+                            'rgba(236, 72, 153, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(245, 158, 11, 1)',
+                            'rgba(139, 92, 246, 1)',
+                            'rgba(236, 72, 153, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+
+            // 优良基因分布
+            const geneDistributionCtx = document.getElementById('gene-distribution-chart').getContext('2d');
+            new Chart(geneDistributionCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: mockData.geneDistribution.labels,
+                    datasets: [{
+                        data: mockData.geneDistribution.data,
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(139, 92, 246, 0.8)',
+                            'rgba(236, 72, 153, 0.8)',
+                            'rgba(107, 114, 128, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(245, 158, 11, 1)',
+                            'rgba(139, 92, 246, 1)',
+                            'rgba(236, 72, 153, 1)',
+                            'rgba(107, 114, 128, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.raw + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 更新数据总览卡片
+        function updateSummaryCards() {
+            document.getElementById('total-sheep').textContent = mockData.summary.totalSheep.toLocaleString();
+            document.getElementById('breeding-sheep').textContent = mockData.summary.breedingSheep.toLocaleString();
+            document.getElementById('breeding-batches').textContent = mockData.summary.breedingBatches;
+            document.getElementById('mating-success-rate').textContent = mockData.summary.matingSuccessRate;
+            document.getElementById('excellent-sheep').textContent = mockData.summary.excellentSheep.toLocaleString();
+            document.getElementById('pedigree-completeness').textContent = mockData.summary.pedigreeCompleteness;
+            document.getElementById('gene-test-count').textContent = mockData.summary.geneTestCount.toLocaleString();
+            document.getElementById('excellent-gene-carriers').textContent = mockData.summary.excellentGeneCarriers.toLocaleString();
+            document.getElementById('gene-breeding-batches').textContent = mockData.summary.geneBreedingBatches;
+        }
+
+        // 更新种羊列表表格
+        function updateSheepTable() {
+            const tableBody = document.getElementById('sheep-table-body');
+            tableBody.innerHTML = '';
+
+            mockData.sheepList.forEach(sheep => {
+                const row = document.createElement('tr');
+
+                // 设置状态标签的样式
+                let statusClass = '';
+                switch(sheep.status) {
+                    case '配种中':
+                        statusClass = 'bg-green-100 text-green-800';
+                        break;
+                    case '妊娠':
+                        statusClass = 'bg-blue-100 text-blue-800';
+                        break;
+                    case '哺乳':
+                        statusClass = 'bg-purple-100 text-purple-800';
+                        break;
+                    case '休息':
+                        statusClass = 'bg-gray-100 text-gray-800';
+                        break;
+                    default:
+                        statusClass = 'bg-yellow-100 text-yellow-800';
+                }
+
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${sheep.id}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sheep.breed}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sheep.gender}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sheep.age}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sheep.grade}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sheep.performance}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sheep.geneType}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                            ${sheep.status}
+                        </span>
+                    </td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // 筛选功能
+        function setupFilter() {
+            const filterBtn = document.getElementById('filter-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const filters = {
+                timeRange: document.getElementById('time-range'),
+                sheepBreed: document.getElementById('sheep-breed'),
+                breedingStage: document.getElementById('breeding-stage'),
+                sheepHouse: document.getElementById('sheep-house'),
+                geneType: document.getElementById('gene-type')
+            };
+
+            // 筛选按钮点击事件
+            filterBtn.addEventListener('click', function() {
+                // 获取筛选条件
+                const timeRange = filters.timeRange.value;
+                const sheepBreed = filters.sheepBreed.value;
+                const breedingStage = filters.breedingStage.value;
+                const sheepHouse = filters.sheepHouse.value;
+                const geneType = filters.geneType.value;
+
+                // 模拟根据筛选条件更新数据
+                console.log('应用筛选条件:', { timeRange, sheepBreed, breedingStage, sheepHouse, geneType });
+
+                // 这里应该是根据筛选条件从服务器获取数据的逻辑
+                // 为了演示，我们随机生成一些数据来模拟筛选结果
+
+                // 随机调整数据
+                const randomFactor = 0.8 + Math.random() * 0.4; // 0.8 到 1.2 之间的随机数
+
+                // 更新摘要数据
+                mockData.summary.totalSheep = Math.round(3000 + Math.random() * 1000);
+                mockData.summary.breedingSheep = Math.round(mockData.summary.totalSheep * (0.2 + Math.random() * 0.2));
+                mockData.summary.excellentSheep = Math.round(mockData.summary.breedingSheep * (0.3 + Math.random() * 0.2));
+                mockData.summary.geneTestCount = Math.round(mockData.summary.breedingSheep * (0.5 + Math.random() * 0.3));
+                mockData.summary.excellentGeneCarriers = Math.round(mockData.summary.geneTestCount * (0.3 + Math.random() * 0.3));
+
+                // 更新百分比数据
+                mockData.summary.matingSuccessRate = (60 + Math.random() * 30).toFixed(1) + '%';
+                mockData.summary.pedigreeCompleteness = (80 + Math.random() * 15).toFixed(1) + '%';
+
+                // 更新图表数据
+                mockData.performanceRanking.data = mockData.performanceRanking.data.map(value =>
+                    Math.round(value * (0.9 + Math.random() * 0.2))
+                );
+
+                mockData.breedingTrend.data = mockData.breedingTrend.data.map(value =>
+                    Math.round(value * (0.9 + Math.random() * 0.2))
+                );
+
+                mockData.matingSuccess.data = mockData.matingSuccess.data.map(value =>
+                    Math.round(value * (0.9 + Math.random() * 0.2))
+                );
+
+                // 如果筛选的是特定品种，调整品种对比数据
+                if (sheepBreed === 'meat') {
+                    mockData.breedComparison.meatSheep = mockData.breedComparison.meatSheep.map(value =>
+                        Math.min(100, Math.round(value * (1 + Math.random() * 0.1)))
+                    );
+                    mockData.breedComparison.woolSheep = mockData.breedComparison.woolSheep.map(value =>
+                        Math.round(value * (0.9 + Math.random() * 0.1))
+                    );
+                } else if (sheepBreed === 'wool') {
+                    mockData.breedComparison.woolSheep = mockData.breedComparison.woolSheep.map(value =>
+                        Math.min(100, Math.round(value * (1 + Math.random() * 0.1)))
+                    );
+                    mockData.breedComparison.meatSheep = mockData.breedComparison.meatSheep.map(value =>
+                        Math.round(value * (0.9 + Math.random() * 0.1))
+                    );
+                }
+
+                // 更新基因选育数据
+                mockData.geneBreedingEffect.data = mockData.geneBreedingEffect.data.map(value =>
+                    Math.round(value * (0.9 + Math.random() * 0.2))
+                );
+
+                // 随机调整基因分布
+                const total = 100;
+                const genes = mockData.geneDistribution.data.length;
+                const newDistribution = [];
+                let remaining = total;
+
+                for (let i = 0; i < genes - 1; i++) {
+                    const value = Math.round((remaining / (genes - i)) * (0.8 + Math.random() * 0.4));
+                    newDistribution.push(value);
+                    remaining -= value;
+                }
+
+                newDistribution.push(remaining);
+                mockData.geneDistribution.data = newDistribution;
+
+                // 如果筛选的是特定基因类型，突出显示该基因
+                if (geneType !== 'all') {
+                    const geneIndex = ['gene1', 'gene2', 'gene3', 'gene4', 'gene5'].indexOf(geneType);
+                    if (geneIndex >= 0 && geneIndex < newDistribution.length) {
+                        const extra = Math.round(newDistribution[geneIndex] * 0.2);
+                        newDistribution[geneIndex] += extra;
+
+                        // 从其他基因中减去这部分
+                        for (let i = 0; i < newDistribution.length; i++) {
+                            if (i !== geneIndex) {
+                                newDistribution[i] = Math.max(5, newDistribution[i] - Math.round(extra / (genes - 1)));
+                            }
+                        }
+
+                        // 重新计算总和并调整
+                        const newTotal = newDistribution.reduce((a, b) => a + b, 0);
+                        const adjustment = total - newTotal;
+
+                        if (adjustment !== 0) {
+                            newDistribution[genes - 1] += adjustment; // 调整最后一个基因
+                        }
+                    }
+                }
+
+                // 重新初始化所有图表
+                initCharts();
+
+                // 更新UI
+                updateSummaryCards();
+                updateSheepTable();
+
+                // 显示筛选成功提示
+                alert('筛选条件已应用');
+            });
+
+            // 重置按钮点击事件
+            resetBtn.addEventListener('click', function() {
+                // 重置所有筛选条件
+                Object.values(filters).forEach(filter => {
+                    filter.value = 'all';
+                });
+
+                // 重新加载原始数据
+                location.reload();
+            });
+        }
+
+        // 移动端菜单
+        function setupMobileMenu() {
+            const menuButton = document.getElementById('mobile-menu-button');
+            const closeButton = document.getElementById('mobile-menu-close');
+            const menu = document.getElementById('mobile-menu');
+            const overlay = document.getElementById('mobile-menu-overlay');
+
+            menuButton.addEventListener('click', function() {
+                menu.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            });
+
+            closeButton.addEventListener('click', function() {
+                menu.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            });
+
+            overlay.addEventListener('click', function() {
+                menu.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            });
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化图表
+            initCharts();
+
+            // 更新数据总览卡片
+            updateSummaryCards();
+
+            // 更新种羊列表表格
+            updateSheepTable();
+
+            // 设置筛选功能
+            setupFilter();
+
+            // 设置移动端菜单
+            setupMobileMenu();
+        });
+    </script>
+</body>
+</html>
