@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>羊只品种选育系统 - 羊只品种登记</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 统一的 Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb', // 主色调 - 专业蓝
+                        secondary: '#10b981', // 辅助色 - 成功绿
+                        accent: '#f59e0b', // 强调色 - 警告黄
+                        danger: '#ef4444', // 危险色 - 错误红
+                        dark: '#1e293b', // 深色
+                        light: '#f8fafc', // 浅色
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }
+            .transition-all {
+                transition: all 0.3s ease;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .form-input-focus {
+                @apply focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none;
+            }
+            .btn-primary {
+                @apply px-4 py-2 bg-primary text-white rounded-md hover:bg-blue-700 transition-all;
+            }
+            .btn-secondary {
+                @apply px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-all;
+            }
+            .btn-danger {
+                @apply px-4 py-2 bg-danger text-white rounded-md hover:bg-red-600 transition-all;
+            }
+            .btn-outline {
+                @apply px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-all;
+            }
+            .badge {
+                @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+            }
+            .badge-success {
+                @apply bg-green-100 text-green-800;
+            }
+            .badge-warning {
+                @apply bg-yellow-100 text-yellow-800;
+            }
+            .badge-danger {
+                @apply bg-red-100 text-red-800;
+            }
+            .badge-info {
+                @apply bg-blue-100 text-blue-800;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- 侧边栏 -->
+        <aside class="hidden md:flex md:flex-shrink-0">
+            <div class="flex flex-col w-64 bg-white border-r border-gray-200">
+                <div class="flex items-center justify-center h-16 px-4 border-b border-gray-200 bg-primary">
+                    <h2 class="text-xl font-bold text-white">羊只选育系统</h2>
+                </div>
+                <div class="flex flex-col flex-grow px-4 py-4 overflow-y-auto">
+                    <div class="flex flex-col flex-grow space-y-1">
+                        <a href="index.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-dashboard mr-3"></i>
+                            <span>选育看板</span>
+                        </a>
+                        <a href="sheepinfo.html" class="flex items-center px-4 py-3 text-gray-700 bg-gray-100 rounded-md">
+                            <i class="fa fa-users mr-3 text-gray-500 text-primary"></i>
+                            <span class="font-medium">羊群管理</span>
+                        </a>
+                        <a href="evaluation.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-line-chart mr-3 text-gray-500"></i>
+                            <span>选育评估</span>
+                        </a>
+                        <a href="mating.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-calendar mr-3 text-gray-500"></i>
+                            <span>配种管理</span>
+                        </a>
+                        <a href="pedigree.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-file-text mr-3 text-gray-500"></i>
+                            <span>系谱追溯</span>
+                        </a>
+                        <a href="gene-selection.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-file-text mr-3 text-gray-500"></i>
+                            <span>基因选育</span>
+                        </a>
+
+                        <a href="statistics.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-file-text mr-3 text-gray-500"></i>
+                            <span>选育数据统计分析</span>
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-cog mr-3 text-gray-500"></i>
+                            <span>系统设置</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <div class="flex flex-col flex-1 w-0 overflow-hidden">
+            <!-- 顶部导航栏 -->
+            <header class="z-10 py-4 bg-white shadow-sm">
+                <div class="flex items-center justify-between px-4 sm:px-6 lg:px-8">
+                    <div class="flex items-center md:hidden">
+                        <button type="button" class="text-gray-500 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary" id="mobile-menu-button">
+                            <i class="fa fa-bars text-xl"></i>
+                        </button>
+                    </div>
+                    <div class="flex items-center">
+                        <h1 class="text-xl font-semibold text-gray-800">羊群管理</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button type="button" class="text-gray-500 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                            <span class="sr-only">查看通知</span>
+                            <i class="fa fa-bell text-xl"></i>
+                            <span class="absolute top-3 right-3 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-danger rounded-full">3</span>
+                        </button>
+                        <div class="relative">
+                            <button type="button" class="flex items-center space-x-2 focus:outline-none">
+                                <img class="w-8 h-8 rounded-full" src="https://randomuser.me/api/portraits/men/1.jpg" alt="用户头像">
+                                <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+                                <i class="fa fa-chevron-down text-xs text-gray-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 移动端侧边栏 -->
+            <div class="fixed inset-0 z-40 hidden bg-gray-600 bg-opacity-75" id="mobile-menu-overlay"></div>
+            <div class="fixed inset-y-0 left-0 z-50 w-64 -translate-x-full bg-white shadow-xl" id="mobile-menu">
+                <div class="flex items-center justify-between h-16 px-4 border-b border-gray-200 bg-primary">
+                    <h2 class="text-xl font-bold text-white">羊只选育系统</h2>
+                    <button type="button" class="text-white hover:text-gray-200 focus:outline-none" id="mobile-menu-close">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div class="px-4 py-4 overflow-y-auto">
+                    <div class="space-y-1">
+                        <a href="index.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-dashboard mr-3 text-gray-500"></i>
+                            <span>选育看板</span>
+                        </a>
+                        <a href="registration.html" class="flex items-center px-4 py-3 text-gray-700 bg-gray-100 rounded-md">
+                            <i class="fa fa-dna mr-3 text-gray-500"></i>
+                            <span class="font-medium">羊群管理</span>
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-line-chart mr-3 text-gray-500"></i>
+                            <span>选育分析</span>
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-dna mr-3 text-gray-500"></i>
+                            <span>基因选育</span>
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-calendar mr-3 text-gray-500"></i>
+                            <span>配种管理</span>
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-file-text mr-3 text-gray-500"></i>
+                            <span>系谱管理</span>
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-cog mr-3 text-gray-500"></i>
+                            <span>系统设置</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 主内容 -->
+            <main class="flex-1 overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
+                <!-- 操作按钮区 -->
+                <div class="flex flex-wrap items-center justify-between mb-6 gap-2">
+                    <div class="flex items-center space-x-2">
+                        <button type="button" class="btn-primary flex items-center" id="add-sheep-btn">
+                            <i class="fa fa-plus mr-2"></i>
+                            <span>新增羊只</span>
+                        </button>
+                        <button type="button" class="btn-outline flex items-center" id="batch-import-btn">
+                            <i class="fa fa-upload mr-2"></i>
+                            <span>批量导入</span>
+                        </button>
+                        <button type="button" class="btn-outline flex items-center" id="export-template-btn">
+                            <i class="fa fa-download mr-2"></i>
+                            <span>导出模板</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button type="button" class="btn-danger flex items-center" id="batch-delete-btn" disabled>
+                            <i class="fa fa-trash mr-2"></i>
+                            <span>批量删除</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 搜索与筛选区 -->
+                <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                        <div class="col-span-1 md:col-span-2">
+                            <label for="search-text" class="block text-sm font-medium text-gray-700 mb-1">搜索</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fa fa-search text-gray-400"></i>
+                                </div>
+                                <input type="text" id="search-text" name="search-text" placeholder="羊只编号、品种名称" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="filter-breed-type" class="block text-sm font-medium text-gray-700 mb-1">品种类型</label>
+                            <select id="filter-breed-type" name="filter-breed-type" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                <option value="all">全部</option>
+                                <option value="meat">肉羊</option>
+                                <option value="wool">绒羊</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="filter-gender" class="block text-sm font-medium text-gray-700 mb-1">性别</label>
+                            <select id="filter-gender" name="filter-gender" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                <option value="all">全部</option>
+                                <option value="male">公</option>
+                                <option value="female">母</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="filter-health" class="block text-sm font-medium text-gray-700 mb-1">健康状况</label>
+                            <select id="filter-health" name="filter-health" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                <option value="all">全部</option>
+                                <option value="healthy">健康</option>
+                                <option value="abnormal">异常</option>
+                                <option value="pending">待检查</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="filter-gene-test" class="block text-sm font-medium text-gray-700 mb-1">基因检测</label>
+                            <select id="filter-gene-test" name="filter-gene-test" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                <option value="all">全部</option>
+                                <option value="tested">已检测</option>
+                                <option value="untested">未检测</option>
+                            </select>
+                        </div>
+                        <div class="col-span-1 md:col-span-5 flex justify-end space-x-2 pt-4">
+                            <button type="button" class="btn-secondary" id="reset-filter-btn">
+                                重置
+                            </button>
+                            <button type="button" class="btn-primary" id="search-btn">
+                                搜索
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 羊只列表表格区 -->
+                <div class="bg-white shadow-sm rounded-lg overflow-hidden mb-6">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <div class="flex items-center">
+                                            <input id="select-all" name="select-all" type="checkbox" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                                            <label for="select-all" class="sr-only">选择所有</label>
+                                        </div>
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        羊只编号
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        品种类型
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        品种名称
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        出生日期
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        性别
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        体重(kg)
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        体高(cm)
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        毛色
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        生产数据
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        来源
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        健康状况
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        所属羊舍
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        基因检测
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        登记时间
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        操作
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="sheep-table-body">
+                                <!-- 表格数据将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                        <div class="flex-1 flex justify-between sm:hidden">
+                            <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                上一页
+                            </a>
+                            <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                下一页
+                            </a>
+                        </div>
+                        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                            <div>
+                                <p class="text-sm text-gray-700">
+                                    显示 <span class="font-medium">1</span> 到 <span class="font-medium">10</span> 条，共 <span class="font-medium">28</span> 条记录
+                                </p>
+                            </div>
+                            <div>
+                                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                    <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <span class="sr-only">上一页</span>
+                                        <i class="fa fa-chevron-left"></i>
+                                    </a>
+                                    <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-primary text-sm font-medium text-white">
+                                        1
+                                    </a>
+                                    <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                        2
+                                    </a>
+                                    <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                        3
+                                    </a>
+                                    <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <span class="sr-only">下一页</span>
+                                        <i class="fa fa-chevron-right"></i>
+                                    </a>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 新增/编辑羊只模态框 -->
+    <div class="fixed inset-0 z-50 hidden overflow-y-auto" id="sheep-modal">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" id="modal-title">
+                                新增羊只
+                            </h3>
+                            <div class="mt-2">
+                                <form id="sheep-form">
+                                    <input type="hidden" id="sheep-id" value="">
+
+                                    <!-- 基础信息区 -->
+                                    <div class="mb-6">
+                                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">基础信息</h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label for="sheep-code" class="block text-sm font-medium text-gray-700 mb-1">羊只编号</label>
+                                                <input type="text" id="sheep-code" name="sheep-code" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" readonly>
+                                            </div>
+                                            <div>
+                                                <label for="sheep-breed-type" class="block text-sm font-medium text-gray-700 mb-1">品种类型 <span class="text-danger">*</span></label>
+                                                <select id="sheep-breed-type" name="sheep-breed-type" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                                    <option value="">请选择</option>
+                                                    <option value="meat">肉羊</option>
+                                                    <option value="wool">绒羊</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label for="sheep-breed-name" class="block text-sm font-medium text-gray-700 mb-1">品种名称 <span class="text-danger">*</span></label>
+                                                <select id="sheep-breed-name" name="sheep-breed-name" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                                    <option value="">请选择品种类型</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label for="sheep-birth-date" class="block text-sm font-medium text-gray-700 mb-1">出生日期 <span class="text-danger">*</span></label>
+                                                <input type="date" id="sheep-birth-date" name="sheep-birth-date" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                            </div>
+                                            <div>
+                                                <label for="sheep-gender" class="block text-sm font-medium text-gray-700 mb-1">性别 <span class="text-danger">*</span></label>
+                                                <select id="sheep-gender" name="sheep-gender" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                                    <option value="">请选择</option>
+                                                    <option value="male">公</option>
+                                                    <option value="female">母</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label for="sheep-weight" class="block text-sm font-medium text-gray-700 mb-1">体重 (kg) <span class="text-danger">*</span></label>
+                                                <input type="number" id="sheep-weight" name="sheep-weight" step="0.1" min="0" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                            </div>
+                                            <div>
+                                                <label for="sheep-height" class="block text-sm font-medium text-gray-700 mb-1">体高 (cm) <span class="text-danger">*</span></label>
+                                                <input type="number" id="sheep-height" name="sheep-height" step="0.1" min="0" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                            </div>
+                                            <div>
+                                                <label for="sheep-color" class="block text-sm font-medium text-gray-700 mb-1">毛色 <span class="text-danger">*</span></label>
+                                                <select id="sheep-color" name="sheep-color" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                                    <option value="">请选择</option>
+                                                    <option value="white">白色</option>
+                                                    <option value="black">黑色</option>
+                                                    <option value="brown">棕色</option>
+                                                    <option value="spotted">花色</option>
+                                                    <option value="other">其他</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 生产性能区 -->
+                                    <div class="mb-6">
+                                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">生产性能数据</h4>
+
+                                        <!-- 肉羊生产性能 -->
+                                        <div id="meat-sheep-data" class="grid grid-cols-1 md:grid-cols-3 gap-4 hidden">
+                                            <div>
+                                                <label for="sheep-birth-weight" class="block text-sm font-medium text-gray-700 mb-1">初生重 (kg)</label>
+                                                <input type="number" id="sheep-birth-weight" name="sheep-birth-weight" step="0.1" min="0" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                            <div>
+                                                <label for="sheep-weaning-weight" class="block text-sm font-medium text-gray-700 mb-1">断奶重 (kg)</label>
+                                                <input type="number" id="sheep-weaning-weight" name="sheep-weaning-weight" step="0.1" min="0" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                            <div>
+                                                <label for="sheep-daily-gain" class="block text-sm font-medium text-gray-700 mb-1">日增重 (g)</label>
+                                                <input type="number" id="sheep-daily-gain" name="sheep-daily-gain" step="1" min="0" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                        </div>
+
+                                        <!-- 绒羊生产性能 -->
+                                        <div id="wool-sheep-data" class="grid grid-cols-1 md:grid-cols-3 gap-4 hidden">
+                                            <div>
+                                                <label for="sheep-wool-length" class="block text-sm font-medium text-gray-700 mb-1">绒长 (cm)</label>
+                                                <input type="number" id="sheep-wool-length" name="sheep-wool-length" step="0.1" min="0" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                            <div>
+                                                <label for="sheep-wool-fineness" class="block text-sm font-medium text-gray-700 mb-1">绒细度 (μm)</label>
+                                                <input type="number" id="sheep-wool-fineness" name="sheep-wool-fineness" step="0.1" min="0" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                            <div>
+                                                <label for="sheep-wool-production" class="block text-sm font-medium text-gray-700 mb-1">产绒量 (kg)</label>
+                                                <input type="number" id="sheep-wool-production" name="sheep-wool-production" step="0.1" min="0" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 来源信息区 -->
+                                    <div class="mb-6">
+                                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">来源信息</h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label for="sheep-source" class="block text-sm font-medium text-gray-700 mb-1">来源 <span class="text-danger">*</span></label>
+                                                <select id="sheep-source" name="sheep-source" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                                    <option value="">请选择</option>
+                                                    <option value="self">自繁</option>
+                                                    <option value="intro">引种</option>
+                                                </select>
+                                            </div>
+                                            <div id="origin-field" class="hidden">
+                                                <label for="sheep-origin" class="block text-sm font-medium text-gray-700 mb-1">引种产地</label>
+                                                <input type="text" id="sheep-origin" name="sheep-origin" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                            <div>
+                                                <label for="sheep-quarantine" class="block text-sm font-medium text-gray-700 mb-1">检疫情况</label>
+                                                <input type="text" id="sheep-quarantine" name="sheep-quarantine" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                            <div>
+                                                <label for="sheep-health" class="block text-sm font-medium text-gray-700 mb-1">健康状况 <span class="text-danger">*</span></label>
+                                                <select id="sheep-health" name="sheep-health" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                                    <option value="">请选择</option>
+                                                    <option value="healthy">健康</option>
+                                                    <option value="abnormal">异常</option>
+                                                    <option value="pending">待检查</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label for="sheep-farm" class="block text-sm font-medium text-gray-700 mb-1">所属羊场 <span class="text-danger">*</span></label>
+                                                <select id="sheep-farm" name="sheep-farm" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                                    <option value="">请选择</option>
+                                                    <option value="farm1">第一羊场</option>
+                                                    <option value="farm2">第二羊场</option>
+                                                    <option value="farm3">第三羊场</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label for="sheep-house" class="block text-sm font-medium text-gray-700 mb-1">所属羊舍 <span class="text-danger">*</span></label>
+                                                <select id="sheep-house" name="sheep-house" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                                    <option value="">请选择</option>
+                                                    <option value="house1">羊舍1</option>
+                                                    <option value="house2">羊舍2</option>
+                                                    <option value="house3">羊舍3</option>
+                                                    <option value="house4">羊舍4</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label for="sheep-manager" class="block text-sm font-medium text-gray-700 mb-1">负责人</label>
+                                                <input type="text" id="sheep-manager" name="sheep-manager" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 基因信息区 -->
+                                    <div class="mb-6">
+                                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">基因信息</h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label for="sheep-gene-test" class="block text-sm font-medium text-gray-700 mb-1">是否进行基因检测 <span class="text-danger">*</span></label>
+                                                <select id="sheep-gene-test" name="sheep-gene-test" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                                    <option value="">请选择</option>
+                                                    <option value="true">是</option>
+                                                    <option value="false">否</option>
+                                                </select>
+                                            </div>
+                                            <div id="gene-test-id-field" class="hidden">
+                                                <label for="sheep-gene-test-id" class="block text-sm font-medium text-gray-700 mb-1">基因检测编号</label>
+                                                <input type="text" id="sheep-gene-test-id" name="sheep-gene-test-id" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                            <div id="gene-types-field" class="col-span-1 md:col-span-2 hidden">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">核心基因类型</label>
+                                                <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                                    <div class="flex items-center">
+                                                        <input id="gene-type1" name="gene-type" type="checkbox" value="high-production" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                                                        <label for="gene-type1" class="ml-2 block text-sm text-gray-700">高产基因</label>
+                                                    </div>
+                                                    <div class="flex items-center">
+                                                        <input id="gene-type2" name="gene-type" type="checkbox" value="disease-resistance" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                                                        <label for="gene-type2" class="ml-2 block text-sm text-gray-700">抗病基因</label>
+                                                    </div>
+                                                    <div class="flex items-center">
+                                                        <input id="gene-type3" name="gene-type" type="checkbox" value="quality-meat" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                                                        <label for="gene-type3" class="ml-2 block text-sm text-gray-700">优质肉基因</label>
+                                                    </div>
+                                                    <div class="flex items-center">
+                                                        <input id="gene-type4" name="gene-type" type="checkbox" value="quality-wool" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                                                        <label for="gene-type4" class="ml-2 block text-sm text-gray-700">优质绒基因</label>
+                                                    </div>
+                                                    <div class="flex items-center">
+                                                        <input id="gene-type5" name="gene-type" type="checkbox" value="stress-resistance" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                                                        <label for="gene-type5" class="ml-2 block text-sm text-gray-700">抗逆基因</label>
+                                                    </div>
+                                                    <div class="flex items-center">
+                                                        <input id="gene-type6" name="gene-type" type="checkbox" value="early-maturity" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                                                        <label for="gene-type6" class="ml-2 block text-sm text-gray-700">早熟基因</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 其他信息区 -->
+                                    <div class="mb-6">
+                                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">其他信息</h4>
+                                        <div>
+                                            <label for="sheep-remarks" class="block text-sm font-medium text-gray-700 mb-1">备注</label>
+                                            <textarea id="sheep-remarks" name="sheep-remarks" rows="3" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus"></textarea>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm" id="save-sheep-btn">
+                        保存
+                    </button>
+                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" id="cancel-sheep-btn">
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 批量导入模态框 -->
+    <div class="fixed inset-0 z-50 hidden overflow-y-auto" id="import-modal">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                                批量导入羊只信息
+                            </h3>
+                            <div class="mt-2">
+                                <div class="mb-4">
+                                    <p class="text-sm text-gray-600 mb-2">请按照以下步骤进行批量导入：</p>
+                                    <ol class="list-decimal list-inside text-sm text-gray-600 space-y-1">
+                                        <li>下载导入模板</li>
+                                        <li>按照模板格式填写羊只信息</li>
+                                        <li>上传填写好的Excel文件</li>
+                                        <li>点击"导入"按钮完成导入</li>
+                                    </ol>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="flex items-center justify-center w-full">
+                                        <label for="file-upload" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+                                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                                <i class="fa fa-cloud-upload text-3xl text-gray-400 mb-2"></i>
+                                                <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">点击上传</span> 或拖放文件</p>
+                                                <p class="text-xs text-gray-500 dark:text-gray-400">支持 Excel 文件 (最大 10MB)</p>
+                                            </div>
+                                            <input id="file-upload" type="file" class="hidden" accept=".xlsx,.xls">
+                                        </label>
+                                    </div>
+                                    <div id="file-name" class="mt-2 text-sm text-gray-600 hidden"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm" id="import-btn">
+                        导入
+                    </button>
+                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" id="cancel-import-btn">
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 确认删除模态框 -->
+    <div class="fixed inset-0 z-50 hidden overflow-y-auto" id="confirm-delete-modal">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <i class="fa fa-exclamation-triangle text-red-600"></i>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="delete-modal-title">
+                                确认删除
+                            </h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500" id="delete-confirm-text">
+                                    您确定要删除选中的羊只信息吗？此操作不可撤销。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-danger text-base font-medium text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm" id="confirm-delete-btn">
+                        确认删除
+                    </button>
+                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" id="cancel-delete-btn">
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟数据
+        const mockSheepData = [
+            {
+                id: '1',
+                code: 'S20230001',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '杜泊羊',
+                birthDate: '2023-01-15',
+                gender: 'male',
+                genderText: '公',
+                weight: 65.5,
+                height: 75.0,
+                color: 'white',
+                colorText: '白色',
+                productionData: {
+                    birthWeight: 4.2,
+                    weaningWeight: 28.5,
+                    dailyGain: 320
+                },
+                source: 'self',
+                sourceText: '自繁',
+                quarantine: '正常',
+                healthStatus: 'healthy',
+                healthStatusText: '健康',
+                farm: 'farm1',
+                farmText: '第一羊场',
+                house: 'house1',
+                houseText: '羊舍1',
+                manager: '张三',
+                geneTest: true,
+                geneTestId: 'GT20230001',
+                geneTypes: ['high-production', 'quality-meat'],
+                geneTypesText: '高产基因, 优质肉基因',
+                remarks: '种公羊，生产性能优秀',
+                registrationTime: '2023-01-16 10:30:00',
+                updateTime: '2023-06-15 14:20:00'
+            },
+            {
+                id: '2',
+                code: 'S20230002',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '湖羊',
+                birthDate: '2023-02-05',
+                gender: 'female',
+                genderText: '母',
+                weight: 52.3,
+                height: 68.5,
+                color: 'white',
+                colorText: '白色',
+                productionData: {
+                    birthWeight: 3.8,
+                    weaningWeight: 25.2,
+                    dailyGain: 280
+                },
+                source: 'intro',
+                sourceText: '引种',
+                origin: '江苏苏州',
+                quarantine: '正常',
+                healthStatus: 'healthy',
+                healthStatusText: '健康',
+                farm: 'farm1',
+                farmText: '第一羊场',
+                house: 'house2',
+                houseText: '羊舍2',
+                manager: '李四',
+                geneTest: true,
+                geneTestId: 'GT20230002',
+                geneTypes: ['high-production'],
+                geneTypesText: '高产基因',
+                remarks: '繁殖母羊',
+                registrationTime: '2023-02-06 09:15:00',
+                updateTime: '2023-06-10 11:05:00'
+            },
+            {
+                id: '3',
+                code: 'S20230003',
+                breedType: 'wool',
+                breedTypeText: '绒羊',
+                breedName: '内蒙古绒山羊',
+                birthDate: '2023-01-20',
+                gender: 'male',
+                genderText: '公',
+                weight: 45.8,
+                height: 65.2,
+                color: 'white',
+                colorText: '白色',
+                productionData: {
+                    woolLength: 8.5,
+                    woolFineness: 14.5,
+                    woolProduction: 0.85
+                },
+                source: 'self',
+                sourceText: '自繁',
+                quarantine: '正常',
+                healthStatus: 'healthy',
+                healthStatusText: '健康',
+                farm: 'farm2',
+                farmText: '第二羊场',
+                house: 'house3',
+                houseText: '羊舍3',
+                manager: '王五',
+                geneTest: true,
+                geneTestId: 'GT20230003',
+                geneTypes: ['quality-wool'],
+                geneTypesText: '优质绒基因',
+                remarks: '种公羊，绒质优良',
+                registrationTime: '2023-01-21 13:45:00',
+                updateTime: '2023-06-12 09:30:00'
+            },
+            {
+                id: '4',
+                code: 'S20230004',
+                breedType: 'wool',
+                breedTypeText: '绒羊',
+                breedName: '辽宁绒山羊',
+                birthDate: '2023-02-10',
+                gender: 'female',
+                genderText: '母',
+                weight: 38.5,
+                height: 62.0,
+                color: 'white',
+                colorText: '白色',
+                productionData: {
+                    woolLength: 7.8,
+                    woolFineness: 15.2,
+                    woolProduction: 0.75
+                },
+                source: 'intro',
+                sourceText: '引种',
+                origin: '辽宁丹东',
+                quarantine: '正常',
+                healthStatus: 'pending',
+                healthStatusText: '待检查',
+                farm: 'farm2',
+                farmText: '第二羊场',
+                house: 'house4',
+                houseText: '羊舍4',
+                manager: '赵六',
+                geneTest: false,
+                remarks: '新引种母羊，待检疫',
+                registrationTime: '2023-02-11 16:20:00',
+                updateTime: '2023-02-11 16:20:00'
+            },
+            {
+                id: '5',
+                code: 'S20230005',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '小尾寒羊',
+                birthDate: '2023-03-01',
+                gender: 'female',
+                genderText: '母',
+                weight: 48.2,
+                height: 66.8,
+                color: 'white',
+                colorText: '白色',
+                productionData: {
+                    birthWeight: 4.0,
+                    weaningWeight: 26.8,
+                    dailyGain: 300
+                },
+                source: 'self',
+                sourceText: '自繁',
+                quarantine: '正常',
+                healthStatus: 'healthy',
+                healthStatusText: '健康',
+                farm: 'farm1',
+                farmText: '第一羊场',
+                house: 'house2',
+                houseText: '羊舍2',
+                manager: '李四',
+                geneTest: true,
+                geneTestId: 'GT20230005',
+                geneTypes: ['high-production', 'disease-resistance'],
+                geneTypesText: '高产基因, 抗病基因',
+                remarks: '繁殖母羊，多胎性能好',
+                registrationTime: '2023-03-02 10:10:00',
+                updateTime: '2023-06-08 15:40:00'
+            },
+            {
+                id: '6',
+                code: 'S20230006',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '萨福克羊',
+                birthDate: '2023-02-25',
+                gender: 'male',
+                genderText: '公',
+                weight: 72.6,
+                height: 78.5,
+                color: 'black',
+                colorText: '黑色',
+                productionData: {
+                    birthWeight: 4.5,
+                    weaningWeight: 30.2,
+                    dailyGain: 350
+                },
+                source: 'intro',
+                sourceText: '引种',
+                origin: '澳大利亚',
+                quarantine: '正常',
+                healthStatus: 'healthy',
+                healthStatusText: '健康',
+                farm: 'farm1',
+                farmText: '第一羊场',
+                house: 'house1',
+                houseText: '羊舍1',
+                manager: '张三',
+                geneTest: true,
+                geneTestId: 'GT20230006',
+                geneTypes: ['quality-meat', 'early-maturity'],
+                geneTypesText: '优质肉基因, 早熟基因',
+                remarks: '进口种公羊，生长速度快',
+                registrationTime: '2023-03-05 14:30:00',
+                updateTime: '2023-06-18 11:25:00'
+            },
+            {
+                id: '7',
+                code: 'S20230007',
+                breedType: 'wool',
+                breedTypeText: '绒羊',
+                breedName: '河西绒山羊',
+                birthDate: '2023-03-10',
+                gender: 'female',
+                genderText: '母',
+                weight: 36.2,
+                height: 60.5,
+                color: 'brown',
+                colorText: '棕色',
+                productionData: {
+                    woolLength: 7.2,
+                    woolFineness: 16.0,
+                    woolProduction: 0.65
+                },
+                source: 'self',
+                sourceText: '自繁',
+                quarantine: '正常',
+                healthStatus: 'abnormal',
+                healthStatusText: '异常',
+                farm: 'farm2',
+                farmText: '第二羊场',
+                house: 'house4',
+                houseText: '羊舍4',
+                manager: '赵六',
+                geneTest: false,
+                remarks: '有轻微皮肤病，正在治疗',
+                registrationTime: '2023-03-11 09:20:00',
+                updateTime: '2023-06-20 16:10:00'
+            },
+            {
+                id: '8',
+                code: 'S20230008',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '夏洛莱羊',
+                birthDate: '2023-03-15',
+                gender: 'male',
+                genderText: '公',
+                weight: 68.8,
+                height: 76.2,
+                color: 'white',
+                colorText: '白色',
+                productionData: {
+                    birthWeight: 4.3,
+                    weaningWeight: 29.0,
+                    dailyGain: 330
+                },
+                source: 'intro',
+                sourceText: '引种',
+                origin: '法国',
+                quarantine: '正常',
+                healthStatus: 'healthy',
+                healthStatusText: '健康',
+                farm: 'farm1',
+                farmText: '第一羊场',
+                house: 'house1',
+                houseText: '羊舍1',
+                manager: '张三',
+                geneTest: true,
+                geneTestId: 'GT20230008',
+                geneTypes: ['quality-meat', 'disease-resistance'],
+                geneTypesText: '优质肉基因, 抗病基因',
+                remarks: '进口种公羊，肉质优良',
+                registrationTime: '2023-03-16 11:45:00',
+                updateTime: '2023-06-12 09:30:00'
+            },
+            {
+                id: '9',
+                code: 'S20230009',
+                breedType: 'wool',
+                breedTypeText: '绒羊',
+                breedName: '新疆绒山羊',
+                birthDate: '2023-03-20',
+                gender: 'female',
+                genderText: '母',
+                weight: 40.5,
+                height: 63.8,
+                color: 'spotted',
+                colorText: '花色',
+                productionData: {
+                    woolLength: 8.0,
+                    woolFineness: 15.5,
+                    woolProduction: 0.78
+                },
+                source: 'self',
+                sourceText: '自繁',
+                quarantine: '正常',
+                healthStatus: 'healthy',
+                healthStatusText: '健康',
+                farm: 'farm2',
+                farmText: '第二羊场',
+                house: 'house3',
+                houseText: '羊舍3',
+                manager: '王五',
+                geneTest: true,
+                geneTestId: 'GT20230009',
+                geneTypes: ['quality-wool', 'stress-resistance'],
+                geneTypesText: '优质绒基因, 抗逆基因',
+                remarks: '繁殖母羊，适应性强',
+                registrationTime: '2023-03-21 15:20:00',
+                updateTime: '2023-06-15 14:20:00'
+            },
+            {
+                id: '10',
+                code: 'S20230010',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '杜泊羊',
+                birthDate: '2023-04-01',
+                gender: 'female',
+                genderText: '母',
+                weight: 49.8,
+                height: 67.5,
+                color: 'white',
+                colorText: '白色',
+                productionData: {
+                    birthWeight: 4.1,
+                    weaningWeight: 27.2,
+                    dailyGain: 290
+                },
+                source: 'self',
+                sourceText: '自繁',
+                quarantine: '正常',
+                healthStatus: 'pending',
+                healthStatusText: '待检查',
+                farm: 'farm1',
+                farmText: '第一羊场',
+                house: 'house2',
+                houseText: '羊舍2',
+                manager: '李四',
+                geneTest: false,
+                remarks: '后备母羊，待基因检测',
+                registrationTime: '2023-04-02 10:05:00',
+                updateTime: '2023-04-02 10:05:00'
+            }
+        ];
+
+        // 品种数据
+        const breedData = {
+            meat: [
+                { value: 'dubbo', text: '杜泊羊' },
+                { value: 'hu', text: '湖羊' },
+                { value: 'xiaowei', text: '小尾寒羊' },
+                { value: 'suffolk', text: '萨福克羊' },
+                { value: 'charolais', text: '夏洛莱羊' }
+            ],
+            wool: [
+                { value: 'inner-mongolia', text: '内蒙古绒山羊' },
+                { value: 'liaoning', text: '辽宁绒山羊' },
+                { value: 'hexi', text: '河西绒山羊' },
+                { value: 'xinjiang', text: '新疆绒山羊' }
+            ]
+        };
+
+        // 基因类型数据
+        const geneTypeData = {
+            'high-production': '高产基因',
+            'disease-resistance': '抗病基因',
+            'quality-meat': '优质肉基因',
+            'quality-wool': '优质绒基因',
+            'stress-resistance': '抗逆基因',
+            'early-maturity': '早熟基因'
+        };
+
+        // 当前编辑的羊只ID
+        let currentEditId = null;
+
+        // 当前选中的羊只ID列表
+        let selectedIds = [];
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化表格
+            updateSheepTable();
+
+            // 设置事件监听
+            setupEventListeners();
+        });
+
+        // 更新羊只列表表格
+        function updateSheepTable() {
+            const tableBody = document.getElementById('sheep-table-body');
+            tableBody.innerHTML = '';
+
+            mockSheepData.forEach(sheep => {
+                const row = document.createElement('tr');
+
+                // 设置健康状况标签的样式
+                let healthBadgeClass = '';
+                switch(sheep.healthStatus) {
+                    case 'healthy':
+                        healthBadgeClass = 'badge-success';
+                        break;
+                    case 'abnormal':
+                        healthBadgeClass = 'badge-danger';
+                        break;
+                    case 'pending':
+                        healthBadgeClass = 'badge-warning';
+                        break;
+                }
+
+                // 设置基因检测标签的样式
+                let geneTestBadgeClass = sheep.geneTest ? 'badge-success' : 'badge-warning';
+                let geneTestText = sheep.geneTest ? '已检测' : '未检测';
+
+                // 生产数据显示
+                let productionDataText = '';
+                if (sheep.breedType === 'meat') {
+                    productionDataText = `初生重: ${sheep.productionData.birthWeight}kg`;
+                } else if (sheep.breedType === 'wool') {
+                    productionDataText = `绒长: ${sheep.productionData.woolLength}cm`;
+                }
+
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <input id="select-${sheep.id}" name="select-sheep" type="checkbox" value="${sheep.id}" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded sheep-checkbox">
+                            <label for="select-${sheep.id}" class="sr-only">选择 ${sheep.code}</label>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${sheep.code}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sheep.breedTypeText}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sheep.breedName}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sheep.birthDate}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sheep.genderText}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sheep.weight}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sheep.height}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sheep.colorText}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${productionDataText}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sheep.sourceText}${sheep.origin ? ` (${sheep.origin})` : ''}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="badge ${healthBadgeClass}">${sheep.healthStatusText}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sheep.houseText}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="badge ${geneTestBadgeClass}">${geneTestText}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sheep.registrationTime}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button type="button" class="text-primary hover:text-blue-800 mr-3 edit-sheep-btn" data-id="${sheep.id}">
+                            <i class="fa fa-pencil"></i> 编辑
+                        </button>
+                        <button type="button" class="text-danger hover:text-red-800 delete-sheep-btn" data-id="${sheep.id}">
+                            <i class="fa fa-trash"></i> 删除
+                        </button>
+                    </td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+
+            // 重新绑定表格中的按钮事件
+            bindTableButtonEvents();
+        }
+
+        // 设置事件监听
+        function setupEventListeners() {
+            // 移动端菜单
+            document.getElementById('mobile-menu-button').addEventListener('click', function() {
+                document.getElementById('mobile-menu').classList.remove('-translate-x-full');
+                document.getElementById('mobile-menu-overlay').classList.remove('hidden');
+            });
+
+            document.getElementById('mobile-menu-close').addEventListener('click', function() {
+                document.getElementById('mobile-menu').classList.add('-translate-x-full');
+                document.getElementById('mobile-menu-overlay').classList.add('hidden');
+            });
+
+            document.getElementById('mobile-menu-overlay').addEventListener('click', function() {
+                document.getElementById('mobile-menu').classList.add('-translate-x-full');
+                document.getElementById('mobile-menu-overlay').classList.add('hidden');
+            });
+
+            // 新增羊只按钮
+            document.getElementById('add-sheep-btn').addEventListener('click', function() {
+                openAddSheepModal();
+            });
+
+            // 批量导入按钮
+            document.getElementById('batch-import-btn').addEventListener('click', function() {
+                document.getElementById('import-modal').classList.remove('hidden');
+            });
+
+            // 导出模板按钮
+            document.getElementById('export-template-btn').addEventListener('click', function() {
+                alert('模板导出功能将在实际系统中实现');
+            });
+
+            // 批量删除按钮
+            document.getElementById('batch-delete-btn').addEventListener('click', function() {
+                if (selectedIds.length > 0) {
+                    document.getElementById('delete-confirm-text').textContent = `您确定要删除选中的 ${selectedIds.length} 只羊只信息吗？此操作不可撤销。`;
+                    document.getElementById('confirm-delete-modal').classList.remove('hidden');
+                } else {
+                    alert('请先选择要删除的羊只');
+                }
+            });
+
+            // 搜索按钮
+            document.getElementById('search-btn').addEventListener('click', function() {
+                // 实际系统中这里会根据搜索条件过滤数据
+                alert('搜索功能将在实际系统中实现');
+            });
+
+            // 重置筛选按钮
+            document.getElementById('reset-filter-btn').addEventListener('click', function() {
+                document.getElementById('search-text').value = '';
+                document.getElementById('filter-breed-type').value = 'all';
+                document.getElementById('filter-gender').value = 'all';
+                document.getElementById('filter-health').value = 'all';
+                document.getElementById('filter-gene-test').value = 'all';
+            });
+
+            // 保存羊只按钮
+            document.getElementById('save-sheep-btn').addEventListener('click', function() {
+                saveSheep();
+            });
+
+            // 取消保存按钮
+            document.getElementById('cancel-sheep-btn').addEventListener('click', function() {
+                document.getElementById('sheep-modal').classList.add('hidden');
+            });
+
+            // 导入按钮
+            document.getElementById('import-btn').addEventListener('click', function() {
+                const fileName = document.getElementById('file-name').textContent;
+                if (fileName) {
+                    alert(`正在导入文件: ${fileName}\n导入功能将在实际系统中实现`);
+                    document.getElementById('import-modal').classList.add('hidden');
+                } else {
+                    alert('请先选择要导入的文件');
+                }
+            });
+
+            // 取消导入按钮
+            document.getElementById('cancel-import-btn').addEventListener('click', function() {
+                document.getElementById('import-modal').classList.add('hidden');
+            });
+
+            // 确认删除按钮
+            document.getElementById('confirm-delete-btn').addEventListener('click', function() {
+                deleteSheep(selectedIds);
+                document.getElementById('confirm-delete-modal').classList.add('hidden');
+            });
+
+            // 取消删除按钮
+            document.getElementById('cancel-delete-btn').addEventListener('click', function() {
+                document.getElementById('confirm-delete-modal').classList.add('hidden');
+            });
+
+            // 文件上传
+            document.getElementById('file-upload').addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    document.getElementById('file-name').textContent = e.target.files[0].name;
+                    document.getElementById('file-name').classList.remove('hidden');
+                }
+            });
+
+            // 全选复选框
+            document.getElementById('select-all').addEventListener('change', function() {
+                const isChecked = this.checked;
+                document.querySelectorAll('.sheep-checkbox').forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                });
+                updateSelectedIds();
+            });
+
+            // 品种类型选择变化
+            document.getElementById('sheep-breed-type').addEventListener('change', function() {
+                updateBreedNameOptions();
+                updateProductionDataFields();
+            });
+
+            // 来源选择变化
+            document.getElementById('sheep-source').addEventListener('change', function() {
+                const originField = document.getElementById('origin-field');
+                if (this.value === 'intro') {
+                    originField.classList.remove('hidden');
+                } else {
+                    originField.classList.add('hidden');
+                    document.getElementById('sheep-origin').value = '';
+                }
+            });
+
+            // 基因检测选择变化
+            document.getElementById('sheep-gene-test').addEventListener('change', function() {
+                const geneTestIdField = document.getElementById('gene-test-id-field');
+                const geneTypesField = document.getElementById('gene-types-field');
+
+                if (this.value === 'true') {
+                    geneTestIdField.classList.remove('hidden');
+                    geneTypesField.classList.remove('hidden');
+                } else {
+                    geneTestIdField.classList.add('hidden');
+                    geneTypesField.classList.add('hidden');
+                    document.getElementById('sheep-gene-test-id').value = '';
+                    document.querySelectorAll('input[name="gene-type"]').forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                }
+            });
+        }
+
+        // 绑定表格中的按钮事件
+        function bindTableButtonEvents() {
+            // 编辑按钮
+            document.querySelectorAll('.edit-sheep-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    openEditSheepModal(id);
+                });
+            });
+
+            // 删除按钮
+            document.querySelectorAll('.delete-sheep-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    document.getElementById('delete-confirm-text').textContent = `您确定要删除羊只 ${getSheepCodeById(id)} 的信息吗？此操作不可撤销。`;
+                    selectedIds = [id];
+                    document.getElementById('confirm-delete-modal').classList.remove('hidden');
+                });
+            });
+
+            // 羊只复选框
+            document.querySelectorAll('.sheep-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    updateSelectedIds();
+                });
+            });
+        }
+
+        // 更新选中的羊只ID列表
+        function updateSelectedIds() {
+            selectedIds = [];
+            document.querySelectorAll('.sheep-checkbox:checked').forEach(checkbox => {
+                selectedIds.push(checkbox.value);
+            });
+
+            // 更新全选复选框状态
+            const allCheckbox = document.getElementById('select-all');
+            const totalCheckboxes = document.querySelectorAll('.sheep-checkbox').length;
+
+            if (selectedIds.length === 0) {
+                allCheckbox.checked = false;
+                allCheckbox.indeterminate = false;
+            } else if (selectedIds.length === totalCheckboxes) {
+                allCheckbox.checked = true;
+                allCheckbox.indeterminate = false;
+            } else {
+                allCheckbox.checked = false;
+                allCheckbox.indeterminate = true;
+            }
+
+            // 更新批量删除按钮状态
+            const batchDeleteBtn = document.getElementById('batch-delete-btn');
+            if (selectedIds.length > 0) {
+                batchDeleteBtn.disabled = false;
+                batchDeleteBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                batchDeleteBtn.disabled = true;
+                batchDeleteBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        // 打开新增羊只模态框
+        function openAddSheepModal() {
+            // 重置表单
+            document.getElementById('sheep-form').reset();
+            document.getElementById('sheep-id').value = '';
+            document.getElementById('modal-title').textContent = '新增羊只';
+
+            // 生成新的羊只编号
+            const newCode = generateNewSheepCode();
+            document.getElementById('sheep-code').value = newCode;
+
+            // 隐藏生产性能字段
+            document.getElementById('meat-sheep-data').classList.add('hidden');
+            document.getElementById('wool-sheep-data').classList.add('hidden');
+
+            // 隐藏引种产地字段
+            document.getElementById('origin-field').classList.add('hidden');
+
+            // 隐藏基因检测相关字段
+            document.getElementById('gene-test-id-field').classList.add('hidden');
+            document.getElementById('gene-types-field').classList.add('hidden');
+
+            // 设置当前编辑ID为null
+            currentEditId = null;
+
+            // 显示模态框
+            document.getElementById('sheep-modal').classList.remove('hidden');
+        }
+
+        // 打开编辑羊只模态框
+        function openEditSheepModal(id) {
+            // 查找要编辑的羊只数据
+            const sheep = mockSheepData.find(item => item.id === id);
+            if (!sheep) return;
+
+            // 设置当前编辑ID
+            currentEditId = id;
+
+            // 填充表单数据
+            document.getElementById('sheep-id').value = sheep.id;
+            document.getElementById('sheep-code').value = sheep.code;
+            document.getElementById('sheep-breed-type').value = sheep.breedType;
+            document.getElementById('sheep-birth-date').value = sheep.birthDate;
+            document.getElementById('sheep-gender').value = sheep.gender;
+            document.getElementById('sheep-weight').value = sheep.weight;
+            document.getElementById('sheep-height').value = sheep.height;
+            document.getElementById('sheep-color').value = sheep.color;
+            document.getElementById('sheep-source').value = sheep.source;
+            document.getElementById('sheep-quarantine').value = sheep.quarantine || '';
+            document.getElementById('sheep-health').value = sheep.healthStatus;
+            document.getElementById('sheep-farm').value = sheep.farm;
+            document.getElementById('sheep-house').value = sheep.house;
+            document.getElementById('sheep-manager').value = sheep.manager || '';
+            document.getElementById('sheep-remarks').value = sheep.remarks || '';
+
+            // 设置基因检测相关字段
+            document.getElementById('sheep-gene-test').value = sheep.geneTest ? 'true' : 'false';
+            if (sheep.geneTest) {
+                document.getElementById('sheep-gene-test-id').value = sheep.geneTestId || '';
+                document.getElementById('gene-test-id-field').classList.remove('hidden');
+                document.getElementById('gene-types-field').classList.remove('hidden');
+
+                // 设置基因类型复选框
+                document.querySelectorAll('input[name="gene-type"]').forEach(checkbox => {
+                    checkbox.checked = sheep.geneTypes && sheep.geneTypes.includes(checkbox.value);
+                });
+            } else {
+                document.getElementById('sheep-gene-test-id').value = '';
+                document.getElementById('gene-test-id-field').classList.add('hidden');
+                document.getElementById('gene-types-field').classList.add('hidden');
+            }
+
+            // 设置引种产地字段
+            if (sheep.source === 'intro') {
+                document.getElementById('sheep-origin').value = sheep.origin || '';
+                document.getElementById('origin-field').classList.remove('hidden');
+            } else {
+                document.getElementById('sheep-origin').value = '';
+                document.getElementById('origin-field').classList.add('hidden');
+            }
+
+            // 更新品种名称选项
+            updateBreedNameOptions();
+            document.getElementById('sheep-breed-name').value = sheep.breedName;
+
+            // 更新生产性能字段
+            updateProductionDataFields();
+
+            // 设置生产性能数据
+            if (sheep.breedType === 'meat') {
+                document.getElementById('sheep-birth-weight').value = sheep.productionData.birthWeight || '';
+                document.getElementById('sheep-weaning-weight').value = sheep.productionData.weaningWeight || '';
+                document.getElementById('sheep-daily-gain').value = sheep.productionData.dailyGain || '';
+            } else if (sheep.breedType === 'wool') {
+                document.getElementById('sheep-wool-length').value = sheep.productionData.woolLength || '';
+                document.getElementById('sheep-wool-fineness').value = sheep.productionData.woolFineness || '';
+                document.getElementById('sheep-wool-production').value = sheep.productionData.woolProduction || '';
+            }
+
+            // 设置模态框标题
+            document.getElementById('modal-title').textContent = '编辑羊只';
+
+            // 显示模态框
+            document.getElementById('sheep-modal').classList.remove('hidden');
+        }
+
+        // 更新品种名称选项
+        function updateBreedNameOptions() {
+            const breedTypeSelect = document.getElementById('sheep-breed-type');
+            const breedNameSelect = document.getElementById('sheep-breed-name');
+            const selectedBreedType = breedTypeSelect.value;
+
+            // 清空现有选项
+            breedNameSelect.innerHTML = '';
+
+            // 添加默认选项
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = selectedBreedType ? '请选择' : '请选择品种类型';
+            breedNameSelect.appendChild(defaultOption);
+
+            // 根据选择的品种类型添加对应的品种名称选项
+            if (selectedBreedType && breedData[selectedBreedType]) {
+                breedData[selectedBreedType].forEach(breed => {
+                    const option = document.createElement('option');
+                    option.value = breed.text; // 使用文本作为值，因为我们在显示时需要文本
+                    option.textContent = breed.text;
+                    breedNameSelect.appendChild(option);
+                });
+            }
+        }
+
+        // 更新生产性能字段显示
+        function updateProductionDataFields() {
+            const breedTypeSelect = document.getElementById('sheep-breed-type');
+            const selectedBreedType = breedTypeSelect.value;
+
+            // 隐藏所有生产性能字段
+            document.getElementById('meat-sheep-data').classList.add('hidden');
+            document.getElementById('wool-sheep-data').classList.add('hidden');
+
+            // 根据选择的品种类型显示对应的生产性能字段
+            if (selectedBreedType === 'meat') {
+                document.getElementById('meat-sheep-data').classList.remove('hidden');
+            } else if (selectedBreedType === 'wool') {
+                document.getElementById('wool-sheep-data').classList.remove('hidden');
+            }
+        }
+
+        // 保存羊只数据
+        function saveSheep() {
+            // 表单验证
+            const form = document.getElementById('sheep-form');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            // 获取表单数据
+            const id = document.getElementById('sheep-id').value;
+            const code = document.getElementById('sheep-code').value;
+            const breedType = document.getElementById('sheep-breed-type').value;
+            const breedName = document.getElementById('sheep-breed-name').value;
+            const birthDate = document.getElementById('sheep-birth-date').value;
+            const gender = document.getElementById('sheep-gender').value;
+            const weight = parseFloat(document.getElementById('sheep-weight').value);
+            const height = parseFloat(document.getElementById('sheep-height').value);
+            const color = document.getElementById('sheep-color').value;
+            const source = document.getElementById('sheep-source').value;
+            const origin = document.getElementById('sheep-origin').value;
+            const quarantine = document.getElementById('sheep-quarantine').value;
+            const healthStatus = document.getElementById('sheep-health').value;
+            const farm = document.getElementById('sheep-farm').value;
+            const house = document.getElementById('sheep-house').value;
+            const manager = document.getElementById('sheep-manager').value;
+            const geneTest = document.getElementById('sheep-gene-test').value === 'true';
+            const geneTestId = document.getElementById('sheep-gene-test-id').value;
+            const remarks = document.getElementById('sheep-remarks').value;
+
+            // 获取基因类型
+            const geneTypes = [];
+            document.querySelectorAll('input[name="gene-type"]:checked').forEach(checkbox => {
+                geneTypes.push(checkbox.value);
+            });
+
+            // 获取生产性能数据
+            let productionData = {};
+            if (breedType === 'meat') {
+                productionData = {
+                    birthWeight: parseFloat(document.getElementById('sheep-birth-weight').value) || null,
+                    weaningWeight: parseFloat(document.getElementById('sheep-weaning-weight').value) || null,
+                    dailyGain: parseInt(document.getElementById('sheep-daily-gain').value) || null
+                };
+            } else if (breedType === 'wool') {
+                productionData = {
+                    woolLength: parseFloat(document.getElementById('sheep-wool-length').value) || null,
+                    woolFineness: parseFloat(document.getElementById('sheep-wool-fineness').value) || null,
+                    woolProduction: parseFloat(document.getElementById('sheep-wool-production').value) || null
+                };
+            }
+
+            // 构建基因类型文本
+            let geneTypesText = '';
+            if (geneTypes.length > 0) {
+                geneTypesText = geneTypes.map(type => geneTypeData[type]).join(', ');
+            }
+
+            // 构建羊只数据对象
+            const sheepData = {
+                code,
+                breedType,
+                breedTypeText: breedType === 'meat' ? '肉羊' : '绒羊',
+                breedName,
+                birthDate,
+                gender,
+                genderText: gender === 'male' ? '公' : '母',
+                weight,
+                height,
+                color,
+                colorText: getColorText(color),
+                productionData,
+                source,
+                sourceText: source === 'self' ? '自繁' : '引种',
+                origin,
+                quarantine,
+                healthStatus,
+                healthStatusText: getHealthStatusText(healthStatus),
+                farm,
+                farmText: getFarmText(farm),
+                house,
+                houseText: getHouseText(house),
+                manager,
+                geneTest,
+                geneTestId,
+                geneTypes,
+                geneTypesText,
+                remarks,
+                registrationTime: id ? mockSheepData.find(s => s.id === id).registrationTime : getCurrentDateTime(),
+                updateTime: getCurrentDateTime()
+            };
+
+            // 保存数据
+            if (id) {
+                // 编辑现有数据
+                const index = mockSheepData.findIndex(s => s.id === id);
+                if (index !== -1) {
+                    mockSheepData[index] = { ...mockSheepData[index], ...sheepData, id };
+                    alert(`羊只 ${code} 信息已更新`);
+                }
+            } else {
+                // 添加新数据
+                const newId = (mockSheepData.length + 1).toString();
+                mockSheepData.push({ ...sheepData, id: newId });
+                alert(`羊只 ${code} 信息已添加`);
+            }
+
+            // 关闭模态框
+            document.getElementById('sheep-modal').classList.add('hidden');
+
+            // 更新表格
+            updateSheepTable();
+        }
+
+        // 删除羊只数据
+        function deleteSheep(ids) {
+            if (!Array.isArray(ids)) {
+                ids = [ids];
+            }
+
+            // 从数据中删除
+            ids.forEach(id => {
+                const index = mockSheepData.findIndex(sheep => sheep.id === id);
+                if (index !== -1) {
+                    mockSheepData.splice(index, 1);
+                }
+            });
+
+            // 更新表格
+            updateSheepTable();
+
+            // 重置选中状态
+            selectedIds = [];
+            document.getElementById('select-all').checked = false;
+            document.getElementById('batch-delete-btn').disabled = true;
+            document.getElementById('batch-delete-btn').classList.add('opacity-50', 'cursor-not-allowed');
+
+            // 显示删除成功消息
+            alert(`已成功删除 ${ids.length} 只羊只信息`);
+        }
+
+        // 生成新的羊只编号
+        function generateNewSheepCode() {
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+
+            // 获取当天已有的最大编号
+            let maxNum = 0;
+            const prefix = `S${year}${month}${day}`;
+
+            mockSheepData.forEach(sheep => {
+                if (sheep.code.startsWith(prefix)) {
+                    const num = parseInt(sheep.code.substring(prefix.length));
+                    if (num > maxNum) {
+                        maxNum = num;
+                    }
+                }
+            });
+
+            // 生成新编号
+            const newNum = String(maxNum + 1).padStart(4, '0');
+            return `${prefix}${newNum}`;
+        }
+
+        // 根据ID获取羊只编号
+        function getSheepCodeById(id) {
+            const sheep = mockSheepData.find(item => item.id === id);
+            return sheep ? sheep.code : '';
+        }
+
+        // 获取颜色文本
+        function getColorText(color) {
+            const colorMap = {
+                'white': '白色',
+                'black': '黑色',
+                'brown': '棕色',
+                'spotted': '花色',
+                'other': '其他'
+            };
+            return colorMap[color] || color;
+        }
+
+        // 获取健康状况文本
+        function getHealthStatusText(status) {
+            const statusMap = {
+                'healthy': '健康',
+                'abnormal': '异常',
+                'pending': '待检查'
+            };
+            return statusMap[status] || status;
+        }
+
+        // 获取羊场文本
+        function getFarmText(farm) {
+            const farmMap = {
+                'farm1': '第一羊场',
+                'farm2': '第二羊场',
+                'farm3': '第三羊场'
+            };
+            return farmMap[farm] || farm;
+        }
+
+        // 获取羊舍文本
+        function getHouseText(house) {
+            const houseMap = {
+                'house1': '羊舍1',
+                'house2': '羊舍2',
+                'house3': '羊舍3',
+                'house4': '羊舍4'
+            };
+            return houseMap[house] || house;
+        }
+
+        // 获取当前日期时间
+        function getCurrentDateTime() {
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        }
+    </script>
+</body>
+</html>
