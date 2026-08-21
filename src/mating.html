@@ -1,0 +1,2592 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>羊只品种选育系统 - 配种管理</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <!-- 统一的 Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb', // 主色调 - 专业蓝
+                        secondary: '#10b981', // 辅助色 - 成功绿
+                        accent: '#f59e0b', // 强调色 - 警告黄
+                        danger: '#ef4444', // 危险色 - 错误红
+                        dark: '#1e293b', // 深色
+                        light: '#f8fafc', // 浅色
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }
+            .transition-all {
+                transition: all 0.3s ease;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .form-input-focus {
+                @apply focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none;
+            }
+            .btn-primary {
+                @apply px-4 py-2 bg-primary text-white rounded-md hover:bg-blue-700 transition-all;
+            }
+            .btn-secondary {
+                @apply px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-all;
+            }
+            .btn-danger {
+                @apply px-4 py-2 bg-danger text-white rounded-md hover:bg-red-600 transition-all;
+            }
+            .btn-outline {
+                @apply px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-all;
+            }
+            .badge {
+                @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+            }
+            .badge-success {
+                @apply bg-green-100 text-green-800;
+            }
+            .badge-warning {
+                @apply bg-yellow-100 text-yellow-800;
+            }
+            .badge-danger {
+                @apply bg-red-100 text-red-800;
+            }
+            .badge-info {
+                @apply bg-blue-100 text-blue-800;
+            }
+            .badge-gray {
+                @apply bg-gray-100 text-gray-800;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- 侧边栏 -->
+        <aside class="hidden md:flex md:flex-shrink-0">
+            <div class="flex flex-col w-64 bg-white border-r border-gray-200">
+                <div class="flex items-center justify-center h-16 px-4 border-b border-gray-200 bg-primary">
+                    <h2 class="text-xl font-bold text-white">羊只选育系统</h2>
+                </div>
+                <div class="flex flex-col flex-grow px-4 py-4 overflow-y-auto">
+                    <div class="flex flex-col flex-grow space-y-1">
+                        <a href="index.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-dashboard mr-3"></i>
+                            <span>选育看板</span>
+                        </a>
+                        <a href="sheepinfo.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-users mr-3 text-gray-500"></i>
+                            <span >羊群管理</span>
+                        </a>
+                        <a href="evaluation.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-line-chart mr-3 text-gray-500"></i>
+                            <span>选育评估</span>
+                        </a>
+                        <a href="mating.html" class="flex items-center px-4 py-3 text-gray-700 bg-gray-100 rounded-md">
+                            <i class="fa fa-calendar mr-3 text-gray-500  text-primary"></i>
+                            <span class="font-medium">配种管理</span>
+                        </a>
+                        <a href="pedigree.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-file-text mr-3 text-gray-500"></i>
+                            <span>系谱追溯</span>
+                        </a>
+                        <a href="gene-selection.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-file-text mr-3 text-gray-500"></i>
+                            <span>基因选育</span>
+                        </a>
+
+                        <a href="statistics.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-file-text mr-3 text-gray-500"></i>
+                            <span>选育数据统计分析</span>
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-cog mr-3 text-gray-500"></i>
+                            <span>系统设置</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <div class="flex flex-col flex-1 w-0 overflow-hidden">
+            <!-- 顶部导航栏 -->
+            <header class="z-10 py-4 bg-white shadow-sm">
+                <div class="flex items-center justify-between px-4 sm:px-6 lg:px-8">
+                    <div class="flex items-center md:hidden">
+                        <button type="button" class="text-gray-500 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary" id="mobile-menu-button">
+                            <i class="fa fa-bars text-xl"></i>
+                        </button>
+                    </div>
+                    <div class="flex items-center">
+                        <h1 class="text-xl font-semibold text-gray-800">配种管理</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button type="button" class="text-gray-500 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                            <span class="sr-only">查看通知</span>
+                            <i class="fa fa-bell text-xl"></i>
+                            <span class="absolute top-3 right-3 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-danger rounded-full">3</span>
+                        </button>
+                        <div class="relative">
+                            <button type="button" class="flex items-center space-x-2 focus:outline-none">
+                                <img class="w-8 h-8 rounded-full" src="https://randomuser.me/api/portraits/men/1.jpg" alt="用户头像">
+                                <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+                                <i class="fa fa-chevron-down text-xs text-gray-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 移动端侧边栏 -->
+            <div class="fixed inset-0 z-40 hidden bg-gray-600 bg-opacity-75" id="mobile-menu-overlay"></div>
+            <div class="fixed inset-y-0 left-0 z-50 w-64 -translate-x-full bg-white shadow-xl" id="mobile-menu">
+                <div class="flex items-center justify-between h-16 px-4 border-b border-gray-200 bg-primary">
+                    <h2 class="text-xl font-bold text-white">羊只选育系统</h2>
+                    <button type="button" class="text-white hover:text-gray-200 focus:outline-none" id="mobile-menu-close">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div class="px-4 py-4 overflow-y-auto">
+                    <div class="space-y-1">
+                        <a href="index.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-dashboard mr-3 text-gray-500"></i>
+                            <span>选育看板</span>
+                        </a>
+                        <a href="registration.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-users mr-3 text-gray-500"></i>
+                            <span>羊群管理</span>
+                        </a>
+                        <a href="evaluation.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-line-chart mr-3 text-gray-500"></i>
+                            <span>选育分析</span>
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-dna mr-3 text-gray-500"></i>
+                            <span>基因选育</span>
+                        </a>
+                        <a href="mating.html" class="flex items-center px-4 py-3 text-gray-700 bg-gray-100 rounded-md">
+                            <i class="fa fa-heart mr-3 text-primary"></i>
+                            <span class="font-medium">配种管理</span>
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-file-text mr-3 text-gray-500"></i>
+                            <span>系谱管理</span>
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-cog mr-3 text-gray-500"></i>
+                            <span>系统设置</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 主内容 -->
+            <main class="flex-1 overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
+                <!-- 操作按钮区 -->
+                <div class="flex flex-wrap items-center justify-between mb-6 gap-2">
+                    <div class="flex items-center space-x-2">
+                        <button type="button" class="btn-primary flex items-center" id="add-mating-btn">
+                            <i class="fa fa-plus mr-2"></i>
+                            <span>新增配种</span>
+                        </button>
+                        <button type="button" class="btn-outline flex items-center" id="recommendation-btn">
+                            <i class="fa fa-lightbulb-o mr-2"></i>
+                            <span>配种推荐</span>
+                        </button>
+                        <button type="button" class="btn-outline flex items-center" id="estrus-monitoring-btn">
+                            <i class="fa fa-heartbeat mr-2"></i>
+                            <span>发情监测</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button type="button" class="btn-outline flex items-center" id="export-report-btn">
+                            <i class="fa fa-download mr-2"></i>
+                            <span>导出配种报告</span>
+                        </button>
+                        <button type="button" class="btn-danger flex items-center" id="batch-delete-btn" disabled>
+                            <i class="fa fa-trash mr-2"></i>
+                            <span>批量删除</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 搜索与筛选区 -->
+                <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                        <div class="col-span-1 md:col-span-2">
+                            <label for="search-text" class="block text-sm font-medium text-gray-700 mb-1">搜索</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fa fa-search text-gray-400"></i>
+                                </div>
+                                <input type="text" id="search-text" name="search-text" placeholder="配种批次、种公羊编号、种母羊编号" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="filter-breed-type" class="block text-sm font-medium text-gray-700 mb-1">品种类型</label>
+                            <select id="filter-breed-type" name="filter-breed-type" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                <option value="all">全部</option>
+                                <option value="meat">肉羊</option>
+                                <option value="wool">绒羊</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="filter-mating-method" class="block text-sm font-medium text-gray-700 mb-1">配种方式</label>
+                            <select id="filter-mating-method" name="filter-mating-method" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                <option value="all">全部</option>
+                                <option value="natural">自然配种</option>
+                                <option value="artificial">人工授精</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="filter-pregnancy-result" class="block text-sm font-medium text-gray-700 mb-1">妊娠结果</label>
+                            <select id="filter-pregnancy-result" name="filter-pregnancy-result" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                <option value="all">全部</option>
+                                <option value="pregnant">已妊娠</option>
+                                <option value="not-pregnant">未妊娠</option>
+                                <option value="pending">待检测</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="filter-start-date" class="block text-sm font-medium text-gray-700 mb-1">开始日期</label>
+                            <input type="date" id="filter-start-date" name="filter-start-date" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                        </div>
+                        <div>
+                            <label for="filter-end-date" class="block text-sm font-medium text-gray-700 mb-1">结束日期</label>
+                            <input type="date" id="filter-end-date" name="filter-end-date" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                        </div>
+                        <div class="col-span-1 md:col-span-6 flex justify-end space-x-2 pt-4">
+                            <button type="button" class="btn-secondary" id="reset-filter-btn">
+                                重置
+                            </button>
+                            <button type="button" class="btn-primary" id="search-btn">
+                                搜索
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 配种列表表格区 -->
+                <div class="bg-white shadow-sm rounded-lg overflow-hidden mb-6">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <div class="flex items-center">
+                                            <input id="select-all" name="select-all" type="checkbox" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                                            <label for="select-all" class="sr-only">选择所有</label>
+                                        </div>
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        配种批次
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        配种时间
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        种公羊编号
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        种公羊品种
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        种母羊编号
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        种母羊品种
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        配种方式
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        配种后状态
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        妊娠结果
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        预产期
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        基因匹配度
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        操作
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="mating-table-body">
+                                <!-- 表格数据将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                        <div class="flex-1 flex justify-between sm:hidden">
+                            <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                上一页
+                            </a>
+                            <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                下一页
+                            </a>
+                        </div>
+                        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                            <div>
+                                <p class="text-sm text-gray-700">
+                                    显示 <span class="font-medium">1</span> 到 <span class="font-medium">10</span> 条，共 <span class="font-medium">25</span> 条记录
+                                </p>
+                            </div>
+                            <div>
+                                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                    <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <span class="sr-only">上一页</span>
+                                        <i class="fa fa-chevron-left"></i>
+                                    </a>
+                                    <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-primary text-sm font-medium text-white">
+                                        1
+                                    </a>
+                                    <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                        2
+                                    </a>
+                                    <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                        3
+                                    </a>
+                                    <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <span class="sr-only">下一页</span>
+                                        <i class="fa fa-chevron-right"></i>
+                                    </a>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 新增/编辑配种模态框 -->
+    <div class="fixed inset-0 z-50 hidden overflow-y-auto" id="mating-modal">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" id="modal-title">
+                                新增配种
+                            </h3>
+                            <div class="mt-2">
+                                <form id="mating-form">
+                                    <input type="hidden" id="mating-id" value="">
+
+                                    <!-- 基础信息区 -->
+                                    <div class="mb-6">
+                                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">基础信息</h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div>
+                                                <label for="mating-batch" class="block text-sm font-medium text-gray-700 mb-1">配种批次 <span class="text-danger">*</span></label>
+                                                <input type="text" id="mating-batch" name="mating-batch" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                            </div>
+                                            <div>
+                                                <label for="mating-date" class="block text-sm font-medium text-gray-700 mb-1">配种时间 <span class="text-danger">*</span></label>
+                                                <input type="datetime-local" id="mating-date" name="mating-date" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                            </div>
+                                            <div>
+                                                <label for="mating-method" class="block text-sm font-medium text-gray-700 mb-1">配种方式 <span class="text-danger">*</span></label>
+                                                <select id="mating-method" name="mating-method" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                                    <option value="natural">自然配种</option>
+                                                    <option value="artificial">人工授精</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label for="mating-personnel" class="block text-sm font-medium text-gray-700 mb-1">配种人员 <span class="text-danger">*</span></label>
+                                                <input type="text" id="mating-personnel" name="mating-personnel" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                            </div>
+                                            <div>
+                                                <label for="mating-status" class="block text-sm font-medium text-gray-700 mb-1">配种后状态 <span class="text-danger">*</span></label>
+                                                <select id="mating-status" name="mating-status" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                                    <option value="normal">正常</option>
+                                                    <option value="abnormal">异常</option>
+                                                    <option value="monitoring">监测中</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label for="mating-remark" class="block text-sm font-medium text-gray-700 mb-1">备注</label>
+                                                <input type="text" id="mating-remark" name="mating-remark" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 种公羊信息区 -->
+                                    <div class="mb-6">
+                                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">种公羊信息</h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div>
+                                                <label for="ram-select" class="block text-sm font-medium text-gray-700 mb-1">选择种公羊 <span class="text-danger">*</span></label>
+                                                <select id="ram-select" name="ram-select" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                                    <option value="">请选择种公羊</option>
+                                                    <!-- 种公羊选项将通过JavaScript动态生成 -->
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label for="ram-code" class="block text-sm font-medium text-gray-700 mb-1">种公羊编号</label>
+                                                <input type="text" id="ram-code" name="ram-code" class="block w-full border-gray-300 rounded-md shadow-sm bg-gray-100" readonly>
+                                            </div>
+                                            <div>
+                                                <label for="ram-breed" class="block text-sm font-medium text-gray-700 mb-1">种公羊品种</label>
+                                                <input type="text" id="ram-breed" name="ram-breed" class="block w-full border-gray-300 rounded-md shadow-sm bg-gray-100" readonly>
+                                            </div>
+                                            <div>
+                                                <label for="ram-gene-type" class="block text-sm font-medium text-gray-700 mb-1">种公羊基因类型</label>
+                                                <input type="text" id="ram-gene-type" name="ram-gene-type" class="block w-full border-gray-300 rounded-md shadow-sm bg-gray-100" readonly>
+                                            </div>
+                                            <div>
+                                                <label for="ram-evaluation-score" class="block text-sm font-medium text-gray-700 mb-1">选育评估得分</label>
+                                                <input type="text" id="ram-evaluation-score" name="ram-evaluation-score" class="block w-full border-gray-300 rounded-md shadow-sm bg-gray-100" readonly>
+                                            </div>
+                                            <div>
+                                                <label for="ram-evaluation-grade" class="block text-sm font-medium text-gray-700 mb-1">选育评估等级</label>
+                                                <input type="text" id="ram-evaluation-grade" name="ram-evaluation-grade" class="block w-full border-gray-300 rounded-md shadow-sm bg-gray-100" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 种母羊信息区 -->
+                                    <div class="mb-6">
+                                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">种母羊信息</h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div>
+                                                <label for="ewe-select" class="block text-sm font-medium text-gray-700 mb-1">选择种母羊 <span class="text-danger">*</span></label>
+                                                <select id="ewe-select" name="ewe-select" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                                    <option value="">请选择种母羊</option>
+                                                    <!-- 种母羊选项将通过JavaScript动态生成 -->
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label for="ewe-code" class="block text-sm font-medium text-gray-700 mb-1">种母羊编号</label>
+                                                <input type="text" id="ewe-code" name="ewe-code" class="block w-full border-gray-300 rounded-md shadow-sm bg-gray-100" readonly>
+                                            </div>
+                                            <div>
+                                                <label for="ewe-breed" class="block text-sm font-medium text-gray-700 mb-1">种母羊品种</label>
+                                                <input type="text" id="ewe-breed" name="ewe-breed" class="block w-full border-gray-300 rounded-md shadow-sm bg-gray-100" readonly>
+                                            </div>
+                                            <div>
+                                                <label for="ewe-gene-type" class="block text-sm font-medium text-gray-700 mb-1">种母羊基因类型</label>
+                                                <input type="text" id="ewe-gene-type" name="ewe-gene-type" class="block w-full border-gray-300 rounded-md shadow-sm bg-gray-100" readonly>
+                                            </div>
+                                            <div>
+                                                <label for="ewe-evaluation-score" class="block text-sm font-medium text-gray-700 mb-1">选育评估得分</label>
+                                                <input type="text" id="ewe-evaluation-score" name="ewe-evaluation-score" class="block w-full border-gray-300 rounded-md shadow-sm bg-gray-100" readonly>
+                                            </div>
+                                            <div>
+                                                <label for="ewe-evaluation-grade" class="block text-sm font-medium text-gray-700 mb-1">选育评估等级</label>
+                                                <input type="text" id="ewe-evaluation-grade" name="ewe-evaluation-grade" class="block w-full border-gray-300 rounded-md shadow-sm bg-gray-100" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 发情检测信息区 -->
+                                    <div class="mb-6">
+                                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">发情检测信息</h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div>
+                                                <label for="estrus-detection-date" class="block text-sm font-medium text-gray-700 mb-1">发情检测时间</label>
+                                                <input type="datetime-local" id="estrus-detection-date" name="estrus-detection-date" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                            <div>
+                                                <label for="estrus-detection-result" class="block text-sm font-medium text-gray-700 mb-1">发情检测结果</label>
+                                                <select id="estrus-detection-result" name="estrus-detection-result" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                                    <option value="">请选择</option>
+                                                    <option value="estrus">发情</option>
+                                                    <option value="not-estrus">未发情</option>
+                                                    <option value="uncertain">不确定</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label for="estrus-detection-method" class="block text-sm font-medium text-gray-700 mb-1">检测方式</label>
+                                                <select id="estrus-detection-method" name="estrus-detection-method" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                                    <option value="">请选择</option>
+                                                    <option value="visual">肉眼观察</option>
+                                                    <option value="device">设备检测</option>
+                                                    <option value="hormone">激素检测</option>
+                                                </select>
+                                            </div>
+                                            <div class="md:col-span-3">
+                                                <label for="estrus-detection-details" class="block text-sm font-medium text-gray-700 mb-1">检测详情</label>
+                                                <textarea id="estrus-detection-details" name="estrus-detection-details" rows="2" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" placeholder="请输入发情检测的详细信息..."></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 妊娠检测信息区 -->
+                                    <div class="mb-6">
+                                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">妊娠检测信息</h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div>
+                                                <label for="pregnancy-test-date" class="block text-sm font-medium text-gray-700 mb-1">妊娠检测时间</label>
+                                                <input type="datetime-local" id="pregnancy-test-date" name="pregnancy-test-date" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                            <div>
+                                                <label for="pregnancy-test-result" class="block text-sm font-medium text-gray-700 mb-1">妊娠检测结果</label>
+                                                <select id="pregnancy-test-result" name="pregnancy-test-result" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                                    <option value="">请选择</option>
+                                                    <option value="pregnant">已妊娠</option>
+                                                    <option value="not-pregnant">未妊娠</option>
+                                                    <option value="pending">待检测</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label for="pregnancy-test-method" class="block text-sm font-medium text-gray-700 mb-1">检测方式</label>
+                                                <select id="pregnancy-test-method" name="pregnancy-test-method" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                                    <option value="">请选择</option>
+                                                    <option value="ultrasound">B超检测</option>
+                                                    <option value="hormone">激素检测</option>
+                                                    <option value="visual">肉眼观察</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label for="expected-delivery-date" class="block text-sm font-medium text-gray-700 mb-1">预产期</label>
+                                                <input type="date" id="expected-delivery-date" name="expected-delivery-date" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                            <div class="md:col-span-2">
+                                                <label for="pregnancy-test-details" class="block text-sm font-medium text-gray-700 mb-1">检测详情</label>
+                                                <textarea id="pregnancy-test-details" name="pregnancy-test-details" rows="2" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" placeholder="请输入妊娠检测的详细信息..."></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 基因匹配信息区 -->
+                                    <div class="mb-6">
+                                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">基因匹配信息</h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div>
+                                                <label for="gene-matching-score" class="block text-sm font-medium text-gray-700 mb-1">基因匹配度评估</label>
+                                                <div class="flex items-center">
+                                                    <input type="range" id="gene-matching-score" name="gene-matching-score" min="0" max="100" value="80" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                                    <span id="gene-matching-score-value" class="ml-2 w-10 text-center">80</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label for="gene-matching-grade" class="block text-sm font-medium text-gray-700 mb-1">基因匹配等级</label>
+                                                <input type="text" id="gene-matching-grade" name="gene-matching-grade" class="block w-full border-gray-300 rounded-md shadow-sm bg-gray-100" readonly>
+                                            </div>
+                                            <div>
+                                                <label for="inbreeding-risk" class="block text-sm font-medium text-gray-700 mb-1">近亲风险</label>
+                                                <select id="inbreeding-risk" name="inbreeding-risk" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                                    <option value="low">低</option>
+                                                    <option value="medium">中</option>
+                                                    <option value="high">高</option>
+                                                </select>
+                                            </div>
+                                            <div class="md:col-span-3">
+                                                <label for="mating-basis" class="block text-sm font-medium text-gray-700 mb-1">配种依据</label>
+                                                <textarea id="mating-basis" name="mating-basis" rows="3" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" placeholder="请输入配种依据，结合选育评估和基因选育方案..."></textarea>
+                                            </div>
+                                            <div class="md:col-span-3">
+                                                <label for="gene-matching-details" class="block text-sm font-medium text-gray-700 mb-1">基因匹配详情</label>
+                                                <textarea id="gene-matching-details" name="gene-matching-details" rows="3" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" placeholder="请输入基因匹配的详细信息，包括优良基因传递预测、后代基因优势等..."></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm" id="save-mating-btn">
+                        保存
+                    </button>
+                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" id="cancel-mating-btn">
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 配种推荐模态框 -->
+    <div class="fixed inset-0 z-50 hidden overflow-y-auto" id="recommendation-modal">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                                智能配种推荐
+                            </h3>
+                            <div class="mt-2">
+                                <div class="mb-6">
+                                    <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">选择种母羊</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label for="recommend-ewe-select" class="block text-sm font-medium text-gray-700 mb-1">选择待配种母羊 <span class="text-danger">*</span></label>
+                                            <select id="recommend-ewe-select" name="recommend-ewe-select" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                                <option value="">请选择种母羊</option>
+                                                <!-- 种母羊选项将通过JavaScript动态生成 -->
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label for="recommend-breed-type" class="block text-sm font-medium text-gray-700 mb-1">品种类型</label>
+                                            <select id="recommend-breed-type" name="recommend-breed-type" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                                <option value="all">全部</option>
+                                                <option value="meat">肉羊</option>
+                                                <option value="wool">绒羊</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label for="recommend-priority" class="block text-sm font-medium text-gray-700 mb-1">优化重点</label>
+                                            <select id="recommend-priority" name="recommend-priority" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                                <option value="gene">基因匹配度</option>
+                                                <option value="production">生产性能</option>
+                                                <option value="disease">抗病性</option>
+                                                <option value="balanced">综合平衡</option>
+                                            </select>
+                                        </div>
+                                        <div class="md:col-span-3 flex justify-end">
+                                            <button type="button" class="btn-primary" id="generate-recommendation-btn">
+                                                <i class="fa fa-magic mr-2"></i>
+                                                生成推荐
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-6">
+                                    <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">推荐结果</h4>
+                                    <div id="recommendation-results" class="space-y-4">
+                                        <div class="p-4 bg-gray-50 rounded-lg text-center">
+                                            <p class="text-gray-500">请选择种母羊并点击"生成推荐"按钮</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm" id="apply-recommendation-btn">
+                        应用推荐
+                    </button>
+                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" id="close-recommendation-btn">
+                        关闭
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 查看配种详情模态框 -->
+    <div class="fixed inset-0 z-50 hidden overflow-y-auto" id="detail-modal">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" id="detail-modal-title">
+                                配种详情
+                            </h3>
+                            <div class="mt-2">
+                                <!-- 配种详情内容将通过JavaScript动态生成 -->
+                                <div id="mating-detail-content">
+                                    <!-- 详情内容将在这里动态生成 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm" id="print-detail-btn">
+                        <i class="fa fa-print mr-2"></i> 打印详情
+                    </button>
+                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" id="close-detail-btn">
+                        关闭
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 确认删除模态框 -->
+    <div class="fixed inset-0 z-50 hidden overflow-y-auto" id="confirm-delete-modal">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <i class="fa fa-exclamation-triangle text-red-600"></i>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="delete-modal-title">
+                                确认删除
+                            </h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500" id="delete-confirm-text">
+                                    您确定要删除选中的配种记录吗？此操作不可撤销。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-danger text-base font-medium text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm" id="confirm-delete-btn">
+                        确认删除
+                    </button>
+                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" id="cancel-delete-btn">
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟数据 - 羊只数据
+        const mockSheepData = [
+            {
+                id: '1',
+                code: 'S20230001',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '杜泊羊',
+                gender: 'male',
+                genderText: '公',
+                birthDate: '2023-01-15',
+                weight: 65.5,
+                height: 75.0,
+                geneType: '高产基因、优质肉基因',
+                evaluationScore: 88,
+                evaluationGrade: '优良'
+            },
+            {
+                id: '2',
+                code: 'S20230002',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '湖羊',
+                gender: 'female',
+                genderText: '母',
+                birthDate: '2023-02-05',
+                weight: 52.3,
+                height: 68.5,
+                geneType: '高产基因',
+                evaluationScore: 79,
+                evaluationGrade: '合格'
+            },
+            {
+                id: '3',
+                code: 'S20230003',
+                breedType: 'wool',
+                breedTypeText: '绒羊',
+                breedName: '内蒙古绒山羊',
+                gender: 'male',
+                genderText: '公',
+                birthDate: '2023-01-20',
+                weight: 45.8,
+                height: 65.2,
+                geneType: '优质绒基因、高产基因',
+                evaluationScore: 91,
+                evaluationGrade: '优良'
+            },
+            {
+                id: '4',
+                code: 'S20230004',
+                breedType: 'wool',
+                breedTypeText: '绒羊',
+                breedName: '辽宁绒山羊',
+                gender: 'female',
+                genderText: '母',
+                birthDate: '2023-02-10',
+                weight: 38.5,
+                height: 62.0,
+                geneType: '普通基因',
+                evaluationScore: 75,
+                evaluationGrade: '合格'
+            },
+            {
+                id: '5',
+                code: 'S20230005',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '小尾寒羊',
+                gender: 'female',
+                genderText: '母',
+                birthDate: '2023-03-01',
+                weight: 48.2,
+                height: 66.8,
+                geneType: '高产基因、抗病基因',
+                evaluationScore: 84,
+                evaluationGrade: '合格'
+            },
+            {
+                id: '6',
+                code: 'S20230006',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '萨福克羊',
+                gender: 'male',
+                genderText: '公',
+                birthDate: '2023-02-25',
+                weight: 72.6,
+                height: 78.5,
+                geneType: '优质肉基因、早熟基因',
+                evaluationScore: 89,
+                evaluationGrade: '优良'
+            },
+            {
+                id: '7',
+                code: 'S20230007',
+                breedType: 'wool',
+                breedTypeText: '绒羊',
+                breedName: '河西绒山羊',
+                gender: 'female',
+                genderText: '母',
+                birthDate: '2023-03-10',
+                weight: 36.2,
+                height: 60.5,
+                geneType: '普通基因',
+                evaluationScore: 67,
+                evaluationGrade: '不合格'
+            },
+            {
+                id: '8',
+                code: 'S20230008',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '夏洛莱羊',
+                gender: 'male',
+                genderText: '公',
+                birthDate: '2023-03-15',
+                weight: 68.8,
+                height: 76.2,
+                geneType: '优质肉基因、抗病基因',
+                evaluationScore: 91,
+                evaluationGrade: '优良'
+            },
+            {
+                id: '9',
+                code: 'S20230009',
+                breedType: 'wool',
+                breedTypeText: '绒羊',
+                breedName: '新疆绒山羊',
+                gender: 'female',
+                genderText: '母',
+                birthDate: '2023-03-20',
+                weight: 40.5,
+                height: 63.8,
+                geneType: '优质绒基因、抗逆基因',
+                evaluationScore: 86,
+                evaluationGrade: '优良'
+            },
+            {
+                id: '10',
+                code: 'S20230010',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '杜泊羊',
+                gender: 'female',
+                genderText: '母',
+                birthDate: '2023-04-01',
+                weight: 49.8,
+                height: 67.5,
+                geneType: '高产基因',
+                evaluationScore: 82,
+                evaluationGrade: '合格'
+            },
+            {
+                id: '11',
+                code: 'S20230011',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '黑头杜泊羊',
+                gender: 'male',
+                genderText: '公',
+                birthDate: '2022-12-10',
+                weight: 78.2,
+                height: 79.5,
+                geneType: '优质肉基因、高产基因',
+                evaluationScore: 92,
+                evaluationGrade: '优良'
+            },
+            {
+                id: '12',
+                code: 'S20230012',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '萨福克羊',
+                gender: 'female',
+                genderText: '母',
+                birthDate: '2023-01-05',
+                weight: 55.3,
+                height: 69.2,
+                geneType: '优质肉基因',
+                evaluationScore: 85,
+                evaluationGrade: '优良'
+            }
+        ];
+
+        // 模拟数据 - 配种数据
+        const mockMatingData = [
+            {
+                id: '1',
+                batch: '2023-06-A',
+                matingDate: '2023-06-15 10:30:00',
+                ramId: '1',
+                ramCode: 'S20230001',
+                ramBreed: '肉羊 - 杜泊羊',
+                ramGeneType: '高产基因、优质肉基因',
+                eweId: '2',
+                eweCode: 'S20230002',
+                eweBreed: '肉羊 - 湖羊',
+                eweGeneType: '高产基因',
+                matingMethod: 'natural',
+                matingMethodText: '自然配种',
+                matingPersonnel: '张三',
+                matingStatus: 'normal',
+                matingStatusText: '正常',
+                matingRemark: '首次配种',
+
+                // 发情检测信息
+                estrusDetection: {
+                    date: '2023-06-10 14:20:00',
+                    result: 'estrus',
+                    resultText: '发情',
+                    method: 'visual',
+                    methodText: '肉眼观察',
+                    details: '母羊表现出明显的发情症状，外阴红肿，接受爬跨。'
+                },
+
+                // 妊娠检测信息
+                pregnancyTest: {
+                    date: '2023-07-15 09:45:00',
+                    result: 'pregnant',
+                    resultText: '已妊娠',
+                    method: 'ultrasound',
+                    methodText: 'B超检测',
+                    expectedDeliveryDate: '2023-11-20',
+                    details: 'B超检测显示胎儿发育正常，预计预产期为2023年11月20日。'
+                },
+
+                // 基因匹配信息
+                geneMatching: {
+                    score: 85,
+                    grade: '优秀',
+                    inbreedingRisk: 'low',
+                    inbreedingRiskText: '低',
+                    matingBasis: '结合选育评估结果，选择基因互补性强的种公羊和种母羊进行配种，重点提升后代的肉品质和生长速度。',
+                    details: '预测后代将携带高产基因和优质肉基因，肉品质和生长速度有望得到显著提升。'
+                },
+
+                createTime: '2023-06-15 10:30:00',
+                updateTime: '2023-07-15 09:45:00'
+            },
+            {
+                id: '2',
+                batch: '2023-06-A',
+                matingDate: '2023-06-16 11:15:00',
+                ramId: '3',
+                ramCode: 'S20230003',
+                ramBreed: '绒羊 - 内蒙古绒山羊',
+                ramGeneType: '优质绒基因、高产基因',
+                eweId: '4',
+                eweCode: 'S20230004',
+                eweBreed: '绒羊 - 辽宁绒山羊',
+                eweGeneType: '普通基因',
+                matingMethod: 'artificial',
+                matingMethodText: '人工授精',
+                matingPersonnel: '李四',
+                matingStatus: 'normal',
+                matingStatusText: '正常',
+                matingRemark: '人工授精配种',
+
+                // 发情检测信息
+                estrusDetection: {
+                    date: '2023-06-15 09:30:00',
+                    result: 'estrus',
+                    resultText: '发情',
+                    method: 'device',
+                    methodText: '设备检测',
+                    details: '通过发情检测设备检测到母羊发情，激素水平达到峰值。'
+                },
+
+                // 妊娠检测信息
+                pregnancyTest: {
+                    date: '2023-07-16 14:20:00',
+                    result: 'not-pregnant',
+                    resultText: '未妊娠',
+                    method: 'ultrasound',
+                    methodText: 'B超检测',
+                    expectedDeliveryDate: '',
+                    details: 'B超检测未发现胎儿，建议重新安排配种。'
+                },
+
+                // 基因匹配信息
+                geneMatching: {
+                    score: 75,
+                    grade: '良好',
+                    inbreedingRisk: 'low',
+                    inbreedingRiskText: '低',
+                    matingBasis: '选择优质种公羊与基础母羊配种，期望提升后代的产绒性能。',
+                    details: '预测后代有75%概率携带优质绒基因，产绒量和绒品质有望得到提升。'
+                },
+
+                createTime: '2023-06-16 11:15:00',
+                updateTime: '2023-07-16 14:20:00'
+            },
+            {
+                id: '3',
+                batch: '2023-06-B',
+                matingDate: '2023-06-18 15:40:00',
+                ramId: '6',
+                ramCode: 'S20230006',
+                ramBreed: '肉羊 - 萨福克羊',
+                ramGeneType: '优质肉基因、早熟基因',
+                eweId: '5',
+                eweCode: 'S20230005',
+                eweBreed: '肉羊 - 小尾寒羊',
+                eweGeneType: '高产基因、抗病基因',
+                matingMethod: 'natural',
+                matingMethodText: '自然配种',
+                matingPersonnel: '张三',
+                matingStatus: 'normal',
+                matingStatusText: '正常',
+                matingRemark: '复配',
+
+                // 发情检测信息
+                estrusDetection: {
+                    date: '2023-06-17 10:15:00',
+                    result: 'estrus',
+                    resultText: '发情',
+                    method: 'hormone',
+                    methodText: '激素检测',
+                    details: '激素检测显示雌激素水平升高，确认发情。'
+                },
+
+                // 妊娠检测信息
+                pregnancyTest: {
+                    date: '2023-07-18 11:30:00',
+                    result: 'pregnant',
+                    resultText: '已妊娠',
+                    method: 'ultrasound',
+                    methodText: 'B超检测',
+                    expectedDeliveryDate: '2023-11-25',
+                    details: 'B超检测显示双胎，胎儿发育良好。'
+                },
+
+                // 基因匹配信息
+                geneMatching: {
+                    score: 90,
+                    grade: '优秀',
+                    inbreedingRisk: 'low',
+                    inbreedingRiskText: '低',
+                    matingBasis: '选择基因互补性强的种公羊和种母羊，重点优化后代的肉品质、生长速度和抗病性。',
+                    details: '预测后代将同时携带优质肉基因、高产基因和抗病基因，综合生产性能有望得到显著提升。'
+                },
+
+                createTime: '2023-06-18 15:40:00',
+                updateTime: '2023-07-18 11:30:00'
+            },
+            {
+                id: '4',
+                batch: '2023-06-B',
+                matingDate: '2023-06-20 09:20:00',
+                ramId: '8',
+                ramCode: 'S20230008',
+                ramBreed: '肉羊 - 夏洛莱羊',
+                ramGeneType: '优质肉基因、抗病基因',
+                eweId: '10',
+                eweCode: 'S20230010',
+                eweBreed: '肉羊 - 杜泊羊',
+                eweGeneType: '高产基因',
+                matingMethod: 'artificial',
+                matingMethodText: '人工授精',
+                matingPersonnel: '李四',
+                matingStatus: 'normal',
+                matingStatusText: '正常',
+                matingRemark: '首次配种',
+
+                // 发情检测信息
+                estrusDetection: {
+                    date: '2023-06-19 16:45:00',
+                    result: 'estrus',
+                    resultText: '发情',
+                    method: 'visual',
+                    methodText: '肉眼观察',
+                    details: '母羊表现出明显的发情症状。'
+                },
+
+                // 妊娠检测信息
+                pregnancyTest: {
+                    date: '2023-07-20 10:00:00',
+                    result: 'pending',
+                    resultText: '待检测',
+                    method: '',
+                    methodText: '',
+                    expectedDeliveryDate: '',
+                    details: '等待妊娠检测。'
+                },
+
+                // 基因匹配信息
+                geneMatching: {
+                    score: 82,
+                    grade: '良好',
+                    inbreedingRisk: 'low',
+                    inbreedingRiskText: '低',
+                    matingBasis: '结合选育评估结果，选择优质种公羊进行人工授精，期望提升后代的肉品质和抗病性。',
+                    details: '预测后代将携带优质肉基因和高产基因，肉品质和生长速度有望得到提升。'
+                },
+
+                createTime: '2023-06-20 09:20:00',
+                updateTime: '2023-06-20 09:20:00'
+            },
+            {
+                id: '5',
+                batch: '2023-06-C',
+                matingDate: '2023-06-22 14:10:00',
+                ramId: '11',
+                ramCode: 'S20230011',
+                ramBreed: '肉羊 - 黑头杜泊羊',
+                ramGeneType: '优质肉基因、高产基因',
+                eweId: '12',
+                eweCode: 'S20230012',
+                eweBreed: '肉羊 - 萨福克羊',
+                eweGeneType: '优质肉基因',
+                matingMethod: 'natural',
+                matingMethodText: '自然配种',
+                matingPersonnel: '王五',
+                matingStatus: 'normal',
+                matingStatusText: '正常',
+                matingRemark: '首次配种',
+
+                // 发情检测信息
+                estrusDetection: {
+                    date: '2023-06-21 11:20:00',
+                    result: 'estrus',
+                    resultText: '发情',
+                    method: 'device',
+                    methodText: '设备检测',
+                    details: '通过发情检测设备确认发情。'
+                },
+
+                // 妊娠检测信息
+                pregnancyTest: {
+                    date: '',
+                    result: 'pending',
+                    resultText: '待检测',
+                    method: '',
+                    methodText: '',
+                    expectedDeliveryDate: '',
+                    details: ''
+                },
+
+                // 基因匹配信息
+                geneMatching: {
+                    score: 88,
+                    grade: '优秀',
+                    inbreedingRisk: 'medium',
+                    inbreedingRiskText: '中',
+                    matingBasis: '选择优质种公羊与优质母羊配种，期望获得高品质后代。',
+                    details: '预测后代将携带优质肉基因和高产基因，肉品质和生长速度有望得到显著提升，但存在一定的近亲繁殖风险。'
+                },
+
+                createTime: '2023-06-22 14:10:00',
+                updateTime: '2023-06-22 14:10:00'
+            },
+            {
+                id: '6',
+                batch: '2023-06-C',
+                matingDate: '2023-06-24 10:05:00',
+                ramId: '3',
+                ramCode: 'S20230003',
+                ramBreed: '绒羊 - 内蒙古绒山羊',
+                ramGeneType: '优质绒基因、高产基因',
+                eweId: '9',
+                eweCode: 'S20230009',
+                eweBreed: '绒羊 - 新疆绒山羊',
+                eweGeneType: '优质绒基因、抗逆基因',
+                matingMethod: 'artificial',
+                matingMethodText: '人工授精',
+                matingPersonnel: '李四',
+                matingStatus: 'normal',
+                matingStatusText: '正常',
+                matingRemark: '人工授精配种',
+
+                // 发情检测信息
+                estrusDetection: {
+                    date: '2023-06-23 15:30:00',
+                    result: 'estrus',
+                    resultText: '发情',
+                    method: 'hormone',
+                    methodText: '激素检测',
+                    details: '激素检测确认发情。'
+                },
+
+                // 妊娠检测信息
+                pregnancyTest: {
+                    date: '',
+                    result: 'pending',
+                    resultText: '待检测',
+                    method: '',
+                    methodText: '',
+                    expectedDeliveryDate: '',
+                    details: ''
+                },
+
+                // 基因匹配信息
+                geneMatching: {
+                    score: 92,
+                    grade: '优秀',
+                    inbreedingRisk: 'low',
+                    inbreedingRiskText: '低',
+                    matingBasis: '选择基因互补性强的优质种公羊和种母羊，重点提升后代的产绒性能和抗逆性。',
+                    details: '预测后代将同时携带优质绒基因、高产基因和抗逆基因，产绒性能和适应性有望得到显著提升。'
+                },
+
+                createTime: '2023-06-24 10:05:00',
+                updateTime: '2023-06-24 10:05:00'
+            }
+        ];
+
+        // 当前编辑的配种ID
+        let currentEditId = null;
+
+        // 当前选中的配种ID列表
+        let selectedIds = [];
+
+        // 当前选中的推荐配种组合
+        let selectedRecommendation = null;
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化表格
+            updateMatingTable();
+
+            // 初始化种公羊和种母羊选择下拉框
+            initSheepSelects();
+
+            // 设置事件监听
+            setupEventListeners();
+        });
+
+        // 更新配种列表表格
+        function updateMatingTable() {
+            const tableBody = document.getElementById('mating-table-body');
+            tableBody.innerHTML = '';
+
+            mockMatingData.forEach(mating => {
+                const row = document.createElement('tr');
+
+                // 设置妊娠结果标签的样式
+                let pregnancyBadgeClass = '';
+                switch(mating.pregnancyTest.result) {
+                    case 'pregnant':
+                        pregnancyBadgeClass = 'badge-success';
+                        break;
+                    case 'not-pregnant':
+                        pregnancyBadgeClass = 'badge-danger';
+                        break;
+                    case 'pending':
+                        pregnancyBadgeClass = 'badge-gray';
+                        break;
+                    default:
+                        pregnancyBadgeClass = 'badge-gray';
+                }
+
+                // 设置配种后状态标签的样式
+                let statusBadgeClass = '';
+                switch(mating.matingStatus) {
+                    case 'normal':
+                        statusBadgeClass = 'badge-success';
+                        break;
+                    case 'abnormal':
+                        statusBadgeClass = 'badge-danger';
+                        break;
+                    case 'monitoring':
+                        statusBadgeClass = 'badge-warning';
+                        break;
+                    default:
+                        statusBadgeClass = 'badge-gray';
+                }
+
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <input id="select-${mating.id}" name="select-mating" type="checkbox" value="${mating.id}" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded mating-checkbox">
+                            <label for="select-${mating.id}" class="sr-only">选择 ${mating.id}</label>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${mating.batch}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${mating.matingDate}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${mating.ramCode}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${mating.ramBreed}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${mating.eweCode}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${mating.eweBreed}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${mating.matingMethodText}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="badge ${statusBadgeClass}">${mating.matingStatusText}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="badge ${pregnancyBadgeClass}">${mating.pregnancyTest.resultText || '-'}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${mating.pregnancyTest.expectedDeliveryDate || '-'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${mating.geneMatching.score}% (${mating.geneMatching.grade})</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button type="button" class="text-primary hover:text-blue-800 mr-3 view-mating-btn" data-id="${mating.id}">
+                            <i class="fa fa-eye"></i> 查看
+                        </button>
+                        <button type="button" class="text-green-600 hover:text-green-800 mr-3 edit-mating-btn" data-id="${mating.id}">
+                            <i class="fa fa-pencil"></i> 编辑
+                        </button>
+                        <button type="button" class="text-danger hover:text-red-800 delete-mating-btn" data-id="${mating.id}">
+                            <i class="fa fa-trash"></i> 删除
+                        </button>
+                    </td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+
+            // 重新绑定表格中的按钮事件
+            bindTableButtonEvents();
+        }
+
+        // 初始化种公羊和种母羊选择下拉框
+        function initSheepSelects() {
+            // 种公羊选择下拉框
+            const ramSelect = document.getElementById('ram-select');
+            const recommendEweSelect = document.getElementById('recommend-ewe-select');
+
+            // 种母羊选择下拉框
+            const eweSelect = document.getElementById('ewe-select');
+
+            // 清空现有选项
+            ramSelect.innerHTML = '';
+            eweSelect.innerHTML = '';
+            if (recommendEweSelect) {
+                recommendEweSelect.innerHTML = '';
+            }
+
+            // 添加默认选项
+            const ramDefaultOption = document.createElement('option');
+            ramDefaultOption.value = '';
+            ramDefaultOption.textContent = '请选择种公羊';
+            ramSelect.appendChild(ramDefaultOption);
+
+            const eweDefaultOption = document.createElement('option');
+            eweDefaultOption.value = '';
+            eweDefaultOption.textContent = '请选择种母羊';
+            eweSelect.appendChild(eweDefaultOption);
+
+            if (recommendEweSelect) {
+                const recommendDefaultOption = document.createElement('option');
+                recommendDefaultOption.value = '';
+                recommendDefaultOption.textContent = '请选择种母羊';
+                recommendEweSelect.appendChild(recommendDefaultOption);
+            }
+
+            // 添加羊只选项
+            mockSheepData.forEach(sheep => {
+                if (sheep.gender === 'male') {
+                    // 种公羊选项
+                    const ramOption = document.createElement('option');
+                    ramOption.value = sheep.id;
+                    ramOption.textContent = `${sheep.code} - ${sheep.breedTypeText} - ${sheep.breedName}`;
+                    ramSelect.appendChild(ramOption);
+                } else if (sheep.gender === 'female') {
+                    // 种母羊选项
+                    const eweOption = document.createElement('option');
+                    eweOption.value = sheep.id;
+                    eweOption.textContent = `${sheep.code} - ${sheep.breedTypeText} - ${sheep.breedName}`;
+                    eweSelect.appendChild(eweOption);
+
+                    // 推荐系统中的种母羊选项
+                    if (recommendEweSelect) {
+                        const recommendOption = document.createElement('option');
+                        recommendOption.value = sheep.id;
+                        recommendOption.textContent = `${sheep.code} - ${sheep.breedTypeText} - ${sheep.breedName}`;
+                        recommendEweSelect.appendChild(recommendOption);
+                    }
+                }
+            });
+        }
+
+        // 设置事件监听
+        function setupEventListeners() {
+            // 移动端菜单
+            document.getElementById('mobile-menu-button').addEventListener('click', function() {
+                document.getElementById('mobile-menu').classList.remove('-translate-x-full');
+                document.getElementById('mobile-menu-overlay').classList.remove('hidden');
+            });
+
+            document.getElementById('mobile-menu-close').addEventListener('click', function() {
+                document.getElementById('mobile-menu').classList.add('-translate-x-full');
+                document.getElementById('mobile-menu-overlay').classList.add('hidden');
+            });
+
+            document.getElementById('mobile-menu-overlay').addEventListener('click', function() {
+                document.getElementById('mobile-menu').classList.add('-translate-x-full');
+                document.getElementById('mobile-menu-overlay').classList.add('hidden');
+            });
+
+            // 新增配种按钮
+            document.getElementById('add-mating-btn').addEventListener('click', function() {
+                openAddMatingModal();
+            });
+
+            // 配种推荐按钮
+            document.getElementById('recommendation-btn').addEventListener('click', function() {
+                document.getElementById('recommendation-modal').classList.remove('hidden');
+            });
+
+            // 发情监测按钮
+            document.getElementById('estrus-monitoring-btn').addEventListener('click', function() {
+                alert('发情监测功能将在实际系统中实现');
+            });
+
+            // 导出配种报告按钮
+            document.getElementById('export-report-btn').addEventListener('click', function() {
+                if (selectedIds.length > 0) {
+                    alert(`正在导出 ${selectedIds.length} 条配种记录的报告\n导出功能将在实际系统中实现`);
+                } else {
+                    alert('请先选择要导出的配种记录');
+                }
+            });
+
+            // 批量删除按钮
+            document.getElementById('batch-delete-btn').addEventListener('click', function() {
+                if (selectedIds.length > 0) {
+                    document.getElementById('delete-confirm-text').textContent = `您确定要删除选中的 ${selectedIds.length} 条配种记录吗？此操作不可撤销。`;
+                    document.getElementById('confirm-delete-modal').classList.remove('hidden');
+                } else {
+                    alert('请先选择要删除的配种记录');
+                }
+            });
+
+            // 搜索按钮
+            document.getElementById('search-btn').addEventListener('click', function() {
+                // 实际系统中这里会根据搜索条件过滤数据
+                alert('搜索功能将在实际系统中实现');
+            });
+
+            // 重置筛选按钮
+            document.getElementById('reset-filter-btn').addEventListener('click', function() {
+                document.getElementById('search-text').value = '';
+                document.getElementById('filter-breed-type').value = 'all';
+                document.getElementById('filter-mating-method').value = 'all';
+                document.getElementById('filter-pregnancy-result').value = 'all';
+                document.getElementById('filter-start-date').value = '';
+                document.getElementById('filter-end-date').value = '';
+            });
+
+            // 保存配种按钮
+            document.getElementById('save-mating-btn').addEventListener('click', function() {
+                saveMating();
+            });
+
+            // 取消保存按钮
+            document.getElementById('cancel-mating-btn').addEventListener('click', function() {
+                document.getElementById('mating-modal').classList.add('hidden');
+            });
+
+            // 关闭详情按钮
+            document.getElementById('close-detail-btn').addEventListener('click', function() {
+                document.getElementById('detail-modal').classList.add('hidden');
+            });
+
+            // 打印详情按钮
+            document.getElementById('print-detail-btn').addEventListener('click', function() {
+                alert('打印功能将在实际系统中实现');
+            });
+
+            // 确认删除按钮
+            document.getElementById('confirm-delete-btn').addEventListener('click', function() {
+                deleteMating(selectedIds);
+                document.getElementById('confirm-delete-modal').classList.add('hidden');
+            });
+
+            // 取消删除按钮
+            document.getElementById('cancel-delete-btn').addEventListener('click', function() {
+                document.getElementById('confirm-delete-modal').classList.add('hidden');
+            });
+
+            // 关闭推荐按钮
+            document.getElementById('close-recommendation-btn').addEventListener('click', function() {
+                document.getElementById('recommendation-modal').classList.add('hidden');
+            });
+
+            // 应用推荐按钮
+            document.getElementById('apply-recommendation-btn').addEventListener('click', function() {
+                applyRecommendation();
+            });
+
+            // 生成推荐按钮
+            document.getElementById('generate-recommendation-btn').addEventListener('click', function() {
+                generateRecommendation();
+            });
+
+            // 全选复选框
+            document.getElementById('select-all').addEventListener('change', function() {
+                const isChecked = this.checked;
+                document.querySelectorAll('.mating-checkbox').forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                });
+                updateSelectedIds();
+            });
+
+            // 种公羊选择变化
+            document.getElementById('ram-select').addEventListener('change', function() {
+                updateRamInfo();
+                updateGeneMatchingInfo();
+            });
+
+            // 种母羊选择变化
+            document.getElementById('ewe-select').addEventListener('change', function() {
+                updateEweInfo();
+                updateGeneMatchingInfo();
+            });
+
+            // 基因匹配度滑块变化
+            const geneMatchingScoreSlider = document.getElementById('gene-matching-score');
+            const geneMatchingScoreValue = document.getElementById('gene-matching-score-value');
+            const geneMatchingGrade = document.getElementById('gene-matching-grade');
+
+            if (geneMatchingScoreSlider && geneMatchingScoreValue && geneMatchingGrade) {
+                geneMatchingScoreSlider.addEventListener('input', function() {
+                    geneMatchingScoreValue.textContent = this.value;
+
+                    // 根据匹配度设置等级
+                    const score = parseInt(this.value);
+                    let grade = '';
+                    if (score >= 90) {
+                        grade = '优秀';
+                    } else if (score >= 80) {
+                        grade = '良好';
+                    } else if (score >= 70) {
+                        grade = '一般';
+                    } else if (score >= 60) {
+                        grade = '及格';
+                    } else {
+                        grade = '较差';
+                    }
+                    geneMatchingGrade.value = grade;
+                });
+            }
+
+            // 妊娠检测结果变化
+            document.getElementById('pregnancy-test-result').addEventListener('change', function() {
+                const result = this.value;
+                const expectedDeliveryDateInput = document.getElementById('expected-delivery-date');
+
+                if (result === 'pregnant') {
+                    // 如果确认妊娠，自动计算预产期（配种日期后150天）
+                    const matingDateInput = document.getElementById('mating-date');
+                    if (matingDateInput.value) {
+                        const matingDate = new Date(matingDateInput.value);
+                        const expectedDate = new Date(matingDate.getTime() + 150 * 24 * 60 * 60 * 1000);
+                        expectedDeliveryDateInput.value = expectedDate.toISOString().split('T')[0];
+                    }
+                } else {
+                    expectedDeliveryDateInput.value = '';
+                }
+            });
+        }
+
+        // 绑定表格中的按钮事件
+        function bindTableButtonEvents() {
+            // 查看按钮
+            document.querySelectorAll('.view-mating-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    openDetailModal(id);
+                });
+            });
+
+            // 编辑按钮
+            document.querySelectorAll('.edit-mating-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    openEditMatingModal(id);
+                });
+            });
+
+            // 删除按钮
+            document.querySelectorAll('.delete-mating-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    document.getElementById('delete-confirm-text').textContent = `您确定要删除配种记录 ID: ${id} 吗？此操作不可撤销。`;
+                    selectedIds = [id];
+                    document.getElementById('confirm-delete-modal').classList.remove('hidden');
+                });
+            });
+
+            // 配种复选框
+            document.querySelectorAll('.mating-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    updateSelectedIds();
+                });
+            });
+        }
+
+        // 更新选中的配种ID列表
+        function updateSelectedIds() {
+            selectedIds = [];
+            document.querySelectorAll('.mating-checkbox:checked').forEach(checkbox => {
+                selectedIds.push(checkbox.value);
+            });
+
+            // 更新全选复选框状态
+            const allCheckbox = document.getElementById('select-all');
+            const totalCheckboxes = document.querySelectorAll('.mating-checkbox').length;
+
+            if (selectedIds.length === 0) {
+                allCheckbox.checked = false;
+                allCheckbox.indeterminate = false;
+            } else if (selectedIds.length === totalCheckboxes) {
+                allCheckbox.checked = true;
+                allCheckbox.indeterminate = false;
+            } else {
+                allCheckbox.checked = false;
+                allCheckbox.indeterminate = true;
+            }
+
+            // 更新批量删除按钮状态
+            const batchDeleteBtn = document.getElementById('batch-delete-btn');
+            if (selectedIds.length > 0) {
+                batchDeleteBtn.disabled = false;
+                batchDeleteBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                batchDeleteBtn.disabled = true;
+                batchDeleteBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        // 更新种公羊信息
+        function updateRamInfo() {
+            const ramSelect = document.getElementById('ram-select');
+            const selectedRamId = ramSelect.value;
+
+            if (!selectedRamId) {
+                document.getElementById('ram-code').value = '';
+                document.getElementById('ram-breed').value = '';
+                document.getElementById('ram-gene-type').value = '';
+                document.getElementById('ram-evaluation-score').value = '';
+                document.getElementById('ram-evaluation-grade').value = '';
+                return;
+            }
+
+            // 查找选中的种公羊
+            const ram = mockSheepData.find(item => item.id === selectedRamId);
+            if (ram) {
+                document.getElementById('ram-code').value = ram.code;
+                document.getElementById('ram-breed').value = `${ram.breedTypeText} - ${ram.breedName}`;
+                document.getElementById('ram-gene-type').value = ram.geneType;
+                document.getElementById('ram-evaluation-score').value = ram.evaluationScore;
+                document.getElementById('ram-evaluation-grade').value = ram.evaluationGrade;
+            }
+        }
+
+        // 更新种母羊信息
+        function updateEweInfo() {
+            const eweSelect = document.getElementById('ewe-select');
+            const selectedEweId = eweSelect.value;
+
+            if (!selectedEweId) {
+                document.getElementById('ewe-code').value = '';
+                document.getElementById('ewe-breed').value = '';
+                document.getElementById('ewe-gene-type').value = '';
+                document.getElementById('ewe-evaluation-score').value = '';
+                document.getElementById('ewe-evaluation-grade').value = '';
+                return;
+            }
+
+            // 查找选中的种母羊
+            const ewe = mockSheepData.find(item => item.id === selectedEweId);
+            if (ewe) {
+                document.getElementById('ewe-code').value = ewe.code;
+                document.getElementById('ewe-breed').value = `${ewe.breedTypeText} - ${ewe.breedName}`;
+                document.getElementById('ewe-gene-type').value = ewe.geneType;
+                document.getElementById('ewe-evaluation-score').value = ewe.evaluationScore;
+                document.getElementById('ewe-evaluation-grade').value = ewe.evaluationGrade;
+            }
+        }
+
+        // 更新基因匹配信息
+        function updateGeneMatchingInfo() {
+            const ramSelect = document.getElementById('ram-select');
+            const eweSelect = document.getElementById('ewe-select');
+            const selectedRamId = ramSelect.value;
+            const selectedEweId = eweSelect.value;
+
+            if (!selectedRamId || !selectedEweId) {
+                return;
+            }
+
+            // 查找选中的种公羊和种母羊
+            const ram = mockSheepData.find(item => item.id === selectedRamId);
+            const ewe = mockSheepData.find(item => item.id === selectedEweId);
+
+            if (ram && ewe) {
+                // 简单的基因匹配度计算逻辑
+                let matchingScore = 70; // 基础分
+
+                // 根据品种类型匹配加分
+                if (ram.breedType === ewe.breedType) {
+                    matchingScore += 10;
+                }
+
+                // 根据基因类型匹配加分
+                const ramGenes = ram.geneType.split('、');
+                const eweGenes = ewe.geneType.split('、');
+
+                // 计算共同基因数量
+                const commonGenes = ramGenes.filter(gene => eweGenes.includes(gene));
+                matchingScore += commonGenes.length * 5;
+
+                // 根据评估等级加分
+                if (ram.evaluationGrade === '优良' && ewe.evaluationGrade === '优良') {
+                    matchingScore += 5;
+                }
+
+                // 确保分数在合理范围内
+                matchingScore = Math.min(100, Math.max(0, matchingScore));
+
+                // 更新基因匹配度
+                const geneMatchingScoreSlider = document.getElementById('gene-matching-score');
+                const geneMatchingScoreValue = document.getElementById('gene-matching-score-value');
+                const geneMatchingGrade = document.getElementById('gene-matching-grade');
+
+                if (geneMatchingScoreSlider && geneMatchingScoreValue && geneMatchingGrade) {
+                    geneMatchingScoreSlider.value = matchingScore;
+                    geneMatchingScoreValue.textContent = matchingScore;
+
+                    // 设置匹配等级
+                    let grade = '';
+                    if (matchingScore >= 90) {
+                        grade = '优秀';
+                    } else if (matchingScore >= 80) {
+                        grade = '良好';
+                    } else if (matchingScore >= 70) {
+                        grade = '一般';
+                    } else if (matchingScore >= 60) {
+                        grade = '及格';
+                    } else {
+                        grade = '较差';
+                    }
+                    geneMatchingGrade.value = grade;
+                }
+
+                // 生成配种依据建议
+                const matingBasis = document.getElementById('mating-basis');
+                if (matingBasis) {
+                    let basisText = `根据种公羊${ram.code}（${ram.breedTypeText} - ${ram.breedName}）和种母羊${ewe.code}（${ewe.breedTypeText} - ${ewe.breedName}）的基因分析，`;
+
+                    if (matchingScore >= 80) {
+                        basisText += `基因匹配度较高（${matchingScore}%），建议进行配种。`;
+                    } else if (matchingScore >= 70) {
+                        basisText += `基因匹配度一般（${matchingScore}%），可以考虑配种。`;
+                    } else {
+                        basisText += `基因匹配度较低（${matchingScore}%），建议重新选择种公羊。`;
+                    }
+
+                    if (commonGenes.length > 0) {
+                        basisText += ` 共同携带的基因：${commonGenes.join('、')}。`;
+                    }
+
+                    matingBasis.value = basisText;
+                }
+            }
+        }
+
+        // 打开新增配种模态框
+        function openAddMatingModal() {
+            // 重置表单
+            document.getElementById('mating-form').reset();
+            document.getElementById('mating-id').value = '';
+            document.getElementById('modal-title').textContent = '新增配种';
+
+            // 清空只读字段
+            document.getElementById('ram-code').value = '';
+            document.getElementById('ram-breed').value = '';
+            document.getElementById('ram-gene-type').value = '';
+            document.getElementById('ram-evaluation-score').value = '';
+            document.getElementById('ram-evaluation-grade').value = '';
+
+            document.getElementById('ewe-code').value = '';
+            document.getElementById('ewe-breed').value = '';
+            document.getElementById('ewe-gene-type').value = '';
+            document.getElementById('ewe-evaluation-score').value = '';
+            document.getElementById('ewe-evaluation-grade').value = '';
+
+            document.getElementById('gene-matching-grade').value = '';
+
+            // 设置当前编辑ID为null
+            currentEditId = null;
+
+            // 设置默认配种时间为当前时间
+            const now = new Date();
+            const dateTimeString = now.toISOString().slice(0, 16);
+            document.getElementById('mating-date').value = dateTimeString;
+
+            // 设置基因匹配度默认值
+            document.getElementById('gene-matching-score').value = 80;
+            document.getElementById('gene-matching-score-value').textContent = '80';
+            document.getElementById('gene-matching-grade').value = '良好';
+
+            // 显示模态框
+            document.getElementById('mating-modal').classList.remove('hidden');
+        }
+
+        // 打开编辑配种模态框
+        function openEditMatingModal(id) {
+            // 查找要编辑的配种数据
+            const mating = mockMatingData.find(item => item.id === id);
+            if (!mating) return;
+
+            // 设置当前编辑ID
+            currentEditId = id;
+
+            // 填充表单数据
+            document.getElementById('mating-id').value = mating.id;
+            document.getElementById('mating-batch').value = mating.batch;
+
+            // 设置配种时间
+            if (mating.matingDate) {
+                const dateTimeString = mating.matingDate.replace(' ', 'T');
+                document.getElementById('mating-date').value = dateTimeString;
+            } else {
+                document.getElementById('mating-date').value = '';
+            }
+
+            document.getElementById('mating-method').value = mating.matingMethod;
+            document.getElementById('mating-personnel').value = mating.matingPersonnel;
+            document.getElementById('mating-status').value = mating.matingStatus;
+            document.getElementById('mating-remark').value = mating.matingRemark || '';
+
+            // 设置种公羊信息
+            document.getElementById('ram-select').value = mating.ramId;
+            document.getElementById('ram-code').value = mating.ramCode;
+            document.getElementById('ram-breed').value = mating.ramBreed;
+            document.getElementById('ram-gene-type').value = mating.ramGeneType;
+
+            // 设置种母羊信息
+            document.getElementById('ewe-select').value = mating.eweId;
+            document.getElementById('ewe-code').value = mating.eweCode;
+            document.getElementById('ewe-breed').value = mating.eweBreed;
+            document.getElementById('ewe-gene-type').value = mating.eweGeneType;
+
+            // 设置发情检测信息
+            if (mating.estrusDetection) {
+                if (mating.estrusDetection.date) {
+                    const estrusDateTimeString = mating.estrusDetection.date.replace(' ', 'T');
+                    document.getElementById('estrus-detection-date').value = estrusDateTimeString;
+                }
+                document.getElementById('estrus-detection-result').value = mating.estrusDetection.result || '';
+                document.getElementById('estrus-detection-method').value = mating.estrusDetection.method || '';
+                document.getElementById('estrus-detection-details').value = mating.estrusDetection.details || '';
+            }
+
+            // 设置妊娠检测信息
+            if (mating.pregnancyTest) {
+                if (mating.pregnancyTest.date) {
+                    const pregnancyDateTimeString = mating.pregnancyTest.date.replace(' ', 'T');
+                    document.getElementById('pregnancy-test-date').value = pregnancyDateTimeString;
+                }
+                document.getElementById('pregnancy-test-result').value = mating.pregnancyTest.result || '';
+                document.getElementById('pregnancy-test-method').value = mating.pregnancyTest.method || '';
+                document.getElementById('expected-delivery-date').value = mating.pregnancyTest.expectedDeliveryDate || '';
+                document.getElementById('pregnancy-test-details').value = mating.pregnancyTest.details || '';
+            }
+
+            // 设置基因匹配信息
+            if (mating.geneMatching) {
+                document.getElementById('gene-matching-score').value = mating.geneMatching.score;
+                document.getElementById('gene-matching-score-value').textContent = mating.geneMatching.score;
+                document.getElementById('gene-matching-grade').value = mating.geneMatching.grade;
+                document.getElementById('inbreeding-risk').value = mating.geneMatching.inbreedingRisk;
+                document.getElementById('mating-basis').value = mating.geneMatching.matingBasis || '';
+                document.getElementById('gene-matching-details').value = mating.geneMatching.details || '';
+            }
+
+            // 设置模态框标题
+            document.getElementById('modal-title').textContent = '编辑配种';
+
+            // 显示模态框
+            document.getElementById('mating-modal').classList.remove('hidden');
+        }
+
+        // 保存配种数据
+        function saveMating() {
+            // 表单验证
+            const form = document.getElementById('mating-form');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            // 获取表单数据
+            const id = document.getElementById('mating-id').value;
+            const batch = document.getElementById('mating-batch').value;
+            const matingDate = document.getElementById('mating-date').value.replace('T', ' ');
+            const matingMethod = document.getElementById('mating-method').value;
+            const matingPersonnel = document.getElementById('mating-personnel').value;
+            const matingStatus = document.getElementById('mating-status').value;
+            const matingRemark = document.getElementById('mating-remark').value;
+
+            // 获取种公羊和种母羊信息
+            const ramId = document.getElementById('ram-select').value;
+            const eweId = document.getElementById('ewe-select').value;
+
+            // 查找选中的种公羊和种母羊
+            const ram = mockSheepData.find(item => item.id === ramId);
+            const ewe = mockSheepData.find(item => item.id === eweId);
+
+            if (!ram || !ewe) {
+                alert('请选择有效的种公羊和种母羊');
+                return;
+            }
+
+            // 获取发情检测信息
+            const estrusDetection = {
+                date: document.getElementById('estrus-detection-date').value ? document.getElementById('estrus-detection-date').value.replace('T', ' ') : '',
+                result: document.getElementById('estrus-detection-result').value,
+                method: document.getElementById('estrus-detection-method').value,
+                details: document.getElementById('estrus-detection-details').value
+            };
+
+            // 获取妊娠检测信息
+            const pregnancyTest = {
+                date: document.getElementById('pregnancy-test-date').value ? document.getElementById('pregnancy-test-date').value.replace('T', ' ') : '',
+                result: document.getElementById('pregnancy-test-result').value,
+                method: document.getElementById('pregnancy-test-method').value,
+                expectedDeliveryDate: document.getElementById('expected-delivery-date').value,
+                details: document.getElementById('pregnancy-test-details').value
+            };
+
+            // 获取基因匹配信息
+            const geneMatching = {
+                score: parseInt(document.getElementById('gene-matching-score').value),
+                grade: document.getElementById('gene-matching-grade').value,
+                inbreedingRisk: document.getElementById('inbreeding-risk').value,
+                matingBasis: document.getElementById('mating-basis').value,
+                details: document.getElementById('gene-matching-details').value
+            };
+
+            // 构建配种数据对象
+            const matingData = {
+                batch,
+                matingDate,
+                ramId,
+                ramCode: ram.code,
+                ramBreed: `${ram.breedTypeText} - ${ram.breedName}`,
+                ramGeneType: ram.geneType,
+                eweId,
+                eweCode: ewe.code,
+                eweBreed: `${ewe.breedTypeText} - ${ewe.breedName}`,
+                eweGeneType: ewe.geneType,
+                matingMethod,
+                matingMethodText: matingMethod === 'natural' ? '自然配种' : '人工授精',
+                matingPersonnel,
+                matingStatus,
+                matingStatusText: matingStatus === 'normal' ? '正常' : (matingStatus === 'abnormal' ? '异常' : '监测中'),
+                matingRemark,
+                estrusDetection,
+                pregnancyTest,
+                geneMatching,
+                updateTime: getCurrentDateTime()
+            };
+
+            // 保存数据
+            if (id) {
+                // 编辑现有数据
+                const index = mockMatingData.findIndex(m => m.id === id);
+                if (index !== -1) {
+                    mockMatingData[index] = { ...mockMatingData[index], ...matingData, id };
+                    alert(`配种记录 ${id} 已更新`);
+                }
+            } else {
+                // 添加新数据
+                const newId = (mockMatingData.length + 1).toString();
+                mockMatingData.push({ ...matingData, id: newId, createTime: getCurrentDateTime() });
+                alert(`配种记录已添加`);
+            }
+
+            // 关闭模态框
+            document.getElementById('mating-modal').classList.add('hidden');
+
+            // 更新表格
+            updateMatingTable();
+        }
+
+        // 删除配种数据
+        function deleteMating(ids) {
+            if (!Array.isArray(ids)) {
+                ids = [ids];
+            }
+
+            // 从数据中删除
+            ids.forEach(id => {
+                const index = mockMatingData.findIndex(mating => mating.id === id);
+                if (index !== -1) {
+                    mockMatingData.splice(index, 1);
+                }
+            });
+
+            // 更新表格
+            updateMatingTable();
+
+            // 重置选中状态
+            selectedIds = [];
+            document.getElementById('select-all').checked = false;
+            document.getElementById('batch-delete-btn').disabled = true;
+            document.getElementById('batch-delete-btn').classList.add('opacity-50', 'cursor-not-allowed');
+
+            // 显示删除成功消息
+            alert(`已成功删除 ${ids.length} 条配种记录`);
+        }
+
+        // 打开查看配种详情模态框
+        function openDetailModal(id) {
+            // 查找要查看的配种数据
+            const mating = mockMatingData.find(item => item.id === id);
+            if (!mating) return;
+
+            // 生成详情内容
+            const detailContent = document.getElementById('mating-detail-content');
+            detailContent.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- 基础信息 -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">基础信息</h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">配种批次：</span>
+                                <span class="text-sm font-medium">${mating.batch}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">配种时间：</span>
+                                <span class="text-sm font-medium">${mating.matingDate}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">配种方式：</span>
+                                <span class="text-sm font-medium">${mating.matingMethodText}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">配种人员：</span>
+                                <span class="text-sm font-medium">${mating.matingPersonnel}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">配种后状态：</span>
+                                <span class="text-sm font-medium">${mating.matingStatusText}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">备注：</span>
+                                <span class="text-sm font-medium">${mating.matingRemark || '-'}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 基因匹配信息 -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">基因匹配信息</h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">基因匹配度：</span>
+                                <span class="text-sm font-medium">${mating.geneMatching.score}%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">基因匹配等级：</span>
+                                <span class="text-sm font-medium">${mating.geneMatching.grade}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">近亲风险：</span>
+                                <span class="text-sm font-medium">${mating.geneMatching.inbreedingRiskText}</span>
+                            </div>
+                            <div class="mt-4">
+                                <span class="text-sm text-gray-600 block mb-1">配种依据：</span>
+                                <p class="text-sm font-medium">${mating.geneMatching.matingBasis || '-'}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- 种公羊信息 -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">种公羊信息</h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">种公羊编号：</span>
+                                <span class="text-sm font-medium">${mating.ramCode}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">种公羊品种：</span>
+                                <span class="text-sm font-medium">${mating.ramBreed}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">种公羊基因类型：</span>
+                                <span class="text-sm font-medium">${mating.ramGeneType}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 种母羊信息 -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">种母羊信息</h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">种母羊编号：</span>
+                                <span class="text-sm font-medium">${mating.eweCode}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">种母羊品种：</span>
+                                <span class="text-sm font-medium">${mating.eweBreed}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">种母羊基因类型：</span>
+                                <span class="text-sm font-medium">${mating.eweGeneType}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- 发情检测信息 -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">发情检测信息</h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">检测时间：</span>
+                                <span class="text-sm font-medium">${mating.estrusDetection.date || '-'}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">检测结果：</span>
+                                <span class="text-sm font-medium">${mating.estrusDetection.resultText || '-'}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">检测方式：</span>
+                                <span class="text-sm font-medium">${mating.estrusDetection.methodText || '-'}</span>
+                            </div>
+                            <div class="mt-4">
+                                <span class="text-sm text-gray-600 block mb-1">检测详情：</span>
+                                <p class="text-sm font-medium">${mating.estrusDetection.details || '-'}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 妊娠检测信息 -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">妊娠检测信息</h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">检测时间：</span>
+                                <span class="text-sm font-medium">${mating.pregnancyTest.date || '-'}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">检测结果：</span>
+                                <span class="text-sm font-medium">${mating.pregnancyTest.resultText || '-'}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">检测方式：</span>
+                                <span class="text-sm font-medium">${mating.pregnancyTest.methodText || '-'}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">预产期：</span>
+                                <span class="text-sm font-medium">${mating.pregnancyTest.expectedDeliveryDate || '-'}</span>
+                            </div>
+                            <div class="mt-4">
+                                <span class="text-sm text-gray-600 block mb-1">检测详情：</span>
+                                <p class="text-sm font-medium">${mating.pregnancyTest.details || '-'}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 基因匹配详情 -->
+                <div class="bg-gray-50 p-4 rounded-lg mb-6">
+                    <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">基因匹配详情</h4>
+                    <p class="text-sm font-medium">${mating.geneMatching.details || '-'}</p>
+                </div>
+
+                <!-- 操作记录 -->
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">操作记录</h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">创建时间：</span>
+                            <span class="text-sm font-medium">${mating.createTime}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">最后更新时间：</span>
+                            <span class="text-sm font-medium">${mating.updateTime}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // 设置模态框标题
+            document.getElementById('detail-modal-title').textContent = `配种详情 - ${mating.batch}`;
+
+            // 显示模态框
+            document.getElementById('detail-modal').classList.remove('hidden');
+        }
+
+        // 生成配种推荐
+        function generateRecommendation() {
+            const eweSelect = document.getElementById('recommend-ewe-select');
+            const breedTypeSelect = document.getElementById('recommend-breed-type');
+            const prioritySelect = document.getElementById('recommend-priority');
+
+            const selectedEweId = eweSelect.value;
+            const selectedBreedType = breedTypeSelect.value;
+            const selectedPriority = prioritySelect.value;
+
+            if (!selectedEweId) {
+                alert('请选择种母羊');
+                return;
+            }
+
+            // 查找选中的种母羊
+            const ewe = mockSheepData.find(item => item.id === selectedEweId);
+            if (!ewe) {
+                alert('未找到选中的种母羊');
+                return;
+            }
+
+            // 获取所有种公羊
+            let rams = mockSheepData.filter(item => item.gender === 'male');
+
+            // 根据品种类型筛选
+            if (selectedBreedType !== 'all') {
+                rams = rams.filter(ram => ram.breedType === selectedBreedType);
+            }
+
+            // 计算匹配度并排序
+            const recommendations = rams.map(ram => {
+                let matchingScore = calculateMatchingScore(ram, ewe, selectedPriority);
+                return {
+                    ram,
+                    matchingScore,
+                    grade: getMatchingGrade(matchingScore)
+                };
+            }).sort((a, b) => b.matchingScore - a.matchingScore);
+
+            // 显示推荐结果
+            const resultsContainer = document.getElementById('recommendation-results');
+            resultsContainer.innerHTML = '';
+
+            if (recommendations.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="p-4 bg-gray-50 rounded-lg text-center">
+                        <p class="text-gray-500">未找到符合条件的种公羊</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // 生成推荐卡片
+            recommendations.forEach((rec, index) => {
+                const card = document.createElement('div');
+                card.className = 'p-4 border rounded-lg hover:shadow-md transition-all cursor-pointer';
+                card.setAttribute('data-ram-id', rec.ram.id);
+
+                // 高亮显示第一个推荐
+                if (index === 0) {
+                    card.classList.add('bg-blue-50', 'border-blue-300');
+                }
+
+                // 计算共同基因
+                const ramGenes = rec.ram.geneType.split('、');
+                const eweGenes = ewe.geneType.split('、');
+                const commonGenes = ramGenes.filter(gene => eweGenes.includes(gene));
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h5 class="text-lg font-medium">推荐 ${index + 1}</h5>
+                        <span class="badge ${getGradeBadgeClass(rec.grade)}">${rec.grade}</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                        <div>
+                            <p class="text-sm text-gray-600">种公羊编号：${rec.ram.code}</p>
+                            <p class="text-sm text-gray-600">品种：${rec.ram.breedTypeText} - ${rec.ram.breedName}</p>
+                            <p class="text-sm text-gray-600">选育评估：${rec.ram.evaluationScore}分 (${rec.ram.evaluationGrade})</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">基因类型：${rec.ram.geneType}</p>
+                            <p class="text-sm text-gray-600">匹配度：${rec.matchingScore}%</p>
+                            <p class="text-sm text-gray-600">${commonGenes.length > 0 ? `共同基因：${commonGenes.join('、')}` : '无共同基因'}</p>
+                        </div>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        <p>${getMatchingRecommendation(rec.ram, ewe, rec.matchingScore, selectedPriority)}</p>
+                    </div>
+                `;
+
+                // 点击选择推荐
+                card.addEventListener('click', function() {
+                    // 移除其他卡片的选中状态
+                    document.querySelectorAll('#recommendation-results > div').forEach(c => {
+                        c.classList.remove('bg-blue-50', 'border-blue-300');
+                        c.classList.add('border-gray-200');
+                    });
+
+                    // 添加选中状态
+                    this.classList.add('bg-blue-50', 'border-blue-300');
+                    this.classList.remove('border-gray-200');
+
+                    // 记录选中的推荐
+                    selectedRecommendation = {
+                        ramId: this.getAttribute('data-ram-id'),
+                        eweId: selectedEweId
+                    };
+                });
+
+                resultsContainer.appendChild(card);
+            });
+
+            // 默认选中第一个推荐
+            if (recommendations.length > 0) {
+                const firstCard = resultsContainer.querySelector('div');
+                if (firstCard) {
+                    firstCard.click();
+                }
+            }
+        }
+
+        // 计算匹配度
+        function calculateMatchingScore(ram, ewe, priority) {
+            let score = 70; // 基础分
+
+            // 根据优先级调整权重
+            switch(priority) {
+                case 'gene':
+                    // 基因匹配优先
+                    score += calculateGeneMatchingScore(ram, ewe) * 0.5;
+                    score += calculateProductionScore(ram, ewe) * 0.3;
+                    score += calculateDiseaseResistanceScore(ram, ewe) * 0.2;
+                    break;
+                case 'production':
+                    // 生产性能优先
+                    score += calculateProductionScore(ram, ewe) * 0.5;
+                    score += calculateGeneMatchingScore(ram, ewe) * 0.3;
+                    score += calculateDiseaseResistanceScore(ram, ewe) * 0.2;
+                    break;
+                case 'disease':
+                    // 抗病性优先
+                    score += calculateDiseaseResistanceScore(ram, ewe) * 0.5;
+                    score += calculateProductionScore(ram, ewe) * 0.3;
+                    score += calculateGeneMatchingScore(ram, ewe) * 0.2;
+                    break;
+                case 'balanced':
+                default:
+                    // 综合平衡
+                    score += calculateGeneMatchingScore(ram, ewe) * 0.33;
+                    score += calculateProductionScore(ram, ewe) * 0.33;
+                    score += calculateDiseaseResistanceScore(ram, ewe) * 0.34;
+                    break;
+            }
+
+            return Math.min(100, Math.round(score));
+        }
+
+        // 计算基因匹配分数
+        function calculateGeneMatchingScore(ram, ewe) {
+            const ramGenes = ram.geneType.split('、');
+            const eweGenes = ewe.geneType.split('、');
+
+            // 计算共同基因数量
+            const commonGenes = ramGenes.filter(gene => eweGenes.includes(gene));
+
+            // 基础分
+            let score = 60;
+
+            // 根据共同基因数量加分
+            score += commonGenes.length * 10;
+
+            // 根据基因质量加分
+            if (ramGenes.includes('优质肉基因') || ramGenes.includes('优质绒基因')) {
+                score += 10;
+            }
+            if (ramGenes.includes('高产基因')) {
+                score += 5;
+            }
+            if (ramGenes.includes('抗病基因') || ramGenes.includes('抗逆基因')) {
+                score += 5;
+            }
+
+            return Math.min(100, score);
+        }
+
+        // 计算生产性能分数
+        function calculateProductionScore(ram, ewe) {
+            // 基础分：评估得分的平均值
+            let score = (ram.evaluationScore + ewe.evaluationScore) / 2;
+
+            // 根据品种类型加分
+            if (ram.breedType === ewe.breedType) {
+                score += 5;
+            }
+
+            return Math.min(100, score);
+        }
+
+        // 计算抗病性分数
+        function calculateDiseaseResistanceScore(ram, ewe) {
+            // 基础分
+            let score = 60;
+
+            // 根据抗病基因加分
+            if (ram.geneType.includes('抗病基因') || ram.geneType.includes('抗逆基因')) {
+                score += 20;
+            }
+            if (ewe.geneType.includes('抗病基因') || ewe.geneType.includes('抗逆基因')) {
+                score += 20;
+            }
+
+            // 根据评估等级加分
+            if (ram.evaluationGrade === '优良') {
+                score += 10;
+            }
+            if (ewe.evaluationGrade === '优良') {
+                score += 10;
+            }
+
+            return Math.min(100, score);
+        }
+
+        // 获取匹配等级
+        function getMatchingGrade(score) {
+            if (score >= 90) return '优秀';
+            if (score >= 80) return '良好';
+            if (score >= 70) return '一般';
+            if (score >= 60) return '及格';
+            return '较差';
+        }
+
+        // 获取等级标签样式
+        function getGradeBadgeClass(grade) {
+            switch(grade) {
+                case '优秀': return 'badge-success';
+                case '良好': return 'badge-info';
+                case '一般': return 'badge-warning';
+                case '及格': return 'badge-gray';
+                case '较差': return 'badge-danger';
+                default: return 'badge-gray';
+            }
+        }
+
+        // 获取匹配推荐文本
+        function getMatchingRecommendation(ram, ewe, score, priority) {
+            let recommendation = `种公羊${ram.code}与种母羊${ewe.code}的匹配度为${score}%，`;
+
+            if (score >= 90) {
+                recommendation += '匹配度极高，强烈推荐配种。';
+            } else if (score >= 80) {
+                recommendation += '匹配度较高，推荐配种。';
+            } else if (score >= 70) {
+                recommendation += '匹配度一般，可以考虑配种。';
+            } else if (score >= 60) {
+                recommendation += '匹配度较低，建议谨慎考虑。';
+            } else {
+                recommendation += '匹配度极低，不推荐配种。';
+            }
+
+            // 根据优先级添加额外建议
+            switch(priority) {
+                case 'gene':
+                    if (ram.geneType.includes('优质')) {
+                        recommendation += ` 种公羊携带优质基因，有助于提升后代品质。`;
+                    }
+                    break;
+                case 'production':
+                    if (ram.evaluationScore >= 85) {
+                        recommendation += ` 种公羊生产性能优秀，有助于提升后代生产性能。`;
+                    }
+                    break;
+                case 'disease':
+                    if (ram.geneType.includes('抗病') || ram.geneType.includes('抗逆')) {
+                        recommendation += ` 种公羊抗病性强，有助于提升后代抗病能力。`;
+                    }
+                    break;
+            }
+
+            return recommendation;
+        }
+
+        // 应用推荐
+        function applyRecommendation() {
+            if (!selectedRecommendation) {
+                alert('请先选择一个推荐方案');
+                return;
+            }
+
+            // 打开新增配种模态框
+            openAddMatingModal();
+
+            // 填充推荐的种公羊和种母羊
+            document.getElementById('ram-select').value = selectedRecommendation.ramId;
+            document.getElementById('ewe-select').value = selectedRecommendation.eweId;
+
+            // 更新相关信息
+            updateRamInfo();
+            updateEweInfo();
+            updateGeneMatchingInfo();
+
+            // 关闭推荐模态框
+            document.getElementById('recommendation-modal').classList.add('hidden');
+        }
+
+        // 获取当前日期时间
+        function getCurrentDateTime() {
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        }
+    </script>
+</body>
+</html>
