@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基因选育 - 羊只品种选育系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.544.0/dist/umd/lucide.min.js"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4F46E5;
+            --secondary-color: #EC4899;
+            --background-color: #F3F4F6;
+            --card-background: #FFFFFF;
+            --text-color: #1F2937;
+            --muted-text-color: #6B7280;
+        }
+        .dark {
+            --primary-color: #6366F1;
+            --secondary-color: #F472B6;
+            --background-color: #111827;
+            --card-background: #1F2937;
+            --text-color: #F9FAFB;
+            --muted-text-color: #9CA3AF;
+        }
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+        }
+        .card {
+            background-color: var(--card-background);
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: all 0.3s ease-in-out;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #4338CA;
+        }
+        .dark .btn-primary:hover {
+            background-color: #4F46E5;
+        }
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #DB2777;
+        }
+        .dark .btn-secondary:hover {
+            background-color: #EC4899;
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(79, 70, 229, 0.1);
+            border-left-color: var(--primary-color);
+        }
+        .dark .nav-link:hover, .dark .nav-link.active {
+            background-color: rgba(79, 70, 229, 0.2);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .form-input, .form-select {
+            background-color: var(--card-background);
+            border: 1px solid #D1D5DB;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+        .dark .form-input, .dark .form-select {
+            border-color: #374151;
+            background-color: #374151;
+        }
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-success {
+            background-color: #D1FAE5;
+            color: #065F46;
+        }
+        .dark .badge-success {
+            background-color: #065F46;
+            color: #D1FAE5;
+        }
+        .badge-warning {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
+        .dark .badge-warning {
+            background-color: #92400E;
+            color: #FEF3C7;
+        }
+        .badge-danger {
+            background-color: #FEE2E2;
+            color: #991B1B;
+        }
+        .dark .badge-danger {
+            background-color: #991B1B;
+            color: #FEE2E2;
+        }
+        .table-header {
+            background-color: #F9FAFB;
+            color: #374151;
+            font-weight: 600;
+        }
+        .dark .table-header {
+            background-color: #374151;
+            color: #F9FAFB;
+        }
+        .table-row {
+            transition: background-color 0.2s ease;
+        }
+        .table-row:hover {
+            background-color: #F3F4F6;
+        }
+        .dark .table-row:hover {
+            background-color: #374151;
+        }
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+        }
+        .modal-content {
+            background-color: var(--card-background);
+            border-radius: 0.75rem;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #1F2937;
+            color: #F9FAFB;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            z-index: 100;
+            transform: translateX(400px);
+            transition: transform 0.3s ease-in-out;
+        }
+        .toast.show {
+            transform: translateX(0);
+        }
+        .toast-success {
+            background-color: #065F46;
+        }
+        .toast-error {
+            background-color: #991B1B;
+        }
+        .toast-warning {
+            background-color: #92400E;
+        }
+    </style>
+
+    <!-- 统一的 Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb', // 主色调 - 专业蓝
+                        secondary: '#10b981', // 辅助色 - 成功绿
+                        accent: '#f59e0b', // 强调色 - 警告黄
+                        danger: '#ef4444', // 危险色 - 错误红
+                        dark: '#1e293b', // 深色
+                        light: '#f8fafc', // 浅色
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }
+            .transition-all {
+                transition: all 0.3s ease;
+            }
+            .chart-container {
+                position: relative;
+                height: 300px;
+                width: 100%;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        }
+    </style>
+</head>
+<body class="flex h-screen">
+
+    <!-- 侧边栏 -->
+    <aside class="hidden md:flex md:flex-shrink-0">
+        <div class="flex flex-col w-64 bg-white border-r border-gray-200">
+            <div class="flex items-center justify-center h-16 px-4 border-b border-gray-200 bg-primary">
+                <h2 class="text-xl font-bold text-white">羊只选育系统</h2>
+            </div>
+            <div class="flex flex-col flex-grow px-4 py-4 overflow-y-auto">
+                <div class="flex flex-col flex-grow space-y-1">
+                    <a href="index.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                        <i class="fa fa-dashboard mr-3"></i>
+                        <span>选育看板</span>
+                    </a>
+                    <a href="sheepinfo.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                        <i class="fa fa-users mr-3 text-gray-500"></i>
+                        <span>羊群管理</span>
+                    </a>
+                    <a href="evaluation.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                        <i class="fa fa-line-chart mr-3 text-gray-500"></i>
+                        <span>选育评估</span>
+                    </a>
+                    <a href="mating.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                        <i class="fa fa-calendar mr-3 text-gray-500"></i>
+                        <span>配种管理</span>
+                    </a>
+                    <a href="pedigree.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                        <i class="fa fa-file-text mr-3 text-gray-500"></i>
+                        <span>系谱追溯</span>
+                    </a>
+                    <a href="gene-selection.html" class="flex items-center px-4 py-3 text-gray-700 bg-gray-100 rounded-md">
+                        <i class="fa fa-file-text mr-3 text-gray-500 text-primary"></i>
+                        <span class="font-medium">基因选育</span>
+                    </a>
+
+                    <a href="statistics.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                        <i class="fa fa-file-text mr-3 text-gray-500"></i>
+                        <span>选育数据统计分析</span>
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                        <i class="fa fa-cog mr-3 text-gray-500"></i>
+                        <span>系统设置</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8 overflow-y-auto">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-3xl font-bold">基因选育</h2>
+            <button id="theme-toggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700">
+                <i data-lucide="sun" class="w-6 h-6 dark:hidden"></i>
+                <i data-lucide="moon" class="w-6 h-6 hidden dark:block"></i>
+            </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="mb-6 border-b border-gray-200 dark:border-gray-700">
+            <button class="tab-link active px-6 py-3 text-lg font-semibold text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400" data-tab="gene-detection">基因检测管理</button>
+            <button class="tab-link px-6 py-3 text-lg font-semibold text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400" data-tab="gene-screening">基因筛选管理</button>
+            <button class="tab-link px-6 py-3 text-lg font-semibold text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400" data-tab="breeding-plan">基因选育方案管理</button>
+        </div>
+
+        <!-- Gene Detection Tab -->
+        <div id="gene-detection" class="tab-content active">
+            <div class="card p-6 mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold">基因检测记录</h3>
+                    <button id="add-gene-detection-btn" class="btn-primary px-4 py-2 rounded-lg flex items-center">
+                        <i data-lucide="plus" class="w-5 h-5 mr-2"></i>新增记录
+                    </button>
+                </div>
+                <div class="flex items-center mb-4 gap-4">
+                    <input type="text" id="gene-detection-search" class="form-input flex-1 px-4 py-2 rounded-lg" placeholder="搜索检测批次、羊只编号或检测机构...">
+                    <select id="gene-detection-filter" class="form-select px-4 py-2 rounded-lg">
+                        <option value="">所有品种</option>
+                        <option value="肉羊">肉羊</option>
+                        <option value="绒羊">绒羊</option>
+                    </select>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="table-header">
+                            <tr>
+                                <th class="px-4 py-3">检测批次</th>
+                                <th class="px-4 py-3">检测时间</th>
+                                <th class="px-4 py-3">羊只编号</th>
+                                <th class="px-4 py-3">羊只品种</th>
+                                <th class="px-4 py-3">检测项目</th>
+                                <th class="px-4 py-3">检测机构</th>
+                                <th class="px-4 py-3">检测结果</th>
+                                <th class="px-4 py-3">基因类型</th>
+                                <th class="px-4 py-3">优良基因携带</th>
+                                <th class="px-4 py-3">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gene-detection-table-body">
+                            <!-- Data will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gene Screening Tab -->
+        <div id="gene-screening" class="tab-content">
+            <div class="card p-6 mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold">基因筛选记录</h3>
+                    <div class="flex gap-4">
+                        <button id="smart-screening-btn" class="btn-secondary px-4 py-2 rounded-lg flex items-center">
+                            <i data-lucide="brain" class="w-5 h-5 mr-2"></i>智能筛选
+                        </button>
+                        <button id="add-gene-screening-btn" class="btn-primary px-4 py-2 rounded-lg flex items-center">
+                            <i data-lucide="plus" class="w-5 h-5 mr-2"></i>新增记录
+                        </button>
+                    </div>
+                </div>
+                <div class="flex items-center mb-4 gap-4">
+                    <input type="text" id="gene-screening-search" class="form-input flex-1 px-4 py-2 rounded-lg" placeholder="搜索筛选批次、羊只编号...">
+                    <select id="gene-screening-filter" class="form-select px-4 py-2 rounded-lg">
+                        <option value="">所有结果</option>
+                        <option value="通过">通过</option>
+                        <option value="未通过">未通过</option>
+                    </select>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="table-header">
+                            <tr>
+                                <th class="px-4 py-3">筛选批次</th>
+                                <th class="px-4 py-3">筛选时间</th>
+                                <th class="px-4 py-3">筛选标准</th>
+                                <th class="px-4 py-3">筛选羊只编号</th>
+                                <th class="px-4 py-3">筛选结果</th>
+                                <th class="px-4 py-3">筛选人员</th>
+                                <th class="px-4 py-3">筛选意见</th>
+                                <th class="px-4 py-3">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gene-screening-table-body">
+                            <!-- Data will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Breeding Plan Tab -->
+        <div id="breeding-plan" class="tab-content">
+            <div class="card p-6 mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold">基因选育方案</h3>
+                    <div class="flex gap-4">
+                        <button id="smart-plan-btn" class="btn-secondary px-4 py-2 rounded-lg flex items-center">
+                            <i data-lucide="lightbulb" class="w-5 h-5 mr-2"></i>智能推荐
+                        </button>
+                        <button id="add-breeding-plan-btn" class="btn-primary px-4 py-2 rounded-lg flex items-center">
+                            <i data-lucide="plus" class="w-5 h-5 mr-2"></i>新增方案
+                        </button>
+                    </div>
+                </div>
+                <div class="flex items-center mb-4 gap-4">
+                    <input type="text" id="breeding-plan-search" class="form-input flex-1 px-4 py-2 rounded-lg" placeholder="搜索方案编号、方案名称...">
+                    <select id="breeding-plan-filter" class="form-select px-4 py-2 rounded-lg">
+                        <option value="">所有适配品种</option>
+                        <option value="肉羊">肉羊</option>
+                        <option value="绒羊">绒羊</option>
+                    </select>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="table-header">
+                            <tr>
+                                <th class="px-4 py-3">方案编号</th>
+                                <th class="px-4 py-3">方案名称</th>
+                                <th class="px-4 py-3">选育目标</th>
+                                <th class="px-4 py-3">适配品种</th>
+                                <th class="px-4 py-3">优良基因类型</th>
+                                <th class="px-4 py-3">实施周期</th>
+                                <th class="px-4 py-3">实施进度</th>
+                                <th class="px-4 py-3">负责人</th>
+                                <th class="px-4 py-3">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="breeding-plan-table-body">
+                            <!-- Data will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Gene Detection Modal -->
+    <div id="gene-detection-modal" class="modal-backdrop hidden">
+        <div class="modal-content p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 id="gene-detection-modal-title" class="text-2xl font-bold">新增基因检测记录</h3>
+                <button class="close-modal text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <form id="gene-detection-form">
+                <input type="hidden" id="gene-detection-id">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">检测批次</label>
+                        <input type="text" id="detection-batch" class="form-input w-full px-4 py-2 rounded-lg" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">检测时间</label>
+                        <input type="date" id="detection-date" class="form-input w-full px-4 py-2 rounded-lg" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">羊只编号</label>
+                        <input type="text" id="sheep-id" class="form-input w-full px-4 py-2 rounded-lg" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">羊只品种</label>
+                        <select id="sheep-breed" class="form-select w-full px-4 py-2 rounded-lg" required>
+                            <option value="肉羊">肉羊</option>
+                            <option value="绒羊">绒羊</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">检测项目</label>
+                        <select id="detection-items" class="form-select w-full px-4 py-2 rounded-lg" multiple required>
+                            <option value="产肉相关基因">产肉相关基因</option>
+                            <option value="产绒相关基因">产绒相关基因</option>
+                            <option value="抗病相关基因">抗病相关基因</option>
+                            <option value="生长速度相关基因">生长速度相关基因</option>
+                            <option value="繁殖力相关基因">繁殖力相关基因</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">检测机构</label>
+                        <input type="text" id="detection-institution" class="form-input w-full px-4 py-2 rounded-lg" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">检测结果</label>
+                        <select id="detection-result" class="form-select w-full px-4 py-2 rounded-lg" required>
+                            <option value="优秀">优秀</option>
+                            <option value="良好">良好</option>
+                            <option value="一般">一般</option>
+                            <option value="较差">较差</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">基因类型</label>
+                        <input type="text" id="gene-type" class="form-input w-full px-4 py-2 rounded-lg" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">优良基因携带情况</label>
+                        <select id="good-gene-carried" class="form-select w-full px-4 py-2 rounded-lg" required>
+                            <option value="是">是</option>
+                            <option value="否">否</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">检测人员</label>
+                        <input type="text" id="detection-personnel" class="form-input w-full px-4 py-2 rounded-lg" required>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium mb-2">检测报告</label>
+                        <input type="file" id="detection-report" class="form-input w-full px-4 py-2 rounded-lg">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium mb-2">备注</label>
+                        <textarea id="detection-remarks" rows="3" class="form-input w-full px-4 py-2 rounded-lg"></textarea>
+                    </div>
+                </div>
+                <div class="mt-8 flex justify-end gap-4">
+                    <button type="button" class="close-modal px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg">取消</button>
+                    <button type="submit" class="btn-primary px-6 py-2 rounded-lg">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Gene Screening Modal -->
+    <div id="gene-screening-modal" class="modal-backdrop hidden">
+        <div class="modal-content p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 id="gene-screening-modal-title" class="text-2xl font-bold">新增基因筛选记录</h3>
+                <button class="close-modal text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <form id="gene-screening-form">
+                <input type="hidden" id="gene-screening-id">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">筛选批次</label>
+                        <input type="text" id="screening-batch" class="form-input w-full px-4 py-2 rounded-lg" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">筛选时间</label>
+                        <input type="date" id="screening-date" class="form-input w-full px-4 py-2 rounded-lg" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">筛选标准</label>
+                        <textarea id="screening-standard" rows="2" class="form-input w-full px-4 py-2 rounded-lg" required></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">筛选羊只编号</label>
+                        <input type="text" id="screening-sheep-id" class="form-input w-full px-4 py-2 rounded-lg" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">筛选结果</label>
+                        <select id="screening-result" class="form-select w-full px-4 py-2 rounded-lg" required>
+                            <option value="通过">通过</option>
+                            <option value="未通过">未通过</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">筛选人员</label>
+                        <input type="text" id="screening-personnel" class="form-input w-full px-4 py-2 rounded-lg" required>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium mb-2">筛选意见</label>
+                        <textarea id="screening-comments" rows="3" class="form-input w-full px-4 py-2 rounded-lg"></textarea>
+                    </div>
+                </div>
+                <div class="mt-8 flex justify-end gap-4">
+                    <button type="button" class="close-modal px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg">取消</button>
+                    <button type="submit" class="btn-primary px-6 py-2 rounded-lg">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Breeding Plan Modal -->
+    <div id="breeding-plan-modal" class="modal-backdrop hidden">
+        <div class="modal-content p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 id="breeding-plan-modal-title" class="text-2xl font-bold">新增基因选育方案</h3>
+                <button class="close-modal text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <form id="breeding-plan-form">
+                <input type="hidden" id="breeding-plan-id">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">方案编号</label>
+                        <input type="text" id="plan-number" class="form-input w-full px-4 py-2 rounded-lg" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">方案名称</label>
+                        <input type="text" id="plan-name" class="form-input w-full px-4 py-2 rounded-lg" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">选育目标</label>
+                        <textarea id="breeding-goal" rows="2" class="form-input w-full px-4 py-2 rounded-lg" required></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">适配品种</label>
+                        <select id="plan-breed" class="form-select w-full px-4 py-2 rounded-lg" required>
+                            <option value="肉羊">肉羊</option>
+                            <option value="绒羊">绒羊</option>
+                            <option value="通用">通用</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">优良基因类型</label>
+                        <input type="text" id="good-gene-type" class="form-input w-full px-4 py-2 rounded-lg" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">配种匹配原则</label>
+                        <textarea id="mating-principle" rows="2" class="form-input w-full px-4 py-2 rounded-lg" required></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">实施周期</label>
+                        <input type="text" id="implementation-cycle" class="form-input w-full px-4 py-2 rounded-lg" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">负责人</label>
+                        <input type="text" id="responsible-person" class="form-input w-full px-4 py-2 rounded-lg" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">实施进度</label>
+                        <select id="implementation-progress" class="form-select w-full px-4 py-2 rounded-lg" required>
+                            <option value="未开始">未开始</option>
+                            <option value="进行中">进行中</option>
+                            <option value="已完成">已完成</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">方案评估结果</label>
+                        <select id="plan-evaluation-result" class="form-select w-full px-4 py-2 rounded-lg">
+                            <option value="">待评估</option>
+                            <option value="优秀">优秀</option>
+                            <option value="良好">良好</option>
+                            <option value="一般">一般</option>
+                            <option value="较差">较差</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium mb-2">实施步骤</label>
+                        <textarea id="implementation-steps" rows="3" class="form-input w-full px-4 py-2 rounded-lg" required></textarea>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium mb-2">备注</label>
+                        <textarea id="plan-remarks" rows="3" class="form-input w-full px-4 py-2 rounded-lg"></textarea>
+                    </div>
+                </div>
+                <div class="mt-8 flex justify-end gap-4">
+                    <button type="button" class="close-modal px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg">取消</button>
+                    <button type="submit" class="btn-primary px-6 py-2 rounded-lg">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Smart Screening Modal -->
+    <div id="smart-screening-result-modal" class="modal-backdrop hidden">
+        <div class="modal-content p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold">智能筛选结果</h3>
+                <button class="close-modal text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div id="smart-screening-result-content">
+                <!-- Results will be populated by JavaScript -->
+            </div>
+             <div class="mt-8 flex justify-end gap-4">
+                    <button type="button" class="close-modal px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg">关闭</button>
+                </div>
+        </div>
+    </div>
+
+    <!-- Smart Plan Modal -->
+    <div id="smart-plan-result-modal" class="modal-backdrop hidden">
+        <div class="modal-content p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold">智能方案推荐</h3>
+                <button class="close-modal text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div id="smart-plan-result-content">
+                <!-- Results will be populated by JavaScript -->
+            </div>
+             <div class="mt-8 flex justify-end gap-4">
+                    <button type="button" id="adopt-smart-plan-btn" class="btn-primary px-6 py-2 rounded-lg">采纳方案</button>
+                    <button type="button" class="close-modal px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg">关闭</button>
+                </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+        });
+
+        // Tab switching
+        const tabLinks = document.querySelectorAll('.tab-link');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                const tab = link.dataset.tab;
+
+                tabLinks.forEach(l => l.classList.remove('active', 'text-indigo-600', 'dark:text-indigo-400', 'border-b-2', 'border-indigo-600', 'dark:border-indigo-400'));
+                tabLinks.forEach(l => l.classList.add('text-gray-500', 'dark:text-gray-400'));
+
+                tabContents.forEach(c => c.classList.remove('active'));
+
+                link.classList.add('active', 'text-indigo-600', 'dark:text-indigo-400', 'border-b-2', 'border-indigo-600', 'dark:border-indigo-400');
+                link.classList.remove('text-gray-500', 'dark:text-gray-400');
+                document.getElementById(tab).classList.add('active');
+            });
+        });
+
+        // Modal functionality
+        const modals = document.querySelectorAll('.modal-backdrop');
+        const closeModalBtns = document.querySelectorAll('.close-modal');
+
+        closeModalBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                modals.forEach(modal => modal.classList.add('hidden'));
+            });
+        });
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast toast-${type}`;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Mock Data
+        let geneDetectionData = [
+            { id: 1, batch: 'JD-202401', date: '2024-01-15', sheepId: 'SY001', breed: '肉羊', items: '产肉相关基因, 抗病相关基因', institution: '中国农业科学院', result: '优秀', geneType: 'AA', goodGeneCarried: '是', report: 'report1.pdf', personnel: '张三', remarks: '无' },
+            { id: 2, batch: 'JD-202401', date: '2024-01-15', sheepId: 'SY002', breed: '肉羊', items: '产肉相关基因, 生长速度相关基因', institution: '中国农业科学院', result: '良好', geneType: 'AB', goodGeneCarried: '是', report: 'report2.pdf', personnel: '张三', remarks: '建议进一步观察' },
+            { id: 3, batch: 'JD-202402', date: '2024-02-20', sheepId: 'RY001', breed: '绒羊', items: '产绒相关基因, 抗病相关基因', institution: '内蒙古农业大学', result: '优秀', geneType: 'AA', goodGeneCarried: '是', report: 'report3.pdf', personnel: '李四', remarks: '无' },
+            { id: 4, batch: 'JD-202402', date: '2024-02-20', sheepId: 'RY002', breed: '绒羊', items: '产绒相关基因, 繁殖力相关基因', institution: '内蒙古农业大学', result: '一般', geneType: 'BB', goodGeneCarried: '否', report: 'report4.pdf', personnel: '李四', remarks: '需加强选育' },
+        ];
+
+        let geneScreeningData = [
+            { id: 1, batch: 'SX-202401', date: '2024-03-01', standard: '产肉率基因纯度>90%, 无不良基因', sheepId: 'SY001', result: '通过', personnel: '王五', comments: '基因纯度高，建议作为种羊' },
+            { id: 2, batch: 'SX-202401', date: '2024-03-01', standard: '产肉率基因纯度>90%, 无不良基因', sheepId: 'SY002', result: '通过', personnel: '王五', comments: '基因纯度良好，可作为种羊' },
+            { id: 3, batch: 'SX-202402', date: '2024-03-15', standard: '产绒量基因纯度>85%, 绒细度基因优良', sheepId: 'RY001', result: '通过', personnel: '赵六', comments: '各项指标优秀，重点培育' },
+            { id: 4, batch: 'SX-202402', date: '2024-03-15', standard: '产绒量基因纯度>85%, 绒细度基因优良', sheepId: 'RY002', result: '未通过', personnel: '赵六', comments: '绒细度基因不达标，建议淘汰' },
+        ];
+
+        let breedingPlanData = [
+            { id: 1, number: 'FA-202401', name: '肉羊高产肉率选育方案', goal: '提升肉羊产肉率和肉质', breed: '肉羊', goodGeneType: 'AA型产肉基因', matingPrinciple: '优选AA型公羊与AA型母羊交配', cycle: '2年', steps: '1. 筛选AA型种羊\n2. 分组配种\n3. 后代基因检测\n4. 淘汰劣种', person: '钱七', progress: '进行中', evaluation: '良好', remarks: '进展顺利' },
+            { id: 2, number: 'FA-202402', name: '绒羊高产量优质绒选育方案', goal: '提升绒羊产绒量和绒细度', breed: '绒羊', goodGeneType: 'AA型产绒基因', matingPrinciple: '优选产绒量高的公羊与绒细度好的母羊交配', cycle: '3年', steps: '1. 筛选优良种羊\n2. 建立选育核心群\n3. 定向配种\n4. 后代评估', person: '孙八', progress: '未开始', evaluation: '', remarks: '准备阶段' },
+        ];
+
+        // Render Gene Detection Table
+        function renderGeneDetectionTable(data) {
+            const tableBody = document.getElementById('gene-detection-table-body');
+            tableBody.innerHTML = '';
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = 'table-row border-b border-gray-200 dark:border-gray-700';
+                row.innerHTML = `
+                    <td class="px-4 py-3">${item.batch}</td>
+                    <td class="px-4 py-3">${item.date}</td>
+                    <td class="px-4 py-3">${item.sheepId}</td>
+                    <td class="px-4 py-3">${item.breed}</td>
+                    <td class="px-4 py-3">${item.items}</td>
+                    <td class="px-4 py-3">${item.institution}</td>
+                    <td class="px-4 py-3"><span class="badge ${item.result === '优秀' ? 'badge-success' : item.result === '良好' ? 'badge-warning' : 'badge-danger'}">${item.result}</span></td>
+                    <td class="px-4 py-3">${item.geneType}</td>
+                    <td class="px-4 py-3">${item.goodGeneCarried}</td>
+                    <td class="px-4 py-3">
+                        <button class="edit-gene-detection-btn text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300" data-id="${item.id}"><i data-lucide="edit" class="w-5 h-5"></i></button>
+                        <button class="delete-gene-detection-btn text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 ml-2" data-id="${item.id}"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                        <a href="#" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 ml-2" download><i data-lucide="download" class="w-5 h-5"></i></a>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            lucide.createIcons();
+        }
+
+        // Render Gene Screening Table
+        function renderGeneScreeningTable(data) {
+            const tableBody = document.getElementById('gene-screening-table-body');
+            tableBody.innerHTML = '';
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = 'table-row border-b border-gray-200 dark:border-gray-700';
+                row.innerHTML = `
+                    <td class="px-4 py-3">${item.batch}</td>
+                    <td class="px-4 py-3">${item.date}</td>
+                    <td class="px-4 py-3">${item.standard}</td>
+                    <td class="px-4 py-3">${item.sheepId}</td>
+                    <td class="px-4 py-3"><span class="badge ${item.result === '通过' ? 'badge-success' : 'badge-danger'}">${item.result}</span></td>
+                    <td class="px-4 py-3">${item.personnel}</td>
+                    <td class="px-4 py-3">${item.comments}</td>
+                    <td class="px-4 py-3">
+                        <button class="edit-gene-screening-btn text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300" data-id="${item.id}"><i data-lucide="edit" class="w-5 h-5"></i></button>
+                        <button class="delete-gene-screening-btn text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 ml-2" data-id="${item.id}"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            lucide.createIcons();
+        }
+
+        // Render Breeding Plan Table
+        function renderBreedingPlanTable(data) {
+            const tableBody = document.getElementById('breeding-plan-table-body');
+            tableBody.innerHTML = '';
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = 'table-row border-b border-gray-200 dark:border-gray-700';
+                row.innerHTML = `
+                    <td class="px-4 py-3">${item.number}</td>
+                    <td class="px-4 py-3">${item.name}</td>
+                    <td class="px-4 py-3">${item.goal}</td>
+                    <td class="px-4 py-3">${item.breed}</td>
+                    <td class="px-4 py-3">${item.goodGeneType}</td>
+                    <td class="px-4 py-3">${item.cycle}</td>
+                    <td class="px-4 py-3"><span class="badge ${item.progress === '已完成' ? 'badge-success' : item.progress === '进行中' ? 'badge-warning' : 'badge-danger'}">${item.progress}</span></td>
+                    <td class="px-4 py-3">${item.person}</td>
+                    <td class="px-4 py-3">
+                        <button class="edit-breeding-plan-btn text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300" data-id="${item.id}"><i data-lucide="edit" class="w-5 h-5"></i></button>
+                        <button class="delete-breeding-plan-btn text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 ml-2" data-id="${item.id}"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                        <button class="view-breeding-plan-btn text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 ml-2" data-id="${item.id}"><i data-lucide="eye" class="w-5 h-5"></i></button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            lucide.createIcons();
+        }
+
+        // Initial render
+        renderGeneDetectionTable(geneDetectionData);
+        renderGeneScreeningTable(geneScreeningData);
+        renderBreedingPlanTable(breedingPlanData);
+
+        // Gene Detection Modal
+        const geneDetectionModal = document.getElementById('gene-detection-modal');
+        const addGeneDetectionBtn = document.getElementById('add-gene-detection-btn');
+        const geneDetectionForm = document.getElementById('gene-detection-form');
+        const geneDetectionModalTitle = document.getElementById('gene-detection-modal-title');
+
+        addGeneDetectionBtn.addEventListener('click', () => {
+            geneDetectionModalTitle.textContent = '新增基因检测记录';
+            geneDetectionForm.reset();
+            document.getElementById('gene-detection-id').value = '';
+            geneDetectionModal.classList.remove('hidden');
+        });
+
+        // Edit Gene Detection
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.edit-gene-detection-btn')) {
+                const id = e.target.closest('.edit-gene-detection-btn').dataset.id;
+                const item = geneDetectionData.find(d => d.id == id);
+                if (item) {
+                    geneDetectionModalTitle.textContent = '编辑基因检测记录';
+                    document.getElementById('gene-detection-id').value = item.id;
+                    document.getElementById('detection-batch').value = item.batch;
+                    document.getElementById('detection-date').value = item.date;
+                    document.getElementById('sheep-id').value = item.sheepId;
+                    document.getElementById('sheep-breed').value = item.breed;
+                    // Set multiple select values
+                    const itemsSelect = document.getElementById('detection-items');
+                    itemsSelect.selectedOptions.forEach(option => option.selected = false);
+                    item.items.split(', ').forEach(itemText => {
+                        const option = Array.from(itemsSelect.options).find(o => o.value === itemText);
+                        if (option) option.selected = true;
+                    });
+                    document.getElementById('detection-institution').value = item.institution;
+                    document.getElementById('detection-result').value = item.result;
+                    document.getElementById('gene-type').value = item.geneType;
+                    document.getElementById('good-gene-carried').value = item.goodGeneCarried;
+                    document.getElementById('detection-personnel').value = item.personnel;
+                    document.getElementById('detection-remarks').value = item.remarks;
+                    geneDetectionModal.classList.remove('hidden');
+                }
+            }
+        });
+
+        // Delete Gene Detection
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.delete-gene-detection-btn')) {
+                const id = e.target.closest('.delete-gene-detection-btn').dataset.id;
+                if (confirm('确定要删除这条记录吗？')) {
+                    geneDetectionData = geneDetectionData.filter(d => d.id != id);
+                    renderGeneDetectionTable(geneDetectionData);
+                    showToast('删除成功！');
+                }
+            }
+        });
+
+        // Submit Gene Detection Form
+        geneDetectionForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = document.getElementById('gene-detection-id').value;
+            const formData = new FormData(geneDetectionForm);
+
+            // Get selected options for detection-items
+            const selectedItems = Array.from(document.getElementById('detection-items').selectedOptions).map(option => option.value).join(', ');
+
+            const data = {
+                batch: document.getElementById('detection-batch').value,
+                date: document.getElementById('detection-date').value,
+                sheepId: document.getElementById('sheep-id').value,
+                breed: document.getElementById('sheep-breed').value,
+                items: selectedItems,
+                institution: document.getElementById('detection-institution').value,
+                result: document.getElementById('detection-result').value,
+                geneType: document.getElementById('gene-type').value,
+                goodGeneCarried: document.getElementById('good-gene-carried').value,
+                report: 'report.pdf', // Mock file
+                personnel: document.getElementById('detection-personnel').value,
+                remarks: document.getElementById('detection-remarks').value
+            };
+
+            if (id) {
+                // Edit
+                const index = geneDetectionData.findIndex(d => d.id == id);
+                geneDetectionData[index] = { ...data, id: parseInt(id) };
+                showToast('更新成功！');
+            } else {
+                // Add
+                data.id = geneDetectionData.length + 1;
+                geneDetectionData.push(data);
+                showToast('添加成功！');
+            }
+            renderGeneDetectionTable(geneDetectionData);
+            geneDetectionModal.classList.add('hidden');
+        });
+
+        // Gene Screening Modal
+        const geneScreeningModal = document.getElementById('gene-screening-modal');
+        const addGeneScreeningBtn = document.getElementById('add-gene-screening-btn');
+        const geneScreeningForm = document.getElementById('gene-screening-form');
+        const geneScreeningModalTitle = document.getElementById('gene-screening-modal-title');
+
+        addGeneScreeningBtn.addEventListener('click', () => {
+            geneScreeningModalTitle.textContent = '新增基因筛选记录';
+            geneScreeningForm.reset();
+            document.getElementById('gene-screening-id').value = '';
+            geneScreeningModal.classList.remove('hidden');
+        });
+
+        // Edit Gene Screening
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.edit-gene-screening-btn')) {
+                const id = e.target.closest('.edit-gene-screening-btn').dataset.id;
+                const item = geneScreeningData.find(d => d.id == id);
+                if (item) {
+                    geneScreeningModalTitle.textContent = '编辑基因筛选记录';
+                    document.getElementById('gene-screening-id').value = item.id;
+                    document.getElementById('screening-batch').value = item.batch;
+                    document.getElementById('screening-date').value = item.date;
+                    document.getElementById('screening-standard').value = item.standard;
+                    document.getElementById('screening-sheep-id').value = item.sheepId;
+                    document.getElementById('screening-result').value = item.result;
+                    document.getElementById('screening-personnel').value = item.personnel;
+                    document.getElementById('screening-comments').value = item.comments;
+                    geneScreeningModal.classList.remove('hidden');
+                }
+            }
+        });
+
+        // Delete Gene Screening
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.delete-gene-screening-btn')) {
+                const id = e.target.closest('.delete-gene-screening-btn').dataset.id;
+                if (confirm('确定要删除这条记录吗？')) {
+                    geneScreeningData = geneScreeningData.filter(d => d.id != id);
+                    renderGeneScreeningTable(geneScreeningData);
+                    showToast('删除成功！');
+                }
+            }
+        });
+
+        // Submit Gene Screening Form
+        geneScreeningForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = document.getElementById('gene-screening-id').value;
+            const data = {
+                batch: document.getElementById('screening-batch').value,
+                date: document.getElementById('screening-date').value,
+                standard: document.getElementById('screening-standard').value,
+                sheepId: document.getElementById('screening-sheep-id').value,
+                result: document.getElementById('screening-result').value,
+                personnel: document.getElementById('screening-personnel').value,
+                comments: document.getElementById('screening-comments').value
+            };
+
+            if (id) {
+                // Edit
+                const index = geneScreeningData.findIndex(d => d.id == id);
+                geneScreeningData[index] = { ...data, id: parseInt(id) };
+                showToast('更新成功！');
+            } else {
+                // Add
+                data.id = geneScreeningData.length + 1;
+                geneScreeningData.push(data);
+                showToast('添加成功！');
+            }
+            renderGeneScreeningTable(geneScreeningData);
+            geneScreeningModal.classList.add('hidden');
+        });
+
+        // Breeding Plan Modal
+        const breedingPlanModal = document.getElementById('breeding-plan-modal');
+        const addBreedingPlanBtn = document.getElementById('add-breeding-plan-btn');
+        const breedingPlanForm = document.getElementById('breeding-plan-form');
+        const breedingPlanModalTitle = document.getElementById('breeding-plan-modal-title');
+
+        addBreedingPlanBtn.addEventListener('click', () => {
+            breedingPlanModalTitle.textContent = '新增基因选育方案';
+            breedingPlanForm.reset();
+            document.getElementById('breeding-plan-id').value = '';
+            breedingPlanModal.classList.remove('hidden');
+        });
+
+        // Edit Breeding Plan
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.edit-breeding-plan-btn')) {
+                const id = e.target.closest('.edit-breeding-plan-btn').dataset.id;
+                const item = breedingPlanData.find(d => d.id == id);
+                if (item) {
+                    breedingPlanModalTitle.textContent = '编辑基因选育方案';
+                    document.getElementById('breeding-plan-id').value = item.id;
+                    document.getElementById('plan-number').value = item.number;
+                    document.getElementById('plan-name').value = item.name;
+                    document.getElementById('breeding-goal').value = item.goal;
+                    document.getElementById('plan-breed').value = item.breed;
+                    document.getElementById('good-gene-type').value = item.goodGeneType;
+                    document.getElementById('mating-principle').value = item.matingPrinciple;
+                    document.getElementById('implementation-cycle').value = item.cycle;
+                    document.getElementById('implementation-steps').value = item.steps;
+                    document.getElementById('responsible-person').value = item.person;
+                    document.getElementById('implementation-progress').value = item.progress;
+                    document.getElementById('plan-evaluation-result').value = item.evaluation || '';
+                    document.getElementById('plan-remarks').value = item.remarks;
+                    breedingPlanModal.classList.remove('hidden');
+                }
+            }
+        });
+
+        // Delete Breeding Plan
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.delete-breeding-plan-btn')) {
+                const id = e.target.closest('.delete-breeding-plan-btn').dataset.id;
+                if (confirm('确定要删除这个方案吗？')) {
+                    breedingPlanData = breedingPlanData.filter(d => d.id != id);
+                    renderBreedingPlanTable(breedingPlanData);
+                    showToast('删除成功！');
+                }
+            }
+        });
+
+        // View Breeding Plan
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.view-breeding-plan-btn')) {
+                const id = e.target.closest('.view-breeding-plan-btn').dataset.id;
+                const item = breedingPlanData.find(d => d.id == id);
+                if (item) {
+                    breedingPlanModalTitle.textContent = '查看基因选育方案';
+                    document.getElementById('breeding-plan-id').value = item.id;
+                    document.getElementById('plan-number').value = item.number;
+                    document.getElementById('plan-name').value = item.name;
+                    document.getElementById('breeding-goal').value = item.goal;
+                    document.getElementById('plan-breed').value = item.breed;
+                    document.getElementById('good-gene-type').value = item.goodGeneType;
+                    document.getElementById('mating-principle').value = item.matingPrinciple;
+                    document.getElementById('implementation-cycle').value = item.cycle;
+                    document.getElementById('implementation-steps').value = item.steps;
+                    document.getElementById('responsible-person').value = item.person;
+                    document.getElementById('implementation-progress').value = item.progress;
+                    document.getElementById('plan-evaluation-result').value = item.evaluation || '';
+                    document.getElementById('plan-remarks').value = item.remarks;
+
+                    // Disable all form fields
+                    const inputs = breedingPlanForm.querySelectorAll('input, select, textarea');
+                    inputs.forEach(input => input.disabled = true);
+
+                    breedingPlanModal.classList.remove('hidden');
+
+                    // After modal is closed, re-enable fields
+                    const closeBtns = breedingPlanModal.querySelectorAll('.close-modal');
+                    closeBtns.forEach(btn => {
+                        const originalHandler = btn.onclick;
+                        btn.onclick = function() {
+                            inputs.forEach(input => input.disabled = false);
+                            if (originalHandler) originalHandler();
+                            breedingPlanModal.classList.add('hidden');
+                        };
+                    });
+                }
+            }
+        });
+
+        // Submit Breeding Plan Form
+        breedingPlanForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = document.getElementById('breeding-plan-id').value;
+            const data = {
+                number: document.getElementById('plan-number').value,
+                name: document.getElementById('plan-name').value,
+                goal: document.getElementById('breeding-goal').value,
+                breed: document.getElementById('plan-breed').value,
+                goodGeneType: document.getElementById('good-gene-type').value,
+                matingPrinciple: document.getElementById('mating-principle').value,
+                cycle: document.getElementById('implementation-cycle').value,
+                steps: document.getElementById('implementation-steps').value,
+                person: document.getElementById('responsible-person').value,
+                progress: document.getElementById('implementation-progress').value,
+                evaluation: document.getElementById('plan-evaluation-result').value,
+                remarks: document.getElementById('plan-remarks').value
+            };
+
+            if (id) {
+                // Edit
+                const index = breedingPlanData.findIndex(d => d.id == id);
+                breedingPlanData[index] = { ...data, id: parseInt(id) };
+                showToast('更新成功！');
+            } else {
+                // Add
+                data.id = breedingPlanData.length + 1;
+                breedingPlanData.push(data);
+                showToast('添加成功！');
+            }
+            renderBreedingPlanTable(breedingPlanData);
+            breedingPlanModal.classList.add('hidden');
+        });
+
+        // Smart Screening
+        const smartScreeningBtn = document.getElementById('smart-screening-btn');
+        const smartScreeningResultModal = document.getElementById('smart-screening-result-modal');
+        const smartScreeningResultContent = document.getElementById('smart-screening-result-content');
+
+        smartScreeningBtn.addEventListener('click', () => {
+            // Simulate AI processing
+            showToast('正在进行智能筛选分析...', 'warning');
+            setTimeout(() => {
+                const excellentSheep = geneDetectionData.filter(d => d.result === '优秀' && d.goodGeneCarried === '是');
+                let content = `
+                    <div class="space-y-4">
+                        <p class="text-lg font-semibold">智能筛选已完成，根据基因检测数据，以下羊只具有优良基因：</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                `;
+                excellentSheep.forEach(sheep => {
+                    content += `
+                        <div class="card p-4">
+                            <h4 class="font-bold text-lg">${sheep.sheepId} - ${sheep.breed}</h4>
+                            <p><strong>检测批次:</strong> ${sheep.batch}</p>
+                            <p><strong>基因类型:</strong> ${sheep.geneType}</p>
+                            <p><strong>检测结果:</strong> <span class="badge badge-success">${sheep.result}</span></p>
+                            <p><strong>推荐理由:</strong> 携带优良${sheep.breed === '肉羊' ? '产肉' : '产绒'}基因，建议作为核心种羊。</p>
+                        </div>
+                    `;
+                });
+                content += `</div></div>`;
+                smartScreeningResultContent.innerHTML = content;
+                smartScreeningResultModal.classList.remove('hidden');
+                showToast('智能筛选完成！');
+            }, 1500);
+        });
+
+        // Smart Plan Recommendation
+        const smartPlanBtn = document.getElementById('smart-plan-btn');
+        const smartPlanResultModal = document.getElementById('smart-plan-result-modal');
+        const smartPlanResultContent = document.getElementById('smart-plan-result-content');
+        const adoptSmartPlanBtn = document.getElementById('adopt-smart-plan-btn');
+        let currentSmartPlan = null;
+
+        smartPlanBtn.addEventListener('click', () => {
+            showToast('正在生成智能方案推荐...', 'warning');
+            setTimeout(() => {
+                // Analyze data to generate recommendation
+                const sheepBreedCount = {肉羊: 0, 绒羊: 0};
+                geneDetectionData.forEach(d => {
+                    if (d.goodGeneCarried === '是') {
+                        sheepBreedCount[d.breed]++;
+                    }
+                });
+
+                const targetBreed = sheepBreedCount.肉羊 > sheepBreedCount.绒羊 ? '肉羊' : '绒羊';
+                const goal = targetBreed === '肉羊' ? '提升肉羊产肉率和肉质' : '提升绒羊产绒量和绒细度';
+                const geneType = targetBreed === '肉羊' ? 'AA型产肉基因' : 'AA型产绒基因';
+                const principle = targetBreed === '肉羊' ? '优选AA型公羊与AA型母羊交配' : '优选产绒量高的公羊与绒细度好的母羊交配';
+
+                currentSmartPlan = {
+                    number: `AI-${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}`,
+                    name: `${targetBreed}智能选育方案`,
+                    goal: goal,
+                    breed: targetBreed,
+                    goodGeneType: geneType,
+                    matingPrinciple: principle,
+                    cycle: '2年',
+                    steps: `1. 筛选${geneType.split('型')[0]}型种羊\n2. 建立核心选育群\n3. 按照${principle.split('优选')[1]}进行配种\n4. 后代基因检测与评估\n5. 淘汰不符合标准的后代`,
+                    person: '系统推荐',
+                    progress: '未开始',
+                    evaluation: '',
+                    remarks: '由AI根据现有基因检测数据智能生成'
+                };
+
+                let content = `
+                    <div class="space-y-4">
+                        <p class="text-lg font-semibold">根据您的羊群基因检测和筛选数据，智能推荐以下选育方案：</p>
+                        <div class="card p-6">
+                            <h4 class="font-bold text-xl mb-4">${currentSmartPlan.name}</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <p><strong>方案编号:</strong> ${currentSmartPlan.number}</p>
+                                    <p><strong>选育目标:</strong> ${currentSmartPlan.goal}</p>
+                                    <p><strong>适配品种:</strong> ${currentSmartPlan.breed}</p>
+                                    <p><strong>优良基因类型:</strong> ${currentSmartPlan.goodGeneType}</p>
+                                    <p><strong>配种匹配原则:</strong> ${currentSmartPlan.matingPrinciple}</p>
+                                    <p><strong>实施周期:</strong> ${currentSmartPlan.cycle}</p>
+                                    <p><strong>负责人:</strong> ${currentSmartPlan.person}</p>
+                                </div>
+                                <div>
+                                    <p><strong>实施步骤:</strong></p>
+                                    <pre class="whitespace-pre-wrap bg-gray-100 dark:bg-gray-700 p-2 rounded">${currentSmartPlan.steps}</pre>
+                                    <p class="mt-2"><strong>备注:</strong> ${currentSmartPlan.remarks}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                smartPlanResultContent.innerHTML = content;
+                smartPlanResultModal.classList.remove('hidden');
+                showToast('智能方案推荐生成成功！');
+            }, 2000);
+        });
+
+        adoptSmartPlanBtn.addEventListener('click', () => {
+            if (currentSmartPlan) {
+                currentSmartPlan.id = breedingPlanData.length + 1;
+                breedingPlanData.push(currentSmartPlan);
+                renderBreedingPlanTable(breedingPlanData);
+                smartPlanResultModal.classList.add('hidden');
+                showToast('已成功采纳智能推荐方案！');
+            }
+        });
+
+        // Search and filter functionality
+        document.getElementById('gene-detection-search').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredData = geneDetectionData.filter(item =>
+                item.batch.toLowerCase().includes(searchTerm) ||
+                item.sheepId.toLowerCase().includes(searchTerm) ||
+                item.institution.toLowerCase().includes(searchTerm)
+            );
+            renderGeneDetectionTable(filteredData);
+        });
+
+        document.getElementById('gene-detection-filter').addEventListener('change', (e) => {
+            const filterValue = e.target.value;
+            const filteredData = filterValue ? geneDetectionData.filter(item => item.breed === filterValue) : geneDetectionData;
+            renderGeneDetectionTable(filteredData);
+        });
+
+        document.getElementById('gene-screening-search').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredData = geneScreeningData.filter(item =>
+                item.batch.toLowerCase().includes(searchTerm) ||
+                item.sheepId.toLowerCase().includes(searchTerm)
+            );
+            renderGeneScreeningTable(filteredData);
+        });
+
+        document.getElementById('gene-screening-filter').addEventListener('change', (e) => {
+            const filterValue = e.target.value;
+            const filteredData = filterValue ? geneScreeningData.filter(item => item.result === filterValue) : geneScreeningData;
+            renderGeneScreeningTable(filteredData);
+        });
+
+        document.getElementById('breeding-plan-search').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredData = breedingPlanData.filter(item =>
+                item.number.toLowerCase().includes(searchTerm) ||
+                item.name.toLowerCase().includes(searchTerm)
+            );
+            renderBreedingPlanTable(filteredData);
+        });
+
+        document.getElementById('breeding-plan-filter').addEventListener('change', (e) => {
+            const filterValue = e.target.value;
+            const filteredData = filterValue ? breedingPlanData.filter(item => item.breed === filterValue) : breedingPlanData;
+            renderBreedingPlanTable(filteredData);
+        });
+
+        // Allow closing modals by clicking outside
+        modals.forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>
