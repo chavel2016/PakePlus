@@ -1,0 +1,2115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>羊只品种选育系统 - 系谱追溯</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <!-- 统一的 Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb', // 主色调 - 专业蓝
+                        secondary: '#10b981', // 辅助色 - 成功绿
+                        accent: '#f59e0b', // 强调色 - 警告黄
+                        danger: '#ef4444', // 危险色 - 错误红
+                        dark: '#1e293b', // 深色
+                        light: '#f8fafc', // 浅色
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }
+            .transition-all {
+                transition: all 0.3s ease;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .form-input-focus {
+                @apply focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none;
+            }
+            .btn-primary {
+                @apply px-4 py-2 bg-primary text-white rounded-md hover:bg-blue-700 transition-all;
+            }
+            .btn-secondary {
+                @apply px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-all;
+            }
+            .btn-danger {
+                @apply px-4 py-2 bg-danger text-white rounded-md hover:bg-red-600 transition-all;
+            }
+            .btn-outline {
+                @apply px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-all;
+            }
+            .badge {
+                @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+            }
+            .badge-success {
+                @apply bg-green-100 text-green-800;
+            }
+            .badge-warning {
+                @apply bg-yellow-100 text-yellow-800;
+            }
+            .badge-danger {
+                @apply bg-red-100 text-red-800;
+            }
+            .badge-info {
+                @apply bg-blue-100 text-blue-800;
+            }
+            .badge-gray {
+                @apply bg-gray-100 text-gray-800;
+            }
+            .pedigree-node {
+                @apply relative w-40 h-20 border-2 border-gray-300 rounded-lg flex items-center justify-center text-center bg-white;
+            }
+            .pedigree-node-current {
+                @apply border-primary bg-blue-50;
+            }
+            .pedigree-node-male {
+                @apply border-blue-400 bg-blue-50;
+            }
+            .pedigree-node-female {
+                @apply border-pink-400 bg-pink-50;
+            }
+            .pedigree-line {
+                @apply absolute bg-gray-400;
+            }
+            .pedigree-line-horizontal {
+                @apply h-0.5;
+            }
+            .pedigree-line-vertical {
+                @apply w-0.5;
+            }
+            .pedigree-line-diagonal {
+                @apply w-0.5 transform rotate-45 origin-bottom-left;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- 侧边栏 -->
+        <aside class="hidden md:flex md:flex-shrink-0">
+            <div class="flex flex-col w-64 bg-white border-r border-gray-200">
+                <div class="flex items-center justify-center h-16 px-4 border-b border-gray-200 bg-primary">
+                    <h2 class="text-xl font-bold text-white">羊只选育系统</h2>
+                </div>
+                <div class="flex flex-col flex-grow px-4 py-4 overflow-y-auto">
+                    <div class="flex flex-col flex-grow space-y-1">
+                        <a href="index.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-dashboard mr-3"></i>
+                            <span>选育看板</span>
+                        </a>
+                        <a href="sheepinfo.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-users mr-3 text-gray-500"></i>
+                            <span >羊群管理</span>
+                        </a>
+                        <a href="evaluation.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-line-chart mr-3 text-gray-500"></i>
+                            <span>选育评估</span>
+                        </a>
+                        <a href="mating.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-calendar mr-3 text-gray-500"></i>
+                            <span>配种管理</span>
+                        </a>
+                        <a href="pedigree.html" class="flex items-center px-4 py-3 text-gray-700 bg-gray-100 rounded-md">
+                            <i class="fa fa-file-text mr-3 text-gray-500  text-primary"></i>
+                            <span class="font-medium">系谱追溯</span>
+                        </a>
+                        <a href="gene-selection.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-file-text mr-3 text-gray-500"></i>
+                            <span>基因选育</span>
+                        </a>
+
+                        <a href="statistics.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-file-text mr-3 text-gray-500"></i>
+                            <span>选育数据统计分析</span>
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-cog mr-3 text-gray-500"></i>
+                            <span>系统设置</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <div class="flex flex-col flex-1 w-0 overflow-hidden">
+            <!-- 顶部导航栏 -->
+            <header class="z-10 py-4 bg-white shadow-sm">
+                <div class="flex items-center justify-between px-4 sm:px-6 lg:px-8">
+                    <div class="flex items-center md:hidden">
+                        <button type="button" class="text-gray-500 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary" id="mobile-menu-button">
+                            <i class="fa fa-bars text-xl"></i>
+                        </button>
+                    </div>
+                    <div class="flex items-center">
+                        <h1 class="text-xl font-semibold text-gray-800">系谱追溯</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button type="button" class="text-gray-500 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                            <span class="sr-only">查看通知</span>
+                            <i class="fa fa-bell text-xl"></i>
+                            <span class="absolute top-3 right-3 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-danger rounded-full">3</span>
+                        </button>
+                        <div class="relative">
+                            <button type="button" class="flex items-center space-x-2 focus:outline-none">
+                                <img class="w-8 h-8 rounded-full" src="https://randomuser.me/api/portraits/men/1.jpg" alt="用户头像">
+                                <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+                                <i class="fa fa-chevron-down text-xs text-gray-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 移动端侧边栏 -->
+            <div class="fixed inset-0 z-40 hidden bg-gray-600 bg-opacity-75" id="mobile-menu-overlay"></div>
+            <div class="fixed inset-y-0 left-0 z-50 w-64 -translate-x-full bg-white shadow-xl" id="mobile-menu">
+                <div class="flex items-center justify-between h-16 px-4 border-b border-gray-200 bg-primary">
+                    <h2 class="text-xl font-bold text-white">羊只选育系统</h2>
+                    <button type="button" class="text-white hover:text-gray-200 focus:outline-none" id="mobile-menu-close">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div class="px-4 py-4 overflow-y-auto">
+                    <div class="space-y-1">
+                        <a href="index.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-dashboard mr-3 text-gray-500"></i>
+                            <span>选育看板</span>
+                        </a>
+                        <a href="registration.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-users mr-3 text-gray-500"></i>
+                            <span>羊群管理</span>
+                        </a>
+                        <a href="evaluation.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-line-chart mr-3 text-gray-500"></i>
+                            <span>选育分析</span>
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-dna mr-3 text-gray-500"></i>
+                            <span>基因选育</span>
+                        </a>
+                        <a href="mating.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-heart mr-3 text-gray-500"></i>
+                            <span>配种管理</span>
+                        </a>
+                        <a href="pedigree.html" class="flex items-center px-4 py-3 text-gray-700 bg-gray-100 rounded-md">
+                            <i class="fa fa-sitemap mr-3 text-primary"></i>
+                            <span class="font-medium">系谱追溯</span>
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-cog mr-3 text-gray-500"></i>
+                            <span>系统设置</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 主内容 -->
+            <main class="flex-1 overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
+                <!-- 操作按钮区 -->
+                <div class="flex flex-wrap items-center justify-between mb-6 gap-2">
+                    <div class="flex items-center space-x-2">
+                        <button type="button" class="btn-primary flex items-center" id="add-pedigree-btn">
+                            <i class="fa fa-plus mr-2"></i>
+                            <span>新增系谱</span>
+                        </button>
+                        <button type="button" class="btn-outline flex items-center" id="batch-import-btn">
+                            <i class="fa fa-upload mr-2"></i>
+                            <span>批量导入</span>
+                        </button>
+                        <button type="button" class="btn-outline flex items-center" id="pedigree-analysis-btn">
+                            <i class="fa fa-bar-chart mr-2"></i>
+                            <span>系谱分析</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button type="button" class="btn-outline flex items-center" id="export-pedigree-btn">
+                            <i class="fa fa-download mr-2"></i>
+                            <span>导出系谱</span>
+                        </button>
+                        <button type="button" class="btn-danger flex items-center" id="batch-delete-btn" disabled>
+                            <i class="fa fa-trash mr-2"></i>
+                            <span>批量删除</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 搜索与筛选区 -->
+                <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                        <div class="col-span-1 md:col-span-2">
+                            <label for="search-text" class="block text-sm font-medium text-gray-700 mb-1">搜索</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fa fa-search text-gray-400"></i>
+                                </div>
+                                <input type="text" id="search-text" name="search-text" placeholder="羊只编号、父亲编号、母亲编号" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="filter-breed-type" class="block text-sm font-medium text-gray-700 mb-1">品种类型</label>
+                            <select id="filter-breed-type" name="filter-breed-type" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                <option value="all">全部</option>
+                                <option value="meat">肉羊</option>
+                                <option value="wool">绒羊</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="filter-gender" class="block text-sm font-medium text-gray-700 mb-1">性别</label>
+                            <select id="filter-gender" name="filter-gender" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                <option value="all">全部</option>
+                                <option value="male">公</option>
+                                <option value="female">母</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="filter-pedigree-grade" class="block text-sm font-medium text-gray-700 mb-1">系谱等级</label>
+                            <select id="filter-pedigree-grade" name="filter-pedigree-grade" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                <option value="all">全部</option>
+                                <option value="excellent">优秀</option>
+                                <option value="good">良好</option>
+                                <option value="normal">一般</option>
+                                <option value="incomplete">不完整</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="filter-completion-rate" class="block text-sm font-medium text-gray-700 mb-1">完善率</label>
+                            <select id="filter-completion-rate" name="filter-completion-rate" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                <option value="all">全部</option>
+                                <option value="high">高 (≥80%)</option>
+                                <option value="medium">中 (60%-79%)</option>
+                                <option value="low">低 (&lt;60%)</option>
+                            </select>
+                        </div>
+                        <div class="col-span-1 md:col-span-6 flex justify-end space-x-2 pt-4">
+                            <button type="button" class="btn-secondary" id="reset-filter-btn">
+                                重置
+                            </button>
+                            <button type="button" class="btn-primary" id="search-btn">
+                                搜索
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 系谱列表表格区 -->
+                <div class="bg-white shadow-sm rounded-lg overflow-hidden mb-6">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <div class="flex items-center">
+                                            <input id="select-all" name="select-all" type="checkbox" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                                            <label for="select-all" class="sr-only">选择所有</label>
+                                        </div>
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        羊只编号
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        品种
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        性别
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        出生日期
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        父亲编号
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        母亲编号
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        系谱等级
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        完善率
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        登记时间
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        操作
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="pedigree-table-body">
+                                <!-- 表格数据将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                        <div class="flex-1 flex justify-between sm:hidden">
+                            <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                上一页
+                            </a>
+                            <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                下一页
+                            </a>
+                        </div>
+                        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                            <div>
+                                <p class="text-sm text-gray-700">
+                                    显示 <span class="font-medium">1</span> 到 <span class="font-medium">10</span> 条，共 <span class="font-medium">25</span> 条记录
+                                </p>
+                            </div>
+                            <div>
+                                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                    <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <span class="sr-only">上一页</span>
+                                        <i class="fa fa-chevron-left"></i>
+                                    </a>
+                                    <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-primary text-sm font-medium text-white">
+                                        1
+                                    </a>
+                                    <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                        2
+                                    </a>
+                                    <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                        3
+                                    </a>
+                                    <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <span class="sr-only">下一页</span>
+                                        <i class="fa fa-chevron-right"></i>
+                                    </a>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 新增/编辑系谱模态框 -->
+    <div class="fixed inset-0 z-50 hidden overflow-y-auto" id="pedigree-modal">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" id="modal-title">
+                                新增系谱
+                            </h3>
+                            <div class="mt-2">
+                                <form id="pedigree-form">
+                                    <input type="hidden" id="pedigree-id" value="">
+
+                                    <!-- 基础信息区 -->
+                                    <div class="mb-6">
+                                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">基础信息</h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div>
+                                                <label for="sheep-code" class="block text-sm font-medium text-gray-700 mb-1">羊只编号 <span class="text-danger">*</span></label>
+                                                <input type="text" id="sheep-code" name="sheep-code" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                            </div>
+                                            <div>
+                                                <label for="breed-type" class="block text-sm font-medium text-gray-700 mb-1">品种类型 <span class="text-danger">*</span></label>
+                                                <select id="breed-type" name="breed-type" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                                    <option value="meat">肉羊</option>
+                                                    <option value="wool">绒羊</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label for="breed-name" class="block text-sm font-medium text-gray-700 mb-1">品种名称 <span class="text-danger">*</span></label>
+                                                <input type="text" id="breed-name" name="breed-name" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                            </div>
+                                            <div>
+                                                <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">性别 <span class="text-danger">*</span></label>
+                                                <select id="gender" name="gender" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                                    <option value="male">公</option>
+                                                    <option value="female">母</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label for="birth-date" class="block text-sm font-medium text-gray-700 mb-1">出生日期 <span class="text-danger">*</span></label>
+                                                <input type="date" id="birth-date" name="birth-date" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                            </div>
+                                            <div>
+                                                <label for="registration-personnel" class="block text-sm font-medium text-gray-700 mb-1">登记人员 <span class="text-danger">*</span></label>
+                                                <input type="text" id="registration-personnel" name="registration-personnel" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                            </div>
+                                            <div class="md:col-span-3">
+                                                <label for="pedigree-remark" class="block text-sm font-medium text-gray-700 mb-1">备注</label>
+                                                <textarea id="pedigree-remark" name="pedigree-remark" rows="2" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" placeholder="请输入备注信息..."></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 父母信息区 -->
+                                    <div class="mb-6">
+                                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">父母信息</h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div>
+                                                <label for="father-code" class="block text-sm font-medium text-gray-700 mb-1">父亲编号</label>
+                                                <input type="text" id="father-code" name="father-code" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                            <div>
+                                                <label for="father-breed" class="block text-sm font-medium text-gray-700 mb-1">父亲品种</label>
+                                                <input type="text" id="father-breed" name="father-breed" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                            <div>
+                                                <label for="father-gene-type" class="block text-sm font-medium text-gray-700 mb-1">父亲基因类型</label>
+                                                <input type="text" id="father-gene-type" name="father-gene-type" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                            <div>
+                                                <label for="mother-code" class="block text-sm font-medium text-gray-700 mb-1">母亲编号</label>
+                                                <input type="text" id="mother-code" name="mother-code" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                            <div>
+                                                <label for="mother-breed" class="block text-sm font-medium text-gray-700 mb-1">母亲品种</label>
+                                                <input type="text" id="mother-breed" name="mother-breed" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                            <div>
+                                                <label for="mother-gene-type" class="block text-sm font-medium text-gray-700 mb-1">母亲基因类型</label>
+                                                <input type="text" id="mother-gene-type" name="mother-gene-type" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 祖父母信息区 -->
+                                    <div class="mb-6">
+                                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">祖父母信息</h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div>
+                                                <label for="grandfather-code" class="block text-sm font-medium text-gray-700 mb-1">祖父编号</label>
+                                                <input type="text" id="grandfather-code" name="grandfather-code" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                            <div>
+                                                <label for="grandmother-code" class="block text-sm font-medium text-gray-700 mb-1">祖母编号</label>
+                                                <input type="text" id="grandmother-code" name="grandmother-code" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                            <div>
+                                                <label for="grandparents-gene-type" class="block text-sm font-medium text-gray-700 mb-1">祖父祖母基因类型</label>
+                                                <input type="text" id="grandparents-gene-type" name="grandparents-gene-type" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 外祖父母信息区 -->
+                                    <div class="mb-6">
+                                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">外祖父母信息</h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div>
+                                                <label for="maternal-grandfather-code" class="block text-sm font-medium text-gray-700 mb-1">外祖父编号</label>
+                                                <input type="text" id="maternal-grandfather-code" name="maternal-grandfather-code" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                            <div>
+                                                <label for="maternal-grandmother-code" class="block text-sm font-medium text-gray-700 mb-1">外祖母编号</label>
+                                                <input type="text" id="maternal-grandmother-code" name="maternal-grandmother-code" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                            <div>
+                                                <label for="maternal-grandparents-gene-type" class="block text-sm font-medium text-gray-700 mb-1">外祖父外祖母基因类型</label>
+                                                <input type="text" id="maternal-grandparents-gene-type" name="maternal-grandparents-gene-type" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 基因信息区 -->
+                                    <div class="mb-6">
+                                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">基因信息</h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div>
+                                                <label for="gene-type" class="block text-sm font-medium text-gray-700 mb-1">基因类型</label>
+                                                <input type="text" id="gene-type" name="gene-type" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                            <div>
+                                                <label for="pedigree-grade" class="block text-sm font-medium text-gray-700 mb-1">系谱等级</label>
+                                                <select id="pedigree-grade" name="pedigree-grade" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                                    <option value="excellent">优秀</option>
+                                                    <option value="good">良好</option>
+                                                    <option value="normal">一般</option>
+                                                    <option value="incomplete">不完整</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label for="completion-rate" class="block text-sm font-medium text-gray-700 mb-1">完善率 (%)</label>
+                                                <input type="number" id="completion-rate" name="completion-rate" min="0" max="100" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                            <div class="md:col-span-3">
+                                                <label for="gene-tracking" class="block text-sm font-medium text-gray-700 mb-1">基因传递轨迹</label>
+                                                <textarea id="gene-tracking" name="gene-tracking" rows="3" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" placeholder="请输入基因传递轨迹信息..."></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm" id="save-pedigree-btn">
+                        保存
+                    </button>
+                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" id="cancel-pedigree-btn">
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 查看系谱详情模态框 -->
+    <div class="fixed inset-0 z-50 hidden overflow-y-auto" id="detail-modal">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-6xl sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" id="detail-modal-title">
+                                系谱详情
+                            </h3>
+                            <div class="mt-2">
+                                <!-- 系谱详情内容将通过JavaScript动态生成 -->
+                                <div id="pedigree-detail-content">
+                                    <!-- 详情内容将在这里动态生成 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm" id="print-detail-btn">
+                        <i class="fa fa-print mr-2"></i> 打印详情
+                    </button>
+                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" id="close-detail-btn">
+                        关闭
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 系谱图表模态框 -->
+    <div class="fixed inset-0 z-50 hidden overflow-y-auto" id="chart-modal">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-6xl sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" id="chart-modal-title">
+                                系谱图表
+                            </h3>
+                            <div class="mt-2">
+                                <!-- 系谱图表将通过JavaScript动态生成 -->
+                                <div id="pedigree-chart-content" class="overflow-x-auto">
+                                    <!-- 图表内容将在这里动态生成 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm" id="export-chart-btn">
+                        <i class="fa fa-download mr-2"></i> 导出图表
+                    </button>
+                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" id="close-chart-btn">
+                        关闭
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 确认删除模态框 -->
+    <div class="fixed inset-0 z-50 hidden overflow-y-auto" id="confirm-delete-modal">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <i class="fa fa-exclamation-triangle text-red-600"></i>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="delete-modal-title">
+                                确认删除
+                            </h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500" id="delete-confirm-text">
+                                    您确定要删除选中的系谱记录吗？此操作不可撤销。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-danger text-base font-medium text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm" id="confirm-delete-btn">
+                        确认删除
+                    </button>
+                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" id="cancel-delete-btn">
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 系谱分析模态框 -->
+    <div class="fixed inset-0 z-50 hidden overflow-y-auto" id="analysis-modal">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                                系谱分析
+                            </h3>
+                            <div class="mt-2">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                                        <h4 class="text-md font-medium text-gray-700 mb-3">品种分布</h4>
+                                        <div class="h-64">
+                                            <canvas id="breed-distribution-chart"></canvas>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                                        <h4 class="text-md font-medium text-gray-700 mb-3">性别比例</h4>
+                                        <div class="h-64">
+                                            <canvas id="gender-ratio-chart"></canvas>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                                        <h4 class="text-md font-medium text-gray-700 mb-3">系谱等级分布</h4>
+                                        <div class="h-64">
+                                            <canvas id="pedigree-grade-chart"></canvas>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                                        <h4 class="text-md font-medium text-gray-700 mb-3">系谱完善率分布</h4>
+                                        <div class="h-64">
+                                            <canvas id="completion-rate-chart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
+                                    <h4 class="text-md font-medium text-gray-700 mb-3">关键指标统计</h4>
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        <div class="p-3 bg-blue-50 rounded-lg text-center">
+                                            <p class="text-sm text-gray-600">总羊只数</p>
+                                            <p class="text-2xl font-bold text-primary">25</p>
+                                        </div>
+                                        <div class="p-3 bg-green-50 rounded-lg text-center">
+                                            <p class="text-sm text-gray-600">优秀系谱数</p>
+                                            <p class="text-2xl font-bold text-green-600">8</p>
+                                        </div>
+                                        <div class="p-3 bg-yellow-50 rounded-lg text-center">
+                                            <p class="text-sm text-gray-600">平均完善率</p>
+                                            <p class="text-2xl font-bold text-yellow-600">78%</p>
+                                        </div>
+                                        <div class="p-3 bg-red-50 rounded-lg text-center">
+                                            <p class="text-sm text-gray-600">近亲风险数</p>
+                                            <p class="text-2xl font-bold text-red-600">3</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm" id="export-analysis-btn">
+                        <i class="fa fa-download mr-2"></i> 导出分析报告
+                    </button>
+                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" id="close-analysis-btn">
+                        关闭
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟数据 - 系谱数据
+        const mockPedigreeData = [
+            {
+                id: '1',
+                sheepCode: 'S20230001',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '杜泊羊',
+                gender: 'male',
+                genderText: '公',
+                birthDate: '2023-01-15',
+                fatherCode: 'S20220001',
+                fatherBreed: '杜泊羊',
+                fatherGeneType: '高产基因、优质肉基因',
+                motherCode: 'S20220002',
+                motherBreed: '杜泊羊',
+                motherGeneType: '高产基因',
+                grandfatherCode: 'S20210001',
+                grandmotherCode: 'S20210002',
+                grandparentsGeneType: '优质肉基因、抗病基因',
+                maternalGrandfatherCode: 'S20210003',
+                maternalGrandmotherCode: 'S20210004',
+                maternalGrandparentsGeneType: '高产基因、抗逆基因',
+                geneType: '高产基因、优质肉基因',
+                pedigreeGrade: 'excellent',
+                pedigreeGradeText: '优秀',
+                completionRate: 95,
+                geneTracking: '从祖父继承优质肉基因，从父亲继承高产基因，基因传递完整。',
+                registrationPersonnel: '张三',
+                registrationTime: '2023-01-20 10:30:00',
+                remark: '优秀种公羊'
+            },
+            {
+                id: '2',
+                sheepCode: 'S20230002',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '湖羊',
+                gender: 'female',
+                genderText: '母',
+                birthDate: '2023-02-05',
+                fatherCode: 'S20220003',
+                fatherBreed: '湖羊',
+                fatherGeneType: '高产基因',
+                motherCode: 'S20220004',
+                motherBreed: '湖羊',
+                motherGeneType: '普通基因',
+                grandfatherCode: 'S20210005',
+                grandmotherCode: 'S20210006',
+                grandparentsGeneType: '高产基因',
+                maternalGrandfatherCode: 'S20210007',
+                maternalGrandmotherCode: 'S20210008',
+                maternalGrandparentsGeneType: '普通基因',
+                geneType: '高产基因',
+                pedigreeGrade: 'good',
+                pedigreeGradeText: '良好',
+                completionRate: 85,
+                geneTracking: '从父亲继承高产基因，基因传递良好。',
+                registrationPersonnel: '李四',
+                registrationTime: '2023-02-10 14:20:00',
+                remark: '基础母羊'
+            },
+            {
+                id: '3',
+                sheepCode: 'S20230003',
+                breedType: 'wool',
+                breedTypeText: '绒羊',
+                breedName: '内蒙古绒山羊',
+                gender: 'male',
+                genderText: '公',
+                birthDate: '2023-01-20',
+                fatherCode: 'S20220005',
+                fatherBreed: '内蒙古绒山羊',
+                fatherGeneType: '优质绒基因、高产基因',
+                motherCode: 'S20220006',
+                motherBreed: '内蒙古绒山羊',
+                motherGeneType: '优质绒基因',
+                grandfatherCode: 'S20210009',
+                grandmotherCode: 'S20210010',
+                grandparentsGeneType: '优质绒基因、抗病基因',
+                maternalGrandfatherCode: 'S20210011',
+                maternalGrandmotherCode: 'S20210012',
+                maternalGrandparentsGeneType: '高产基因、抗逆基因',
+                geneType: '优质绒基因、高产基因',
+                pedigreeGrade: 'excellent',
+                pedigreeGradeText: '优秀',
+                completionRate: 92,
+                geneTracking: '同时继承父母的优质绒基因和高产基因，基因组合优秀。',
+                registrationPersonnel: '王五',
+                registrationTime: '2023-01-25 09:45:00',
+                remark: '种公羊'
+            },
+            {
+                id: '4',
+                sheepCode: 'S20230004',
+                breedType: 'wool',
+                breedTypeText: '绒羊',
+                breedName: '辽宁绒山羊',
+                gender: 'female',
+                genderText: '母',
+                birthDate: '2023-02-10',
+                fatherCode: 'S20220007',
+                fatherBreed: '辽宁绒山羊',
+                fatherGeneType: '普通基因',
+                motherCode: 'S20220008',
+                motherBreed: '辽宁绒山羊',
+                motherGeneType: '普通基因',
+                grandfatherCode: '',
+                grandmotherCode: '',
+                grandparentsGeneType: '',
+                maternalGrandfatherCode: '',
+                maternalGrandmotherCode: '',
+                maternalGrandparentsGeneType: '',
+                geneType: '普通基因',
+                pedigreeGrade: 'incomplete',
+                pedigreeGradeText: '不完整',
+                completionRate: 40,
+                geneTracking: '基因传递不完整，缺乏祖父母信息。',
+                registrationPersonnel: '赵六',
+                registrationTime: '2023-02-15 16:10:00',
+                remark: '基础母羊'
+            },
+            {
+                id: '5',
+                sheepCode: 'S20230005',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '小尾寒羊',
+                gender: 'female',
+                genderText: '母',
+                birthDate: '2023-03-01',
+                fatherCode: 'S20220009',
+                fatherBreed: '小尾寒羊',
+                fatherGeneType: '高产基因、抗病基因',
+                motherCode: 'S20220010',
+                motherBreed: '小尾寒羊',
+                motherGeneType: '高产基因',
+                grandfatherCode: 'S20210013',
+                grandmotherCode: 'S20210014',
+                grandparentsGeneType: '抗病基因',
+                maternalGrandfatherCode: 'S20210015',
+                maternalGrandmotherCode: 'S20210016',
+                maternalGrandparentsGeneType: '高产基因',
+                geneType: '高产基因、抗病基因',
+                pedigreeGrade: 'good',
+                pedigreeGradeText: '良好',
+                completionRate: 88,
+                geneTracking: '从父亲继承高产基因和抗病基因，基因组合良好。',
+                registrationPersonnel: '张三',
+                registrationTime: '2023-03-06 11:20:00',
+                remark: '繁殖母羊'
+            },
+            {
+                id: '6',
+                sheepCode: 'S20230006',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '萨福克羊',
+                gender: 'male',
+                genderText: '公',
+                birthDate: '2023-02-25',
+                fatherCode: 'S20220011',
+                fatherBreed: '萨福克羊',
+                fatherGeneType: '优质肉基因、早熟基因',
+                motherCode: 'S20220012',
+                motherBreed: '萨福克羊',
+                motherGeneType: '优质肉基因',
+                grandfatherCode: 'S20210017',
+                grandmotherCode: 'S20210018',
+                grandparentsGeneType: '优质肉基因、抗病基因',
+                maternalGrandfatherCode: 'S20210019',
+                maternalGrandmotherCode: 'S20210020',
+                maternalGrandparentsGeneType: '早熟基因、抗逆基因',
+                geneType: '优质肉基因、早熟基因',
+                pedigreeGrade: 'excellent',
+                pedigreeGradeText: '优秀',
+                completionRate: 94,
+                geneTracking: '同时继承父母的优质肉基因和早熟基因，基因组合优秀。',
+                registrationPersonnel: '李四',
+                registrationTime: '2023-03-02 13:50:00',
+                remark: '种公羊'
+            },
+            {
+                id: '7',
+                sheepCode: 'S20230007',
+                breedType: 'wool',
+                breedTypeText: '绒羊',
+                breedName: '河西绒山羊',
+                gender: 'female',
+                genderText: '母',
+                birthDate: '2023-03-10',
+                fatherCode: 'S20220013',
+                fatherBreed: '河西绒山羊',
+                fatherGeneType: '普通基因',
+                motherCode: 'S20220014',
+                motherBreed: '河西绒山羊',
+                motherGeneType: '普通基因',
+                grandfatherCode: 'S20210021',
+                grandmotherCode: '',
+                grandparentsGeneType: '普通基因',
+                maternalGrandfatherCode: '',
+                maternalGrandmotherCode: '',
+                maternalGrandparentsGeneType: '',
+                geneType: '普通基因',
+                pedigreeGrade: 'normal',
+                pedigreeGradeText: '一般',
+                completionRate: 65,
+                geneTracking: '基因传递一般，缺乏部分祖辈信息。',
+                registrationPersonnel: '王五',
+                registrationTime: '2023-03-15 10:30:00',
+                remark: '基础母羊'
+            },
+            {
+                id: '8',
+                sheepCode: 'S20230008',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '夏洛莱羊',
+                gender: 'male',
+                genderText: '公',
+                birthDate: '2023-03-15',
+                fatherCode: 'S20220015',
+                fatherBreed: '夏洛莱羊',
+                fatherGeneType: '优质肉基因、抗病基因',
+                motherCode: 'S20220016',
+                motherBreed: '夏洛莱羊',
+                motherGeneType: '优质肉基因',
+                grandfatherCode: 'S20210022',
+                grandmotherCode: 'S20210023',
+                grandparentsGeneType: '优质肉基因、抗逆基因',
+                maternalGrandfatherCode: 'S20210024',
+                maternalGrandmotherCode: 'S20210025',
+                maternalGrandparentsGeneType: '抗病基因、高产基因',
+                geneType: '优质肉基因、抗病基因',
+                pedigreeGrade: 'excellent',
+                pedigreeGradeText: '优秀',
+                completionRate: 96,
+                geneTracking: '同时继承父母的优质肉基因和抗病基因，基因组合优秀。',
+                registrationPersonnel: '赵六',
+                registrationTime: '2023-03-20 15:40:00',
+                remark: '种公羊'
+            },
+            {
+                id: '9',
+                sheepCode: 'S20230009',
+                breedType: 'wool',
+                breedTypeText: '绒羊',
+                breedName: '新疆绒山羊',
+                gender: 'female',
+                genderText: '母',
+                birthDate: '2023-03-20',
+                fatherCode: 'S20220017',
+                fatherBreed: '新疆绒山羊',
+                fatherGeneType: '优质绒基因、抗逆基因',
+                motherCode: 'S20220018',
+                motherBreed: '新疆绒山羊',
+                motherGeneType: '优质绒基因',
+                grandfatherCode: 'S20210026',
+                grandmotherCode: 'S20210027',
+                grandparentsGeneType: '优质绒基因、高产基因',
+                maternalGrandfatherCode: 'S20210028',
+                maternalGrandmotherCode: 'S20210029',
+                maternalGrandparentsGeneType: '抗逆基因、抗病基因',
+                geneType: '优质绒基因、抗逆基因',
+                pedigreeGrade: 'good',
+                pedigreeGradeText: '良好',
+                completionRate: 90,
+                geneTracking: '同时继承父母的优质绒基因和抗逆基因，基因组合良好。',
+                registrationPersonnel: '张三',
+                registrationTime: '2023-03-25 11:10:00',
+                remark: '繁殖母羊'
+            },
+            {
+                id: '10',
+                sheepCode: 'S20230010',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '杜泊羊',
+                gender: 'female',
+                genderText: '母',
+                birthDate: '2023-04-01',
+                fatherCode: 'S20220019',
+                fatherBreed: '杜泊羊',
+                fatherGeneType: '高产基因',
+                motherCode: 'S20220020',
+                motherBreed: '杜泊羊',
+                motherGeneType: '高产基因',
+                grandfatherCode: 'S20210030',
+                grandmotherCode: 'S20210031',
+                grandparentsGeneType: '优质肉基因',
+                maternalGrandfatherCode: 'S20210032',
+                maternalGrandmotherCode: 'S20210033',
+                maternalGrandparentsGeneType: '高产基因',
+                geneType: '高产基因',
+                pedigreeGrade: 'good',
+                pedigreeGradeText: '良好',
+                completionRate: 87,
+                geneTracking: '从父母继承高产基因，基因传递良好。',
+                registrationPersonnel: '李四',
+                registrationTime: '2023-04-06 14:30:00',
+                remark: '繁殖母羊'
+            }
+        ];
+
+        // 当前编辑的系谱ID
+        let currentEditId = null;
+
+        // 当前选中的系谱ID列表
+        let selectedIds = [];
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化表格
+            updatePedigreeTable();
+
+            // 设置事件监听
+            setupEventListeners();
+        });
+
+        // 更新系谱列表表格
+        function updatePedigreeTable() {
+            const tableBody = document.getElementById('pedigree-table-body');
+            tableBody.innerHTML = '';
+
+            mockPedigreeData.forEach(pedigree => {
+                const row = document.createElement('tr');
+
+                // 设置系谱等级标签的样式
+                let gradeBadgeClass = '';
+                switch(pedigree.pedigreeGrade) {
+                    case 'excellent':
+                        gradeBadgeClass = 'badge-success';
+                        break;
+                    case 'good':
+                        gradeBadgeClass = 'badge-info';
+                        break;
+                    case 'normal':
+                        gradeBadgeClass = 'badge-warning';
+                        break;
+                    case 'incomplete':
+                        gradeBadgeClass = 'badge-danger';
+                        break;
+                    default:
+                        gradeBadgeClass = 'badge-gray';
+                }
+
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <input id="select-${pedigree.id}" name="select-pedigree" type="checkbox" value="${pedigree.id}" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded pedigree-checkbox">
+                            <label for="select-${pedigree.id}" class="sr-only">选择 ${pedigree.id}</label>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${pedigree.sheepCode}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${pedigree.breedTypeText} - ${pedigree.breedName}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${pedigree.genderText}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${pedigree.birthDate}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${pedigree.fatherCode || '-'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${pedigree.motherCode || '-'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="badge ${gradeBadgeClass}">${pedigree.pedigreeGradeText}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${pedigree.completionRate}%</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${pedigree.registrationTime}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button type="button" class="text-primary hover:text-blue-800 mr-3 view-pedigree-btn" data-id="${pedigree.id}">
+                            <i class="fa fa-eye"></i> 查看
+                        </button>
+                        <button type="button" class="text-green-600 hover:text-green-800 mr-3 edit-pedigree-btn" data-id="${pedigree.id}">
+                            <i class="fa fa-pencil"></i> 编辑
+                        </button>
+                        <button type="button" class="text-danger hover:text-red-800 delete-pedigree-btn" data-id="${pedigree.id}">
+                            <i class="fa fa-trash"></i> 删除
+                        </button>
+                    </td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+
+            // 重新绑定表格中的按钮事件
+            bindTableButtonEvents();
+        }
+
+        // 设置事件监听
+        function setupEventListeners() {
+            // 移动端菜单
+            document.getElementById('mobile-menu-button').addEventListener('click', function() {
+                document.getElementById('mobile-menu').classList.remove('-translate-x-full');
+                document.getElementById('mobile-menu-overlay').classList.remove('hidden');
+            });
+
+            document.getElementById('mobile-menu-close').addEventListener('click', function() {
+                document.getElementById('mobile-menu').classList.add('-translate-x-full');
+                document.getElementById('mobile-menu-overlay').classList.add('hidden');
+            });
+
+            document.getElementById('mobile-menu-overlay').addEventListener('click', function() {
+                document.getElementById('mobile-menu').classList.add('-translate-x-full');
+                document.getElementById('mobile-menu-overlay').classList.add('hidden');
+            });
+
+            // 新增系谱按钮
+            document.getElementById('add-pedigree-btn').addEventListener('click', function() {
+                openAddPedigreeModal();
+            });
+
+            // 批量导入按钮
+            document.getElementById('batch-import-btn').addEventListener('click', function() {
+                alert('批量导入功能将在实际系统中实现');
+            });
+
+            // 系谱分析按钮
+            document.getElementById('pedigree-analysis-btn').addEventListener('click', function() {
+                openAnalysisModal();
+            });
+
+            // 导出系谱按钮
+            document.getElementById('export-pedigree-btn').addEventListener('click', function() {
+                if (selectedIds.length > 0) {
+                    alert(`正在导出 ${selectedIds.length} 条系谱记录\n导出功能将在实际系统中实现`);
+                } else {
+                    alert('请先选择要导出的系谱记录');
+                }
+            });
+
+            // 批量删除按钮
+            document.getElementById('batch-delete-btn').addEventListener('click', function() {
+                if (selectedIds.length > 0) {
+                    document.getElementById('delete-confirm-text').textContent = `您确定要删除选中的 ${selectedIds.length} 条系谱记录吗？此操作不可撤销。`;
+                    document.getElementById('confirm-delete-modal').classList.remove('hidden');
+                } else {
+                    alert('请先选择要删除的系谱记录');
+                }
+            });
+
+            // 搜索按钮
+            document.getElementById('search-btn').addEventListener('click', function() {
+                // 实际系统中这里会根据搜索条件过滤数据
+                alert('搜索功能将在实际系统中实现');
+            });
+
+            // 重置筛选按钮
+            document.getElementById('reset-filter-btn').addEventListener('click', function() {
+                document.getElementById('search-text').value = '';
+                document.getElementById('filter-breed-type').value = 'all';
+                document.getElementById('filter-gender').value = 'all';
+                document.getElementById('filter-pedigree-grade').value = 'all';
+                document.getElementById('filter-completion-rate').value = 'all';
+            });
+
+            // 保存系谱按钮
+            document.getElementById('save-pedigree-btn').addEventListener('click', function() {
+                savePedigree();
+            });
+
+            // 取消保存按钮
+            document.getElementById('cancel-pedigree-btn').addEventListener('click', function() {
+                document.getElementById('pedigree-modal').classList.add('hidden');
+            });
+
+            // 关闭详情按钮
+            document.getElementById('close-detail-btn').addEventListener('click', function() {
+                document.getElementById('detail-modal').classList.add('hidden');
+            });
+
+            // 打印详情按钮
+            document.getElementById('print-detail-btn').addEventListener('click', function() {
+                alert('打印功能将在实际系统中实现');
+            });
+
+            // 关闭图表按钮
+            document.getElementById('close-chart-btn').addEventListener('click', function() {
+                document.getElementById('chart-modal').classList.add('hidden');
+            });
+
+            // 导出图表按钮
+            document.getElementById('export-chart-btn').addEventListener('click', function() {
+                alert('导出图表功能将在实际系统中实现');
+            });
+
+            // 确认删除按钮
+            document.getElementById('confirm-delete-btn').addEventListener('click', function() {
+                deletePedigree(selectedIds);
+                document.getElementById('confirm-delete-modal').classList.add('hidden');
+            });
+
+            // 取消删除按钮
+            document.getElementById('cancel-delete-btn').addEventListener('click', function() {
+                document.getElementById('confirm-delete-modal').classList.add('hidden');
+            });
+
+            // 关闭分析按钮
+            document.getElementById('close-analysis-btn').addEventListener('click', function() {
+                document.getElementById('analysis-modal').classList.add('hidden');
+            });
+
+            // 导出分析按钮
+            document.getElementById('export-analysis-btn').addEventListener('click', function() {
+                alert('导出分析报告功能将在实际系统中实现');
+            });
+
+            // 全选复选框
+            document.getElementById('select-all').addEventListener('change', function() {
+                const isChecked = this.checked;
+                document.querySelectorAll('.pedigree-checkbox').forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                });
+                updateSelectedIds();
+            });
+        }
+
+        // 绑定表格中的按钮事件
+        function bindTableButtonEvents() {
+            // 查看按钮
+            document.querySelectorAll('.view-pedigree-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    openDetailModal(id);
+                });
+            });
+
+            // 编辑按钮
+            document.querySelectorAll('.edit-pedigree-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    openEditPedigreeModal(id);
+                });
+            });
+
+            // 删除按钮
+            document.querySelectorAll('.delete-pedigree-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    document.getElementById('delete-confirm-text').textContent = `您确定要删除系谱记录 ID: ${id} 吗？此操作不可撤销。`;
+                    selectedIds = [id];
+                    document.getElementById('confirm-delete-modal').classList.remove('hidden');
+                });
+            });
+
+            // 系谱复选框
+            document.querySelectorAll('.pedigree-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    updateSelectedIds();
+                });
+            });
+        }
+
+        // 更新选中的系谱ID列表
+        function updateSelectedIds() {
+            selectedIds = [];
+            document.querySelectorAll('.pedigree-checkbox:checked').forEach(checkbox => {
+                selectedIds.push(checkbox.value);
+            });
+
+            // 更新全选复选框状态
+            const allCheckbox = document.getElementById('select-all');
+            const totalCheckboxes = document.querySelectorAll('.pedigree-checkbox').length;
+
+            if (selectedIds.length === 0) {
+                allCheckbox.checked = false;
+                allCheckbox.indeterminate = false;
+            } else if (selectedIds.length === totalCheckboxes) {
+                allCheckbox.checked = true;
+                allCheckbox.indeterminate = false;
+            } else {
+                allCheckbox.checked = false;
+                allCheckbox.indeterminate = true;
+            }
+
+            // 更新批量删除按钮状态
+            const batchDeleteBtn = document.getElementById('batch-delete-btn');
+            if (selectedIds.length > 0) {
+                batchDeleteBtn.disabled = false;
+                batchDeleteBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                batchDeleteBtn.disabled = true;
+                batchDeleteBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        // 打开新增系谱模态框
+        function openAddPedigreeModal() {
+            // 重置表单
+            document.getElementById('pedigree-form').reset();
+            document.getElementById('pedigree-id').value = '';
+            document.getElementById('modal-title').textContent = '新增系谱';
+
+            // 设置当前编辑ID为null
+            currentEditId = null;
+
+            // 设置默认登记时间为当前时间
+            const now = new Date();
+            const dateTimeString = now.toISOString().slice(0, 16);
+
+            // 显示模态框
+            document.getElementById('pedigree-modal').classList.remove('hidden');
+        }
+
+        // 打开编辑系谱模态框
+        function openEditPedigreeModal(id) {
+            // 查找要编辑的系谱数据
+            const pedigree = mockPedigreeData.find(item => item.id === id);
+            if (!pedigree) return;
+
+            // 设置当前编辑ID
+            currentEditId = id;
+
+            // 填充表单数据
+            document.getElementById('pedigree-id').value = pedigree.id;
+            document.getElementById('sheep-code').value = pedigree.sheepCode;
+            document.getElementById('breed-type').value = pedigree.breedType;
+            document.getElementById('breed-name').value = pedigree.breedName;
+            document.getElementById('gender').value = pedigree.gender;
+            document.getElementById('birth-date').value = pedigree.birthDate;
+            document.getElementById('registration-personnel').value = pedigree.registrationPersonnel;
+            document.getElementById('pedigree-remark').value = pedigree.remark || '';
+
+            // 父母信息
+            document.getElementById('father-code').value = pedigree.fatherCode || '';
+            document.getElementById('father-breed').value = pedigree.fatherBreed || '';
+            document.getElementById('father-gene-type').value = pedigree.fatherGeneType || '';
+            document.getElementById('mother-code').value = pedigree.motherCode || '';
+            document.getElementById('mother-breed').value = pedigree.motherBreed || '';
+            document.getElementById('mother-gene-type').value = pedigree.motherGeneType || '';
+
+            // 祖父母信息
+            document.getElementById('grandfather-code').value = pedigree.grandfatherCode || '';
+            document.getElementById('grandmother-code').value = pedigree.grandmotherCode || '';
+            document.getElementById('grandparents-gene-type').value = pedigree.grandparentsGeneType || '';
+
+            // 外祖父母信息
+            document.getElementById('maternal-grandfather-code').value = pedigree.maternalGrandfatherCode || '';
+            document.getElementById('maternal-grandmother-code').value = pedigree.maternalGrandmotherCode || '';
+            document.getElementById('maternal-grandparents-gene-type').value = pedigree.maternalGrandparentsGeneType || '';
+
+            // 基因信息
+            document.getElementById('gene-type').value = pedigree.geneType || '';
+            document.getElementById('pedigree-grade').value = pedigree.pedigreeGrade;
+            document.getElementById('completion-rate').value = pedigree.completionRate;
+            document.getElementById('gene-tracking').value = pedigree.geneTracking || '';
+
+            // 设置模态框标题
+            document.getElementById('modal-title').textContent = '编辑系谱';
+
+            // 显示模态框
+            document.getElementById('pedigree-modal').classList.remove('hidden');
+        }
+
+        // 保存系谱数据
+        function savePedigree() {
+            // 表单验证
+            const form = document.getElementById('pedigree-form');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            // 获取表单数据
+            const id = document.getElementById('pedigree-id').value;
+            const sheepCode = document.getElementById('sheep-code').value;
+            const breedType = document.getElementById('breed-type').value;
+            const breedName = document.getElementById('breed-name').value;
+            const gender = document.getElementById('gender').value;
+            const birthDate = document.getElementById('birth-date').value;
+            const registrationPersonnel = document.getElementById('registration-personnel').value;
+            const remark = document.getElementById('pedigree-remark').value;
+
+            // 父母信息
+            const fatherCode = document.getElementById('father-code').value;
+            const fatherBreed = document.getElementById('father-breed').value;
+            const fatherGeneType = document.getElementById('father-gene-type').value;
+            const motherCode = document.getElementById('mother-code').value;
+            const motherBreed = document.getElementById('mother-breed').value;
+            const motherGeneType = document.getElementById('mother-gene-type').value;
+
+            // 祖父母信息
+            const grandfatherCode = document.getElementById('grandfather-code').value;
+            const grandmotherCode = document.getElementById('grandmother-code').value;
+            const grandparentsGeneType = document.getElementById('grandparents-gene-type').value;
+
+            // 外祖父母信息
+            const maternalGrandfatherCode = document.getElementById('maternal-grandfather-code').value;
+            const maternalGrandmotherCode = document.getElementById('maternal-grandmother-code').value;
+            const maternalGrandparentsGeneType = document.getElementById('maternal-grandparents-gene-type').value;
+
+            // 基因信息
+            const geneType = document.getElementById('gene-type').value;
+            const pedigreeGrade = document.getElementById('pedigree-grade').value;
+            const completionRate = parseInt(document.getElementById('completion-rate').value) || 0;
+            const geneTracking = document.getElementById('gene-tracking').value;
+
+            // 计算完善率（如果未填写）
+            let calculatedCompletionRate = completionRate;
+            if (!completionRate) {
+                calculatedCompletionRate = calculateCompletionRate({
+                    fatherCode,
+                    motherCode,
+                    grandfatherCode,
+                    grandmotherCode,
+                    maternalGrandfatherCode,
+                    maternalGrandmotherCode
+                });
+            }
+
+            // 构建系谱数据对象
+            const pedigreeData = {
+                sheepCode,
+                breedType,
+                breedTypeText: breedType === 'meat' ? '肉羊' : '绒羊',
+                breedName,
+                gender,
+                genderText: gender === 'male' ? '公' : '母',
+                birthDate,
+                fatherCode,
+                fatherBreed,
+                fatherGeneType,
+                motherCode,
+                motherBreed,
+                motherGeneType,
+                grandfatherCode,
+                grandmotherCode,
+                grandparentsGeneType,
+                maternalGrandfatherCode,
+                maternalGrandmotherCode,
+                maternalGrandparentsGeneType,
+                geneType,
+                pedigreeGrade,
+                pedigreeGradeText: getPedigreeGradeText(pedigreeGrade),
+                completionRate: calculatedCompletionRate,
+                geneTracking,
+                registrationPersonnel,
+                registrationTime: getCurrentDateTime(),
+                remark
+            };
+
+            // 保存数据
+            if (id) {
+                // 编辑现有数据
+                const index = mockPedigreeData.findIndex(p => p.id === id);
+                if (index !== -1) {
+                    mockPedigreeData[index] = { ...mockPedigreeData[index], ...pedigreeData, id };
+                    alert(`系谱记录 ${id} 已更新`);
+                }
+            } else {
+                // 添加新数据
+                const newId = (mockPedigreeData.length + 1).toString();
+                mockPedigreeData.push({ ...pedigreeData, id: newId });
+                alert(`系谱记录已添加`);
+            }
+
+            // 关闭模态框
+            document.getElementById('pedigree-modal').classList.add('hidden');
+
+            // 更新表格
+            updatePedigreeTable();
+        }
+
+        // 删除系谱数据
+        function deletePedigree(ids) {
+            if (!Array.isArray(ids)) {
+                ids = [ids];
+            }
+
+            // 从数据中删除
+            ids.forEach(id => {
+                const index = mockPedigreeData.findIndex(pedigree => pedigree.id === id);
+                if (index !== -1) {
+                    mockPedigreeData.splice(index, 1);
+                }
+            });
+
+            // 更新表格
+            updatePedigreeTable();
+
+            // 重置选中状态
+            selectedIds = [];
+            document.getElementById('select-all').checked = false;
+            document.getElementById('batch-delete-btn').disabled = true;
+            document.getElementById('batch-delete-btn').classList.add('opacity-50', 'cursor-not-allowed');
+
+            // 显示删除成功消息
+            alert(`已成功删除 ${ids.length} 条系谱记录`);
+        }
+
+        // 打开查看系谱详情模态框
+        function openDetailModal(id) {
+            // 查找要查看的系谱数据
+            const pedigree = mockPedigreeData.find(item => item.id === id);
+            if (!pedigree) return;
+
+            // 生成详情内容
+            const detailContent = document.getElementById('pedigree-detail-content');
+            detailContent.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- 基础信息 -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">基础信息</h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">羊只编号：</span>
+                                <span class="text-sm font-medium">${pedigree.sheepCode}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">品种：</span>
+                                <span class="text-sm font-medium">${pedigree.breedTypeText} - ${pedigree.breedName}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">性别：</span>
+                                <span class="text-sm font-medium">${pedigree.genderText}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">出生日期：</span>
+                                <span class="text-sm font-medium">${pedigree.birthDate}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">系谱等级：</span>
+                                <span class="text-sm font-medium">${pedigree.pedigreeGradeText}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">完善率：</span>
+                                <span class="text-sm font-medium">${pedigree.completionRate}%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">登记人员：</span>
+                                <span class="text-sm font-medium">${pedigree.registrationPersonnel}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">登记时间：</span>
+                                <span class="text-sm font-medium">${pedigree.registrationTime}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">备注：</span>
+                                <span class="text-sm font-medium">${pedigree.remark || '-'}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 基因信息 -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">基因信息</h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">基因类型：</span>
+                                <span class="text-sm font-medium">${pedigree.geneType || '-'}</span>
+                            </div>
+                            <div class="mt-4">
+                                <span class="text-sm text-gray-600 block mb-1">基因传递轨迹：</span>
+                                <p class="text-sm font-medium">${pedigree.geneTracking || '-'}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- 父母信息 -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">父母信息</h4>
+                        <div class="space-y-4">
+                            <div>
+                                <h5 class="text-sm font-medium text-gray-700 mb-2">父亲</h5>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-600">编号：</span>
+                                        <span class="text-sm font-medium">${pedigree.fatherCode || '-'}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-600">品种：</span>
+                                        <span class="text-sm font-medium">${pedigree.fatherBreed || '-'}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-600">基因类型：</span>
+                                        <span class="text-sm font-medium">${pedigree.fatherGeneType || '-'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <h5 class="text-sm font-medium text-gray-700 mb-2">母亲</h5>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-600">编号：</span>
+                                        <span class="text-sm font-medium">${pedigree.motherCode || '-'}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-600">品种：</span>
+                                        <span class="text-sm font-medium">${pedigree.motherBreed || '-'}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-600">基因类型：</span>
+                                        <span class="text-sm font-medium">${pedigree.motherGeneType || '-'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 祖父母信息 -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">祖父母信息</h4>
+                        <div class="space-y-4">
+                            <div>
+                                <h5 class="text-sm font-medium text-gray-700 mb-2">祖父祖母</h5>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-600">祖父编号：</span>
+                                        <span class="text-sm font-medium">${pedigree.grandfatherCode || '-'}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-600">祖母编号：</span>
+                                        <span class="text-sm font-medium">${pedigree.grandmotherCode || '-'}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-600">基因类型：</span>
+                                        <span class="text-sm font-medium">${pedigree.grandparentsGeneType || '-'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <h5 class="text-sm font-medium text-gray-700 mb-2">外祖父外祖母</h5>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-600">外祖父编号：</span>
+                                        <span class="text-sm font-medium">${pedigree.maternalGrandfatherCode || '-'}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-600">外祖母编号：</span>
+                                        <span class="text-sm font-medium">${pedigree.maternalGrandmotherCode || '-'}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-600">基因类型：</span>
+                                        <span class="text-sm font-medium">${pedigree.maternalGrandparentsGeneType || '-'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="flex space-x-2">
+                    <button type="button" class="btn-primary flex items-center" id="view-chart-btn" data-id="${pedigree.id}">
+                        <i class="fa fa-sitemap mr-2"></i>
+                        <span>查看系谱图表</span>
+                    </button>
+                    <button type="button" class="btn-outline flex items-center" id="trace-ancestors-btn" data-id="${pedigree.id}">
+                        <i class="fa fa-users mr-2"></i>
+                        <span>追溯祖先</span>
+                    </button>
+                    <button type="button" class="btn-outline flex items-center" id="trace-descendants-btn" data-id="${pedigree.id}">
+                        <i class="fa fa-child mr-2"></i>
+                        <span>追溯后代</span>
+                    </button>
+                </div>
+            `;
+
+            // 设置模态框标题
+            document.getElementById('detail-modal-title').textContent = `系谱详情 - ${pedigree.sheepCode}`;
+
+            // 绑定详情页面中的按钮事件
+            setTimeout(() => {
+                document.getElementById('view-chart-btn').addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    openChartModal(id);
+                });
+
+                document.getElementById('trace-ancestors-btn').addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    traceAncestors(id);
+                });
+
+                document.getElementById('trace-descendants-btn').addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    traceDescendants(id);
+                });
+            }, 100);
+
+            // 显示模态框
+            document.getElementById('detail-modal').classList.remove('hidden');
+        }
+
+        // 打开系谱图表模态框
+        function openChartModal(id) {
+            // 查找要查看的系谱数据
+            const pedigree = mockPedigreeData.find(item => item.id === id);
+            if (!pedigree) return;
+
+            // 生成系谱图表
+            const chartContent = document.getElementById('pedigree-chart-content');
+            chartContent.innerHTML = generatePedigreeChart(pedigree);
+
+            // 设置模态框标题
+            document.getElementById('chart-modal-title').textContent = `系谱图表 - ${pedigree.sheepCode}`;
+
+            // 显示模态框
+            document.getElementById('chart-modal').classList.remove('hidden');
+
+            // 关闭详情模态框
+            document.getElementById('detail-modal').classList.add('hidden');
+        }
+
+        // 生成系谱图表
+        function generatePedigreeChart(pedigree) {
+            // 查找父母
+            const father = mockPedigreeData.find(p => p.sheepCode === pedigree.fatherCode);
+            const mother = mockPedigreeData.find(p => p.sheepCode === pedigree.motherCode);
+
+            // 查找祖父母
+            const grandfather = mockPedigreeData.find(p => p.sheepCode === pedigree.grandfatherCode);
+            const grandmother = mockPedigreeData.find(p => p.sheepCode === pedigree.grandmotherCode);
+            const maternalGrandfather = mockPedigreeData.find(p => p.sheepCode === pedigree.maternalGrandfatherCode);
+            const maternalGrandmother = mockPedigreeData.find(p => p.sheepCode === pedigree.maternalGrandmotherCode);
+
+            return `
+                <div class="min-w-[800px] py-8">
+                    <!-- 第三代 - 祖父母 -->
+                    <div class="flex justify-center mb-8">
+                        <div class="flex space-x-32">
+                            <!-- 父系祖父母 -->
+                            <div class="flex flex-col items-center">
+                                <div class="pedigree-node pedigree-node-male mb-2" id="grandfather-node">
+                                    <div>
+                                        <div class="font-medium">${grandfather ? grandfather.sheepCode : '未知'}</div>
+                                        <div class="text-xs">${grandfather ? grandfather.breedName : '-'}</div>
+                                    </div>
+                                </div>
+                                <div class="pedigree-node pedigree-node-female" id="grandmother-node">
+                                    <div>
+                                        <div class="font-medium">${grandmother ? grandmother.sheepCode : '未知'}</div>
+                                        <div class="text-xs">${grandmother ? grandmother.breedName : '-'}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 母系祖父母 -->
+                            <div class="flex flex-col items-center">
+                                <div class="pedigree-node pedigree-node-male mb-2" id="maternal-grandfather-node">
+                                    <div>
+                                        <div class="font-medium">${maternalGrandfather ? maternalGrandfather.sheepCode : '未知'}</div>
+                                        <div class="text-xs">${maternalGrandfather ? maternalGrandfather.breedName : '-'}</div>
+                                    </div>
+                                </div>
+                                <div class="pedigree-node pedigree-node-female" id="maternal-grandmother-node">
+                                    <div>
+                                        <div class="font-medium">${maternalGrandmother ? maternalGrandmother.sheepCode : '未知'}</div>
+                                        <div class="text-xs">${maternalGrandmother ? maternalGrandmother.breedName : '-'}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 连接线 -->
+                    <div class="relative h-16 mb-8">
+                        <!-- 父系祖父母到父亲的连接线 -->
+                        <div class="pedigree-line pedigree-line-vertical absolute left-1/4 top-0 h-8"></div>
+                        <div class="pedigree-line pedigree-line-horizontal absolute left-1/4 -translate-x-1/2 top-8 w-32"></div>
+                        <div class="pedigree-line pedigree-line-vertical absolute left-1/4 top-8 h-8"></div>
+
+                        <!-- 母系祖父母到母亲的连接线 -->
+                        <div class="pedigree-line pedigree-line-vertical absolute right-1/4 top-0 h-8"></div>
+                        <div class="pedigree-line pedigree-line-horizontal absolute right-1/4 translate-x-1/2 top-8 w-32"></div>
+                        <div class="pedigree-line pedigree-line-vertical absolute right-1/4 top-8 h-8"></div>
+                    </div>
+
+                    <!-- 第二代 - 父母 -->
+                    <div class="flex justify-center mb-8">
+                        <div class="flex space-x-64">
+                            <!-- 父亲 -->
+                            <div class="pedigree-node pedigree-node-male" id="father-node">
+                                <div>
+                                    <div class="font-medium">${father ? father.sheepCode : '未知'}</div>
+                                    <div class="text-xs">${father ? father.breedName : '-'}</div>
+                                </div>
+                            </div>
+
+                            <!-- 母亲 -->
+                            <div class="pedigree-node pedigree-node-female" id="mother-node">
+                                <div>
+                                    <div class="font-medium">${mother ? mother.sheepCode : '未知'}</div>
+                                    <div class="text-xs">${mother ? mother.breedName : '-'}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 连接线 -->
+                    <div class="relative h-16 mb-8">
+                        <div class="pedigree-line pedigree-line-vertical absolute left-1/3 top-0 h-8"></div>
+                        <div class="pedigree-line pedigree-line-horizontal absolute left-1/3 right-1/3 top-8"></div>
+                        <div class="pedigree-line pedigree-line-vertical absolute right-1/3 top-0 h-8"></div>
+                        <div class="pedigree-line pedigree-line-vertical absolute left-1/2 top-8 h-8"></div>
+                    </div>
+
+                    <!-- 第一代 - 当前羊只 -->
+                    <div class="flex justify-center">
+                        <div class="pedigree-node pedigree-node-current" id="current-node">
+                            <div>
+                                <div class="font-medium">${pedigree.sheepCode}</div>
+                                <div class="text-xs">${pedigree.breedName}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 打开系谱分析模态框
+        function openAnalysisModal() {
+            // 生成图表
+            setTimeout(() => {
+                // 品种分布图表
+                const breedCtx = document.getElementById('breed-distribution-chart').getContext('2d');
+                new Chart(breedCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['杜泊羊', '湖羊', '内蒙古绒山羊', '辽宁绒山羊', '小尾寒羊', '萨福克羊', '河西绒山羊', '夏洛莱羊', '新疆绒山羊'],
+                        datasets: [{
+                            data: [2, 1, 1, 1, 1, 1, 1, 1, 1],
+                            backgroundColor: [
+                                '#3b82f6', '#10b981', '#f59e0b', '#ef4444',
+                                '#8b5cf6', '#ec4899', '#6366f1', '#14b8a6', '#f97316'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+
+                // 性别比例图表
+                const genderCtx = document.getElementById('gender-ratio-chart').getContext('2d');
+                new Chart(genderCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['公', '母'],
+                        datasets: [{
+                            data: [4, 6],
+                            backgroundColor: ['#3b82f6', '#ec4899']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+
+                // 系谱等级分布图表
+                const gradeCtx = document.getElementById('pedigree-grade-chart').getContext('2d');
+                new Chart(gradeCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['优秀', '良好', '一般', '不完整'],
+                        datasets: [{
+                            label: '数量',
+                            data: [3, 4, 1, 2],
+                            backgroundColor: '#3b82f6'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // 系谱完善率分布图表
+                const completionCtx = document.getElementById('completion-rate-chart').getContext('2d');
+                new Chart(completionCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['高', '中', '低'],
+                        datasets: [{
+                            label: '数量',
+                            data: [6, 3, 1],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+            }, 100);
+
+            // 显示模态框
+            document.getElementById('analysis-modal').classList.remove('hidden');
+        }
+
+        // 追溯祖先
+        function traceAncestors(id) {
+            const pedigree = mockPedigreeData.find(item => item.id === id);
+            if (!pedigree) return;
+
+            let ancestors = [];
+            let currentGeneration = [pedigree];
+
+            // 最多追溯3代
+            for (let i = 0; i < 3; i++) {
+                let nextGeneration = [];
+
+                currentGeneration.forEach(sheep => {
+                    // 查找父亲
+                    if (sheep.fatherCode) {
+                        const father = mockPedigreeData.find(p => p.sheepCode === sheep.fatherCode);
+                        if (father) {
+                            ancestors.push({
+                                sheep: father,
+                                relationship: '父亲',
+                                generation: i + 1
+                            });
+                            nextGeneration.push(father);
+                        }
+                    }
+
+                    // 查找母亲
+                    if (sheep.motherCode) {
+                        const mother = mockPedigreeData.find(p => p.sheepCode === sheep.motherCode);
+                        if (mother) {
+                            ancestors.push({
+                                sheep: mother,
+                                relationship: '母亲',
+                                generation: i + 1
+                            });
+                            nextGeneration.push(mother);
+                        }
+                    }
+                });
+
+                currentGeneration = nextGeneration;
+                if (currentGeneration.length === 0) break;
+            }
+
+            // 显示祖先信息
+            let message = `羊只 ${pedigree.sheepCode} 的祖先信息：\n\n`;
+
+            if (ancestors.length === 0) {
+                message += '未找到祖先信息';
+            } else {
+                ancestors.forEach(ancestor => {
+                    message += `${ancestor.relationship} (${ancestor.generation}代)：\n`;
+                    message += `编号：${ancestor.sheep.sheepCode}\n`;
+                    message += `品种：${ancestor.sheep.breedTypeText} - ${ancestor.sheep.breedName}\n`;
+                    message += `基因类型：${ancestor.sheep.geneType || '-'}\n\n`;
+                });
+            }
+
+            alert(message);
+        }
+
+        // 追溯后代
+        function traceDescendants(id) {
+            const pedigree = mockPedigreeData.find(item => item.id === id);
+            if (!pedigree) return;
+
+            const descendants = mockPedigreeData.filter(sheep =>
+                sheep.fatherCode === pedigree.sheepCode || sheep.motherCode === pedigree.sheepCode
+            );
+
+            // 显示后代信息
+            let message = `羊只 ${pedigree.sheepCode} 的后代信息：\n\n`;
+
+            if (descendants.length === 0) {
+                message += '未找到后代信息';
+            } else {
+                descendants.forEach(descendant => {
+                    const relationship = descendant.fatherCode === pedigree.sheepCode ? '子女（父）' : '子女（母）';
+                    message += `${relationship}：\n`;
+                    message += `编号：${descendant.sheepCode}\n`;
+                    message += `品种：${descendant.breedTypeText} - ${descendant.breedName}\n`;
+                    message += `基因类型：${descendant.geneType || '-'}\n\n`;
+                });
+            }
+
+            alert(message);
+        }
+
+        // 计算系谱完善率
+        function calculateCompletionRate(data) {
+            let totalFields = 6; // 父母、祖父母、外祖父母
+            let filledFields = 0;
+
+            if (data.fatherCode) filledFields++;
+            if (data.motherCode) filledFields++;
+            if (data.grandfatherCode) filledFields++;
+            if (data.grandmotherCode) filledFields++;
+            if (data.maternalGrandfatherCode) filledFields++;
+            if (data.maternalGrandmotherCode) filledFields++;
+
+            return Math.round((filledFields / totalFields) * 100);
+        }
+
+        // 获取系谱等级文本
+        function getPedigreeGradeText(grade) {
+            switch(grade) {
+                case 'excellent': return '优秀';
+                case 'good': return '良好';
+                case 'normal': return '一般';
+                case 'incomplete': return '不完整';
+                default: return '未知';
+            }
+        }
+
+        // 获取当前日期时间
+        function getCurrentDateTime() {
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        }
+    </script>
+</body>
+</html>
