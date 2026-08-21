@@ -1,0 +1,2751 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>羊只品种选育系统 - 选育评估</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <!-- 统一的 Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb', // 主色调 - 专业蓝
+                        secondary: '#10b981', // 辅助色 - 成功绿
+                        accent: '#f59e0b', // 强调色 - 警告黄
+                        danger: '#ef4444', // 危险色 - 错误红
+                        dark: '#1e293b', // 深色
+                        light: '#f8fafc', // 浅色
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }
+            .transition-all {
+                transition: all 0.3s ease;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .form-input-focus {
+                @apply focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none;
+            }
+            .btn-primary {
+                @apply px-4 py-2 bg-primary text-white rounded-md hover:bg-blue-700 transition-all;
+            }
+            .btn-secondary {
+                @apply px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-all;
+            }
+            .btn-danger {
+                @apply px-4 py-2 bg-danger text-white rounded-md hover:bg-red-600 transition-all;
+            }
+            .btn-outline {
+                @apply px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-all;
+            }
+            .badge {
+                @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+            }
+            .badge-success {
+                @apply bg-green-100 text-green-800;
+            }
+            .badge-warning {
+                @apply bg-yellow-100 text-yellow-800;
+            }
+            .badge-danger {
+                @apply bg-red-100 text-red-800;
+            }
+            .badge-info {
+                @apply bg-blue-100 text-blue-800;
+            }
+            .badge-gray {
+                @apply bg-gray-100 text-gray-800;
+            }
+            .slider-track {
+                @apply h-2 rounded-full bg-gray-200;
+            }
+            .slider-thumb {
+                @apply w-4 h-4 rounded-full bg-primary cursor-pointer;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- 侧边栏 -->
+        <aside class="hidden md:flex md:flex-shrink-0">
+            <div class="flex flex-col w-64 bg-white border-r border-gray-200">
+                <div class="flex items-center justify-center h-16 px-4 border-b border-gray-200 bg-primary">
+                    <h2 class="text-xl font-bold text-white">羊只选育系统</h2>
+                </div>
+                <div class="flex flex-col flex-grow px-4 py-4 overflow-y-auto">
+                    <div class="flex flex-col flex-grow space-y-1">
+                        <a href="index.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-dashboard mr-3"></i>
+                            <span>选育看板</span>
+                        </a>
+                        <a href="sheepinfo.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-users mr-3 text-gray-500"></i>
+                            <span >羊群管理</span>
+                        </a>
+                        <a href="evaluation.html" class="flex items-center px-4 py-3 text-gray-700 bg-gray-100 rounded-md">
+                            <i class="fa fa-line-chart mr-3 text-gray-500 text-primary"></i>
+                            <span class="font-medium">选育评估</span>
+                        </a>
+                        <a href="mating.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-calendar mr-3 text-gray-500"></i>
+                            <span>配种管理</span>
+                        </a>
+                        <a href="pedigree.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-file-text mr-3 text-gray-500"></i>
+                            <span>系谱追溯</span>
+                        </a>
+                        <a href="gene-selection.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-file-text mr-3 text-gray-500"></i>
+                            <span>基因选育</span>
+                        </a>
+
+                        <a href="statistics.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-file-text mr-3 text-gray-500"></i>
+                            <span>选育数据统计分析</span>
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-cog mr-3 text-gray-500"></i>
+                            <span>系统设置</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <div class="flex flex-col flex-1 w-0 overflow-hidden">
+            <!-- 顶部导航栏 -->
+            <header class="z-10 py-4 bg-white shadow-sm">
+                <div class="flex items-center justify-between px-4 sm:px-6 lg:px-8">
+                    <div class="flex items-center md:hidden">
+                        <button type="button" class="text-gray-500 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary" id="mobile-menu-button">
+                            <i class="fa fa-bars text-xl"></i>
+                        </button>
+                    </div>
+                    <div class="flex items-center">
+                        <h1 class="text-xl font-semibold text-gray-800">选育评估</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button type="button" class="text-gray-500 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                            <span class="sr-only">查看通知</span>
+                            <i class="fa fa-bell text-xl"></i>
+                            <span class="absolute top-3 right-3 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-danger rounded-full">3</span>
+                        </button>
+                        <div class="relative">
+                            <button type="button" class="flex items-center space-x-2 focus:outline-none">
+                                <img class="w-8 h-8 rounded-full" src="https://randomuser.me/api/portraits/men/1.jpg" alt="用户头像">
+                                <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+                                <i class="fa fa-chevron-down text-xs text-gray-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 移动端侧边栏 -->
+            <div class="fixed inset-0 z-40 hidden bg-gray-600 bg-opacity-75" id="mobile-menu-overlay"></div>
+            <div class="fixed inset-y-0 left-0 z-50 w-64 -translate-x-full bg-white shadow-xl" id="mobile-menu">
+                <div class="flex items-center justify-between h-16 px-4 border-b border-gray-200 bg-primary">
+                    <h2 class="text-xl font-bold text-white">羊只选育系统</h2>
+                    <button type="button" class="text-white hover:text-gray-200 focus:outline-none" id="mobile-menu-close">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div class="px-4 py-4 overflow-y-auto">
+                    <div class="space-y-1">
+                        <a href="index.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-dashboard mr-3 text-gray-500"></i>
+                            <span class="font-medium">选育看板</span>
+                        </a>
+                        <a href="sheepinfo.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-users mr-3 text-gray-500"></i>
+                            <span>羊群管理</span>
+                        </a>
+                        <a href="evaluation.html" class="flex items-center px-4 py-3 text-gray-700 bg-gray-100 rounded-md">
+                            <i class="fa fa-line-chart mr-3  text-primary"></i>
+                            <span>选育评估</span>
+                        </a>
+                        <a href="mating.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-calendar mr-3 text-gray-500"></i>
+                            <span>配种管理</span>
+                        </a>
+                        <a href="pedigree.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-calendar mr-3 text-gray-500"></i>
+                            <span>系谱追溯</span>
+                        </a>
+                        <a href="gene-selection.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-dna mr-3 text-gray-500"></i>
+                            <span>基因选育</span>
+                        </a>
+
+                        <a href="statistics.html" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-file-text mr-3 text-gray-500"></i>
+                            <span>选育数据统计分析</span>
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-md hover:bg-gray-100 transition-all">
+                            <i class="fa fa-cog mr-3 text-gray-500"></i>
+                            <span>系统设置</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 主内容 -->
+            <main class="flex-1 overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
+                <!-- 操作按钮区 -->
+                <div class="flex flex-wrap items-center justify-between mb-6 gap-2">
+                    <div class="flex items-center space-x-2">
+                        <button type="button" class="btn-primary flex items-center" id="add-evaluation-btn">
+                            <i class="fa fa-plus mr-2"></i>
+                            <span>新增评估</span>
+                        </button>
+                        <button type="button" class="btn-outline flex items-center" id="batch-evaluation-btn">
+                            <i class="fa fa-batch mr-2"></i>
+                            <span>批量评估</span>
+                        </button>
+                        <button type="button" class="btn-outline flex items-center" id="settings-btn">
+                            <i class="fa fa-cog mr-2"></i>
+                            <span>评估指标设置</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button type="button" class="btn-outline flex items-center" id="export-report-btn">
+                            <i class="fa fa-download mr-2"></i>
+                            <span>导出评估报告</span>
+                        </button>
+                        <button type="button" class="btn-danger flex items-center" id="batch-delete-btn" disabled>
+                            <i class="fa fa-trash mr-2"></i>
+                            <span>批量删除</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 搜索与筛选区 -->
+                <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                        <div class="col-span-1 md:col-span-2">
+                            <label for="search-text" class="block text-sm font-medium text-gray-700 mb-1">搜索</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fa fa-search text-gray-400"></i>
+                                </div>
+                                <input type="text" id="search-text" name="search-text" placeholder="羊只编号、评估批次" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="filter-breed-type" class="block text-sm font-medium text-gray-700 mb-1">品种类型</label>
+                            <select id="filter-breed-type" name="filter-breed-type" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                <option value="all">全部</option>
+                                <option value="meat">肉羊</option>
+                                <option value="wool">绒羊</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="filter-grade" class="block text-sm font-medium text-gray-700 mb-1">评估等级</label>
+                            <select id="filter-grade" name="filter-grade" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                <option value="all">全部</option>
+                                <option value="excellent">优良</option>
+                                <option value="qualified">合格</option>
+                                <option value="unqualified">不合格</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="filter-status" class="block text-sm font-medium text-gray-700 mb-1">评估状态</label>
+                            <select id="filter-status" name="filter-status" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                <option value="all">全部</option>
+                                <option value="pending">待评估</option>
+                                <option value="in-progress">进行中</option>
+                                <option value="completed">已完成</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="filter-start-date" class="block text-sm font-medium text-gray-700 mb-1">开始日期</label>
+                            <input type="date" id="filter-start-date" name="filter-start-date" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                        </div>
+                        <div>
+                            <label for="filter-end-date" class="block text-sm font-medium text-gray-700 mb-1">结束日期</label>
+                            <input type="date" id="filter-end-date" name="filter-end-date" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                        </div>
+                        <div class="col-span-1 md:col-span-5 flex justify-end space-x-2 pt-4">
+                            <button type="button" class="btn-secondary" id="reset-filter-btn">
+                                重置
+                            </button>
+                            <button type="button" class="btn-primary" id="search-btn">
+                                搜索
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 评估列表表格区 -->
+                <div class="bg-white shadow-sm rounded-lg overflow-hidden mb-6">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <div class="flex items-center">
+                                            <input id="select-all" name="select-all" type="checkbox" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                                            <label for="select-all" class="sr-only">选择所有</label>
+                                        </div>
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        羊只编号
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        品种
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        评估批次
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        评估时间
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        常规指标得分
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        基因指标得分
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        综合评估得分
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        评估等级
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        评估人员
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        评估状态
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        操作
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="evaluation-table-body">
+                                <!-- 表格数据将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                        <div class="flex-1 flex justify-between sm:hidden">
+                            <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                上一页
+                            </a>
+                            <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                下一页
+                            </a>
+                        </div>
+                        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                            <div>
+                                <p class="text-sm text-gray-700">
+                                    显示 <span class="font-medium">1</span> 到 <span class="font-medium">10</span> 条，共 <span class="font-medium">25</span> 条记录
+                                </p>
+                            </div>
+                            <div>
+                                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                    <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <span class="sr-only">上一页</span>
+                                        <i class="fa fa-chevron-left"></i>
+                                    </a>
+                                    <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-primary text-sm font-medium text-white">
+                                        1
+                                    </a>
+                                    <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                        2
+                                    </a>
+                                    <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                        3
+                                    </a>
+                                    <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <span class="sr-only">下一页</span>
+                                        <i class="fa fa-chevron-right"></i>
+                                    </a>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 新增/编辑评估模态框 -->
+    <div class="fixed inset-0 z-50 hidden overflow-y-auto" id="evaluation-modal">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" id="modal-title">
+                                新增评估
+                            </h3>
+                            <div class="mt-2">
+                                <form id="evaluation-form">
+                                    <input type="hidden" id="evaluation-id" value="">
+
+                                    <!-- 基础信息区 -->
+                                    <div class="mb-6">
+                                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">基础信息</h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label for="sheep-select" class="block text-sm font-medium text-gray-700 mb-1">选择羊只 <span class="text-danger">*</span></label>
+                                                <select id="sheep-select" name="sheep-select" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                                    <option value="">请选择羊只</option>
+                                                    <!-- 羊只选项将通过JavaScript动态生成 -->
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label for="evaluation-batch" class="block text-sm font-medium text-gray-700 mb-1">评估批次 <span class="text-danger">*</span></label>
+                                                <input type="text" id="evaluation-batch" name="evaluation-batch" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                            </div>
+                                            <div>
+                                                <label for="evaluation-date" class="block text-sm font-medium text-gray-700 mb-1">评估时间 <span class="text-danger">*</span></label>
+                                                <input type="datetime-local" id="evaluation-date" name="evaluation-date" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                            </div>
+                                            <div>
+                                                <label for="evaluator" class="block text-sm font-medium text-gray-700 mb-1">评估人员 <span class="text-danger">*</span></label>
+                                                <input type="text" id="evaluator" name="evaluator" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                            </div>
+                                            <div>
+                                                <label for="evaluation-status" class="block text-sm font-medium text-gray-700 mb-1">评估状态 <span class="text-danger">*</span></label>
+                                                <select id="evaluation-status" name="evaluation-status" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" required>
+                                                    <option value="pending">待评估</option>
+                                                    <option value="in-progress">进行中</option>
+                                                    <option value="completed">已完成</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 常规评估指标区 -->
+                                    <div class="mb-6">
+                                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">常规评估指标</h4>
+
+                                        <!-- 肉羊常规指标 -->
+                                        <div id="meat-sheep-indicators" class="grid grid-cols-1 md:grid-cols-3 gap-4 hidden">
+                                            <div>
+                                                <label for="indicator-weight" class="block text-sm font-medium text-gray-700 mb-1">体重 (1-100分)</label>
+                                                <div class="flex items-center">
+                                                    <input type="range" id="indicator-weight" name="indicator-weight" min="1" max="100" value="80" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                                    <span id="indicator-weight-value" class="ml-2 w-10 text-center">80</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label for="indicator-daily-gain" class="block text-sm font-medium text-gray-700 mb-1">日增重 (1-100分)</label>
+                                                <div class="flex items-center">
+                                                    <input type="range" id="indicator-daily-gain" name="indicator-daily-gain" min="1" max="100" value="80" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                                    <span id="indicator-daily-gain-value" class="ml-2 w-10 text-center">80</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label for="indicator-slaughter-rate" class="block text-sm font-medium text-gray-700 mb-1">屠宰率 (1-100分)</label>
+                                                <div class="flex items-center">
+                                                    <input type="range" id="indicator-slaughter-rate" name="indicator-slaughter-rate" min="1" max="100" value="80" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                                    <span id="indicator-slaughter-rate-value" class="ml-2 w-10 text-center">80</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label for="indicator-meat-quality" class="block text-sm font-medium text-gray-700 mb-1">肉品质 (1-100分)</label>
+                                                <div class="flex items-center">
+                                                    <input type="range" id="indicator-meat-quality" name="indicator-meat-quality" min="1" max="100" value="80" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                                    <span id="indicator-meat-quality-value" class="ml-2 w-10 text-center">80</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label for="indicator-reproduction-rate" class="block text-sm font-medium text-gray-700 mb-1">繁殖率 (1-100分)</label>
+                                                <div class="flex items-center">
+                                                    <input type="range" id="indicator-reproduction-rate" name="indicator-reproduction-rate" min="1" max="100" value="80" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                                    <span id="indicator-reproduction-rate-value" class="ml-2 w-10 text-center">80</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label for="indicator-appearance" class="block text-sm font-medium text-gray-700 mb-1">体型外貌 (1-100分)</label>
+                                                <div class="flex items-center">
+                                                    <input type="range" id="indicator-appearance" name="indicator-appearance" min="1" max="100" value="80" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                                    <span id="indicator-appearance-value" class="ml-2 w-10 text-center">80</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label for="indicator-disease-resistance" class="block text-sm font-medium text-gray-700 mb-1">抗病性 (1-100分)</label>
+                                                <div class="flex items-center">
+                                                    <input type="range" id="indicator-disease-resistance" name="indicator-disease-resistance" min="1" max="100" value="80" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                                    <span id="indicator-disease-resistance-value" class="ml-2 w-10 text-center">80</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label for="indicator-adaptability" class="block text-sm font-medium text-gray-700 mb-1">适应性 (1-100分)</label>
+                                                <div class="flex items-center">
+                                                    <input type="range" id="indicator-adaptability" name="indicator-adaptability" min="1" max="100" value="80" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                                    <span id="indicator-adaptability-value" class="ml-2 w-10 text-center">80</span>
+                                                </div>
+                                            </div>
+                                            <div class="md:col-span-3">
+                                                <div class="p-3 bg-blue-50 rounded-md">
+                                                    <div class="flex justify-between items-center">
+                                                        <span class="text-sm font-medium text-blue-800">常规指标总分：</span>
+                                                        <span id="regular-score" class="text-lg font-bold text-blue-800">80</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- 绒羊常规指标 -->
+                                        <div id="wool-sheep-indicators" class="grid grid-cols-1 md:grid-cols-3 gap-4 hidden">
+                                            <div>
+                                                <label for="indicator-wool-production" class="block text-sm font-medium text-gray-700 mb-1">产绒量 (1-100分)</label>
+                                                <div class="flex items-center">
+                                                    <input type="range" id="indicator-wool-production" name="indicator-wool-production" min="1" max="100" value="80" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                                    <span id="indicator-wool-production-value" class="ml-2 w-10 text-center">80</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label for="indicator-wool-fineness" class="block text-sm font-medium text-gray-700 mb-1">绒细度 (1-100分)</label>
+                                                <div class="flex items-center">
+                                                    <input type="range" id="indicator-wool-fineness" name="indicator-wool-fineness" min="1" max="100" value="80" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                                    <span id="indicator-wool-fineness-value" class="ml-2 w-10 text-center">80</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label for="indicator-wool-length" class="block text-sm font-medium text-gray-700 mb-1">绒长度 (1-100分)</label>
+                                                <div class="flex items-center">
+                                                    <input type="range" id="indicator-wool-length" name="indicator-wool-length" min="1" max="100" value="80" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                                    <span id="indicator-wool-length-value" class="ml-2 w-10 text-center">80</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label for="indicator-reproduction-performance" class="block text-sm font-medium text-gray-700 mb-1">繁殖性能 (1-100分)</label>
+                                                <div class="flex items-center">
+                                                    <input type="range" id="indicator-reproduction-performance" name="indicator-reproduction-performance" min="1" max="100" value="80" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                                    <span id="indicator-reproduction-performance-value" class="ml-2 w-10 text-center">80</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label for="indicator-wool-appearance" class="block text-sm font-medium text-gray-700 mb-1">体型外貌 (1-100分)</label>
+                                                <div class="flex items-center">
+                                                    <input type="range" id="indicator-wool-appearance" name="indicator-wool-appearance" min="1" max="100" value="80" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                                    <span id="indicator-wool-appearance-value" class="ml-2 w-10 text-center">80</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label for="indicator-wool-disease-resistance" class="block text-sm font-medium text-gray-700 mb-1">抗病性 (1-100分)</label>
+                                                <div class="flex items-center">
+                                                    <input type="range" id="indicator-wool-disease-resistance" name="indicator-wool-disease-resistance" min="1" max="100" value="80" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                                    <span id="indicator-wool-disease-resistance-value" class="ml-2 w-10 text-center">80</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label for="indicator-wool-adaptability" class="block text-sm font-medium text-gray-700 mb-1">适应性 (1-100分)</label>
+                                                <div class="flex items-center">
+                                                    <input type="range" id="indicator-wool-adaptability" name="indicator-wool-adaptability" min="1" max="100" value="80" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                                    <span id="indicator-wool-adaptability-value" class="ml-2 w-10 text-center">80</span>
+                                                </div>
+                                            </div>
+                                            <div class="md:col-span-3">
+                                                <div class="p-3 bg-blue-50 rounded-md">
+                                                    <div class="flex justify-between items-center">
+                                                        <span class="text-sm font-medium text-blue-800">常规指标总分：</span>
+                                                        <span id="wool-regular-score" class="text-lg font-bold text-blue-800">80</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 基因评估指标区 -->
+                                    <div class="mb-6">
+                                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">基因评估指标</h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label for="gene-score" class="block text-sm font-medium text-gray-700 mb-1">基因指标总分 (1-100分)</label>
+                                                <div class="flex items-center">
+                                                    <input type="range" id="gene-score" name="gene-score" min="1" max="100" value="80" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                                    <span id="gene-score-value" class="ml-2 w-10 text-center">80</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label for="gene-test-id" class="block text-sm font-medium text-gray-700 mb-1">基因检测编号</label>
+                                                <input type="text" id="gene-test-id" name="gene-test-id" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                            </div>
+                                            <div class="md:col-span-2">
+                                                <label for="gene-details" class="block text-sm font-medium text-gray-700 mb-1">基因详情</label>
+                                                <textarea id="gene-details" name="gene-details" rows="3" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" placeholder="请输入基因评估详情，包括检测到的基因类型、基因表达情况等..."></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 评估结果区 -->
+                                    <div class="mb-6">
+                                        <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">评估结果</h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label for="total-score" class="block text-sm font-medium text-gray-700 mb-1">综合评估得分</label>
+                                                <input type="text" id="total-score" name="total-score" class="block w-full border-gray-300 rounded-md shadow-sm bg-gray-100" readonly>
+                                            </div>
+                                            <div>
+                                                <label for="evaluation-grade" class="block text-sm font-medium text-gray-700 mb-1">评估等级</label>
+                                                <input type="text" id="evaluation-grade" name="evaluation-grade" class="block w-full border-gray-300 rounded-md shadow-sm bg-gray-100" readonly>
+                                            </div>
+                                            <div class="md:col-span-2">
+                                                <label for="evaluation-comment" class="block text-sm font-medium text-gray-700 mb-1">评估意见</label>
+                                                <textarea id="evaluation-comment" name="evaluation-comment" rows="3" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" placeholder="请输入评估意见..."></textarea>
+                                            </div>
+                                            <div class="md:col-span-2">
+                                                <label for="evaluation-remarks" class="block text-sm font-medium text-gray-700 mb-1">备注</label>
+                                                <textarea id="evaluation-remarks" name="evaluation-remarks" rows="2" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus" placeholder="请输入备注信息..."></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm" id="save-evaluation-btn">
+                        保存
+                    </button>
+                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" id="cancel-evaluation-btn">
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 评估指标设置模态框 -->
+    <div class="fixed inset-0 z-50 hidden overflow-y-auto" id="settings-modal">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                                评估指标设置
+                            </h3>
+                            <div class="mt-2">
+                                <!-- 标签页导航 -->
+                                <div class="mb-6 border-b border-gray-200">
+                                    <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                                        <button type="button" class="settings-tab-btn whitespace-nowrap py-4 px-1 border-b-2 border-primary font-medium text-sm text-primary" data-tab="meat-sheep-tab">
+                                            肉羊评估指标
+                                        </button>
+                                        <button type="button" class="settings-tab-btn whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="wool-sheep-tab">
+                                            绒羊评估指标
+                                        </button>
+                                        <button type="button" class="settings-tab-btn whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="grade-tab">
+                                            评估等级设置
+                                        </button>
+                                    </nav>
+                                </div>
+
+                                <!-- 标签页内容 -->
+                                <div class="settings-tab-content" id="meat-sheep-tab">
+                                    <h4 class="text-md font-medium text-gray-700 mb-3">肉羊常规指标权重设置</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                        <div>
+                                            <label for="weight-weight" class="block text-sm font-medium text-gray-700 mb-1">体重 <span id="weight-weight-value">15</span>%</label>
+                                            <input type="range" id="weight-weight" name="weight-weight" min="1" max="50" value="15" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                        </div>
+                                        <div>
+                                            <label for="daily-gain-weight" class="block text-sm font-medium text-gray-700 mb-1">日增重 <span id="daily-gain-weight-value">20</span>%</label>
+                                            <input type="range" id="daily-gain-weight" name="daily-gain-weight" min="1" max="50" value="20" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                        </div>
+                                        <div>
+                                            <label for="slaughter-rate-weight" class="block text-sm font-medium text-gray-700 mb-1">屠宰率 <span id="slaughter-rate-weight-value">15</span>%</label>
+                                            <input type="range" id="slaughter-rate-weight" name="slaughter-rate-weight" min="1" max="50" value="15" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                        </div>
+                                        <div>
+                                            <label for="meat-quality-weight" class="block text-sm font-medium text-gray-700 mb-1">肉品质 <span id="meat-quality-weight-value">15</span>%</label>
+                                            <input type="range" id="meat-quality-weight" name="meat-quality-weight" min="1" max="50" value="15" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                        </div>
+                                        <div>
+                                            <label for="reproduction-rate-weight" class="block text-sm font-medium text-gray-700 mb-1">繁殖率 <span id="reproduction-rate-weight-value">10</span>%</label>
+                                            <input type="range" id="reproduction-rate-weight" name="reproduction-rate-weight" min="1" max="50" value="10" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                        </div>
+                                        <div>
+                                            <label for="appearance-weight" class="block text-sm font-medium text-gray-700 mb-1">体型外貌 <span id="appearance-weight-value">10</span>%</label>
+                                            <input type="range" id="appearance-weight" name="appearance-weight" min="1" max="50" value="10" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                        </div>
+                                        <div>
+                                            <label for="disease-resistance-weight" class="block text-sm font-medium text-gray-700 mb-1">抗病性 <span id="disease-resistance-weight-value">8</span>%</label>
+                                            <input type="range" id="disease-resistance-weight" name="disease-resistance-weight" min="1" max="50" value="8" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                        </div>
+                                        <div>
+                                            <label for="adaptability-weight" class="block text-sm font-medium text-gray-700 mb-1">适应性 <span id="adaptability-weight-value">7</span>%</label>
+                                            <input type="range" id="adaptability-weight" name="adaptability-weight" min="1" max="50" value="7" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                        </div>
+                                        <div class="md:col-span-2">
+                                            <div class="p-3 bg-blue-50 rounded-md">
+                                                <div class="flex justify-between items-center">
+                                                    <span class="text-sm font-medium text-blue-800">常规指标权重总和：</span>
+                                                    <span id="meat-regular-total" class="text-lg font-bold text-blue-800">100</span>%
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <h4 class="text-md font-medium text-gray-700 mb-3">基因指标权重设置</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label for="meat-gene-weight" class="block text-sm font-medium text-gray-700 mb-1">基因指标占总分比例 <span id="meat-gene-weight-value">30</span>%</label>
+                                            <input type="range" id="meat-gene-weight" name="meat-gene-weight" min="0" max="100" value="30" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                        </div>
+                                        <div>
+                                            <label for="meat-regular-weight" class="block text-sm font-medium text-gray-700 mb-1">常规指标占总分比例 <span id="meat-regular-weight-value">70</span>%</label>
+                                            <input type="range" id="meat-regular-weight" name="meat-regular-weight" min="0" max="100" value="70" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="settings-tab-content hidden" id="wool-sheep-tab">
+                                    <h4 class="text-md font-medium text-gray-700 mb-3">绒羊常规指标权重设置</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                        <div>
+                                            <label for="wool-production-weight" class="block text-sm font-medium text-gray-700 mb-1">产绒量 <span id="wool-production-weight-value">20</span>%</label>
+                                            <input type="range" id="wool-production-weight" name="wool-production-weight" min="1" max="50" value="20" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                        </div>
+                                        <div>
+                                            <label for="wool-fineness-weight" class="block text-sm font-medium text-gray-700 mb-1">绒细度 <span id="wool-fineness-weight-value">20</span>%</label>
+                                            <input type="range" id="wool-fineness-weight" name="wool-fineness-weight" min="1" max="50" value="20" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                        </div>
+                                        <div>
+                                            <label for="wool-length-weight" class="block text-sm font-medium text-gray-700 mb-1">绒长度 <span id="wool-length-weight-value">15</span>%</label>
+                                            <input type="range" id="wool-length-weight" name="wool-length-weight" min="1" max="50" value="15" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                        </div>
+                                        <div>
+                                            <label for="reproduction-performance-weight" class="block text-sm font-medium text-gray-700 mb-1">繁殖性能 <span id="reproduction-performance-weight-value">15</span>%</label>
+                                            <input type="range" id="reproduction-performance-weight" name="reproduction-performance-weight" min="1" max="50" value="15" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                        </div>
+                                        <div>
+                                            <label for="wool-appearance-weight" class="block text-sm font-medium text-gray-700 mb-1">体型外貌 <span id="wool-appearance-weight-value">10</span>%</label>
+                                            <input type="range" id="wool-appearance-weight" name="wool-appearance-weight" min="1" max="50" value="10" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                        </div>
+                                        <div>
+                                            <label for="wool-disease-resistance-weight" class="block text-sm font-medium text-gray-700 mb-1">抗病性 <span id="wool-disease-resistance-weight-value">10</span>%</label>
+                                            <input type="range" id="wool-disease-resistance-weight" name="wool-disease-resistance-weight" min="1" max="50" value="10" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                        </div>
+                                        <div>
+                                            <label for="wool-adaptability-weight" class="block text-sm font-medium text-gray-700 mb-1">适应性 <span id="wool-adaptability-weight-value">10</span>%</label>
+                                            <input type="range" id="wool-adaptability-weight" name="wool-adaptability-weight" min="1" max="50" value="10" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                        </div>
+                                        <div class="md:col-span-2">
+                                            <div class="p-3 bg-blue-50 rounded-md">
+                                                <div class="flex justify-between items-center">
+                                                    <span class="text-sm font-medium text-blue-800">常规指标权重总和：</span>
+                                                    <span id="wool-regular-total" class="text-lg font-bold text-blue-800">100</span>%
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <h4 class="text-md font-medium text-gray-700 mb-3">基因指标权重设置</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label for="wool-gene-weight" class="block text-sm font-medium text-gray-700 mb-1">基因指标占总分比例 <span id="wool-gene-weight-value">30</span>%</label>
+                                            <input type="range" id="wool-gene-weight" name="wool-gene-weight" min="0" max="100" value="30" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                        </div>
+                                        <div>
+                                            <label for="wool-regular-weight" class="block text-sm font-medium text-gray-700 mb-1">常规指标占总分比例 <span id="wool-regular-weight-value">70</span>%</label>
+                                            <input type="range" id="wool-regular-weight" name="wool-regular-weight" min="0" max="100" value="70" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="settings-tab-content hidden" id="grade-tab">
+                                    <h4 class="text-md font-medium text-gray-700 mb-3">评估等级分数线设置</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label for="excellent-threshold" class="block text-sm font-medium text-gray-700 mb-1">优良分数线 (≥)</label>
+                                            <div class="flex items-center">
+                                                <input type="number" id="excellent-threshold" name="excellent-threshold" min="60" max="100" value="85" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                                <span class="ml-2">分</span>
+                                            </div>
+                                            <p class="mt-1 text-xs text-gray-500">得分大于等于此分数线的评估等级为"优良"</p>
+                                        </div>
+                                        <div>
+                                            <label for="qualified-threshold" class="block text-sm font-medium text-gray-700 mb-1">合格分数线 (≥)</label>
+                                            <div class="flex items-center">
+                                                <input type="number" id="qualified-threshold" name="qualified-threshold" min="0" max="84" value="70" class="block w-full border-gray-300 rounded-md shadow-sm form-input-focus">
+                                                <span class="ml-2">分</span>
+                                            </div>
+                                            <p class="mt-1 text-xs text-gray-500">得分大于等于此分数线但小于优良分数线的评估等级为"合格"</p>
+                                        </div>
+                                        <div class="md:col-span-2">
+                                            <div class="p-3 bg-blue-50 rounded-md">
+                                                <p class="text-sm text-blue-800">得分小于合格分数线的评估等级为"不合格"</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm" id="save-settings-btn">
+                        保存设置
+                    </button>
+                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" id="reset-settings-btn">
+                        恢复默认
+                    </button>
+                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" id="cancel-settings-btn">
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 确认删除模态框 -->
+    <div class="fixed inset-0 z-50 hidden overflow-y-auto" id="confirm-delete-modal">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <i class="fa fa-exclamation-triangle text-red-600"></i>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="delete-modal-title">
+                                确认删除
+                            </h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500" id="delete-confirm-text">
+                                    您确定要删除选中的评估记录吗？此操作不可撤销。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-danger text-base font-medium text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm" id="confirm-delete-btn">
+                        确认删除
+                    </button>
+                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" id="cancel-delete-btn">
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 查看评估详情模态框 -->
+    <div class="fixed inset-0 z-50 hidden overflow-y-auto" id="detail-modal">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" id="detail-modal-title">
+                                评估详情
+                            </h3>
+                            <div class="mt-2">
+                                <div class="bg-gray-50 p-4 rounded-lg mb-6">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-500">羊只编号</p>
+                                            <p class="text-base font-medium text-gray-900" id="detail-sheep-code">S20230001</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-500">品种</p>
+                                            <p class="text-base font-medium text-gray-900" id="detail-breed">肉羊 - 杜泊羊</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-500">评估批次</p>
+                                            <p class="text-base font-medium text-gray-900" id="detail-batch">2023-06</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-500">评估时间</p>
+                                            <p class="text-base font-medium text-gray-900" id="detail-date">2023-06-15 10:30:00</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-500">评估人员</p>
+                                            <p class="text-base font-medium text-gray-900" id="detail-evaluator">张三</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-500">评估状态</p>
+                                            <p class="text-base font-medium text-gray-900" id="detail-status">已完成</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-6">
+                                    <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">评估得分详情</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                        <div class="bg-blue-50 p-4 rounded-lg">
+                                            <p class="text-sm font-medium text-blue-800 mb-1">常规指标得分</p>
+                                            <p class="text-2xl font-bold text-blue-800" id="detail-regular-score">85</p>
+                                        </div>
+                                        <div class="bg-green-50 p-4 rounded-lg">
+                                            <p class="text-sm font-medium text-green-800 mb-1">基因指标得分</p>
+                                            <p class="text-2xl font-bold text-green-800" id="detail-gene-score">90</p>
+                                        </div>
+                                        <div class="bg-purple-50 p-4 rounded-lg">
+                                            <p class="text-sm font-medium text-purple-800 mb-1">综合评估得分</p>
+                                            <p class="text-2xl font-bold text-purple-800" id="detail-total-score">87</p>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <p class="text-sm font-medium text-gray-700 mb-1">评估等级</p>
+                                        <p class="text-xl font-bold text-green-600" id="detail-grade">优良</p>
+                                    </div>
+                                </div>
+
+                                <div class="mb-6">
+                                    <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">常规评估指标详情</h4>
+                                    <div class="bg-gray-50 p-4 rounded-lg" id="detail-regular-indicators">
+                                        <!-- 常规指标详情将通过JavaScript动态生成 -->
+                                    </div>
+                                </div>
+
+                                <div class="mb-6">
+                                    <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">基因评估指标详情</h4>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <div class="mb-4">
+                                            <p class="text-sm font-medium text-gray-700 mb-1">基因检测编号</p>
+                                            <p class="text-base text-gray-900" id="detail-gene-test-id">GT20230001</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-700 mb-1">基因详情</p>
+                                            <p class="text-base text-gray-900" id="detail-gene-details">检测到高产基因和优质肉基因，基因表达良好，预计对生长速度和肉品质有显著提升作用。</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-6">
+                                    <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">评估意见</h4>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <p class="text-base text-gray-900" id="detail-comment">该羊只各项指标表现优秀，特别是生长速度和肉品质方面表现突出，同时携带优良基因，建议作为核心种羊使用。</p>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h4 class="text-md font-medium text-gray-700 mb-3 border-l-4 border-primary pl-2">备注</h4>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <p class="text-base text-gray-900" id="detail-remarks">建议加强营养管理，进一步提升生产性能。</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm" id="print-detail-btn">
+                        <i class="fa fa-print mr-2"></i> 打印详情
+                    </button>
+                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" id="close-detail-btn">
+                        关闭
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟数据 - 羊只数据
+        const mockSheepData = [
+            {
+                id: '1',
+                code: 'S20230001',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '杜泊羊',
+                gender: 'male',
+                genderText: '公',
+                birthDate: '2023-01-15',
+                weight: 65.5,
+                height: 75.0
+            },
+            {
+                id: '2',
+                code: 'S20230002',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '湖羊',
+                gender: 'female',
+                genderText: '母',
+                birthDate: '2023-02-05',
+                weight: 52.3,
+                height: 68.5
+            },
+            {
+                id: '3',
+                code: 'S20230003',
+                breedType: 'wool',
+                breedTypeText: '绒羊',
+                breedName: '内蒙古绒山羊',
+                gender: 'male',
+                genderText: '公',
+                birthDate: '2023-01-20',
+                weight: 45.8,
+                height: 65.2
+            },
+            {
+                id: '4',
+                code: 'S20230004',
+                breedType: 'wool',
+                breedTypeText: '绒羊',
+                breedName: '辽宁绒山羊',
+                gender: 'female',
+                genderText: '母',
+                birthDate: '2023-02-10',
+                weight: 38.5,
+                height: 62.0
+            },
+            {
+                id: '5',
+                code: 'S20230005',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '小尾寒羊',
+                gender: 'female',
+                genderText: '母',
+                birthDate: '2023-03-01',
+                weight: 48.2,
+                height: 66.8
+            },
+            {
+                id: '6',
+                code: 'S20230006',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '萨福克羊',
+                gender: 'male',
+                genderText: '公',
+                birthDate: '2023-02-25',
+                weight: 72.6,
+                height: 78.5
+            },
+            {
+                id: '7',
+                code: 'S20230007',
+                breedType: 'wool',
+                breedTypeText: '绒羊',
+                breedName: '河西绒山羊',
+                gender: 'female',
+                genderText: '母',
+                birthDate: '2023-03-10',
+                weight: 36.2,
+                height: 60.5
+            },
+            {
+                id: '8',
+                code: 'S20230008',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '夏洛莱羊',
+                gender: 'male',
+                genderText: '公',
+                birthDate: '2023-03-15',
+                weight: 68.8,
+                height: 76.2
+            },
+            {
+                id: '9',
+                code: 'S20230009',
+                breedType: 'wool',
+                breedTypeText: '绒羊',
+                breedName: '新疆绒山羊',
+                gender: 'female',
+                genderText: '母',
+                birthDate: '2023-03-20',
+                weight: 40.5,
+                height: 63.8
+            },
+            {
+                id: '10',
+                code: 'S20230010',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '杜泊羊',
+                gender: 'female',
+                genderText: '母',
+                birthDate: '2023-04-01',
+                weight: 49.8,
+                height: 67.5
+            }
+        ];
+
+        // 模拟数据 - 评估数据
+        const mockEvaluationData = [
+            {
+                id: '1',
+                sheepId: '1',
+                sheepCode: 'S20230001',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '杜泊羊',
+                batch: '2023-06',
+                evaluationDate: '2023-06-15 10:30:00',
+                evaluator: '张三',
+                status: 'completed',
+                statusText: '已完成',
+
+                // 常规评估指标得分
+                regularIndicators: {
+                    weight: 90,
+                    dailyGain: 85,
+                    slaughterRate: 88,
+                    meatQuality: 92,
+                    reproductionRate: 80,
+                    appearance: 85,
+                    diseaseResistance: 82,
+                    adaptability: 87
+                },
+                regularScore: 87,
+
+                // 基因评估指标得分
+                geneIndicators: {
+                    geneScore: 90,
+                    geneTestId: 'GT20230001',
+                    geneDetails: '检测到高产基因和优质肉基因，基因表达良好，预计对生长速度和肉品质有显著提升作用。'
+                },
+
+                totalScore: 88,
+                grade: 'excellent',
+                gradeText: '优良',
+                comment: '该羊只各项指标表现优秀，特别是生长速度和肉品质方面表现突出，同时携带优良基因，建议作为核心种羊使用。',
+                remarks: '建议加强营养管理，进一步提升生产性能。',
+                createTime: '2023-06-15 10:30:00',
+                updateTime: '2023-06-15 10:30:00'
+            },
+            {
+                id: '2',
+                sheepId: '2',
+                sheepCode: 'S20230002',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '湖羊',
+                batch: '2023-06',
+                evaluationDate: '2023-06-16 09:15:00',
+                evaluator: '李四',
+                status: 'completed',
+                statusText: '已完成',
+
+                // 常规评估指标得分
+                regularIndicators: {
+                    weight: 78,
+                    dailyGain: 75,
+                    slaughterRate: 80,
+                    meatQuality: 82,
+                    reproductionRate: 88,
+                    appearance: 80,
+                    diseaseResistance: 85,
+                    adaptability: 83
+                },
+                regularScore: 81,
+
+                // 基因评估指标得分
+                geneIndicators: {
+                    geneScore: 75,
+                    geneTestId: 'GT20230002',
+                    geneDetails: '检测到高产基因，基因表达一般，预计对繁殖性能有一定提升作用。'
+                },
+
+                totalScore: 79,
+                grade: 'qualified',
+                gradeText: '合格',
+                comment: '该羊只各项指标表现良好，繁殖性能突出，但生长速度和肉品质有待提高。',
+                remarks: '建议加强饲养管理，提高生长速度。',
+                createTime: '2023-06-16 09:15:00',
+                updateTime: '2023-06-16 09:15:00'
+            },
+            {
+                id: '3',
+                sheepId: '3',
+                sheepCode: 'S20230003',
+                breedType: 'wool',
+                breedTypeText: '绒羊',
+                breedName: '内蒙古绒山羊',
+                batch: '2023-06',
+                evaluationDate: '2023-06-17 14:20:00',
+                evaluator: '王五',
+                status: 'completed',
+                statusText: '已完成',
+
+                // 常规评估指标得分
+                regularIndicators: {
+                    woolProduction: 92,
+                    woolFineness: 95,
+                    woolLength: 90,
+                    reproductionPerformance: 85,
+                    appearance: 88,
+                    diseaseResistance: 82,
+                    adaptability: 86
+                },
+                regularScore: 90,
+
+                // 基因评估指标得分
+                geneIndicators: {
+                    geneScore: 92,
+                    geneTestId: 'GT20230003',
+                    geneDetails: '检测到优质绒基因和高产基因，基因表达优秀，预计对产绒量和绒品质有显著提升作用。'
+                },
+
+                totalScore: 91,
+                grade: 'excellent',
+                gradeText: '优良',
+                comment: '该羊只各项指标表现优秀，特别是产绒性能和绒品质方面表现突出，同时携带优良基因，建议作为核心种羊使用。',
+                remarks: '建议加强营养管理，进一步提升产绒性能。',
+                createTime: '2023-06-17 14:20:00',
+                updateTime: '2023-06-17 14:20:00'
+            },
+            {
+                id: '4',
+                sheepId: '4',
+                sheepCode: 'S20230004',
+                breedType: 'wool',
+                breedTypeText: '绒羊',
+                breedName: '辽宁绒山羊',
+                batch: '2023-06',
+                evaluationDate: '2023-06-18 11:05:00',
+                evaluator: '赵六',
+                status: 'completed',
+                statusText: '已完成',
+
+                // 常规评估指标得分
+                regularIndicators: {
+                    woolProduction: 75,
+                    woolFineness: 80,
+                    woolLength: 78,
+                    reproductionPerformance: 82,
+                    appearance: 76,
+                    diseaseResistance: 70,
+                    adaptability: 75
+                },
+                regularScore: 77,
+
+                // 基因评估指标得分
+                geneIndicators: {
+                    geneScore: 70,
+                    geneTestId: 'GT20230004',
+                    geneDetails: '未检测到明显的优良基因，基因表达一般。'
+                },
+
+                totalScore: 75,
+                grade: 'qualified',
+                gradeText: '合格',
+                comment: '该羊只各项指标表现一般，产绒性能和绒品质有待提高。',
+                remarks: '建议加强饲养管理，提高产绒性能。',
+                createTime: '2023-06-18 11:05:00',
+                updateTime: '2023-06-18 11:05:00'
+            },
+            {
+                id: '5',
+                sheepId: '5',
+                sheepCode: 'S20230005',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '小尾寒羊',
+                batch: '2023-06',
+                evaluationDate: '2023-06-19 15:40:00',
+                evaluator: '李四',
+                status: 'completed',
+                statusText: '已完成',
+
+                // 常规评估指标得分
+                regularIndicators: {
+                    weight: 82,
+                    dailyGain: 78,
+                    slaughterRate: 85,
+                    meatQuality: 80,
+                    reproductionRate: 95,
+                    appearance: 83,
+                    diseaseResistance: 88,
+                    adaptability: 85
+                },
+                regularScore: 85,
+
+                // 基因评估指标得分
+                geneIndicators: {
+                    geneScore: 82,
+                    geneTestId: 'GT20230005',
+                    geneDetails: '检测到高产基因和抗病基因，基因表达良好，预计对繁殖性能和抗病性有显著提升作用。'
+                },
+
+                totalScore: 84,
+                grade: 'qualified',
+                gradeText: '合格',
+                comment: '该羊只各项指标表现良好，特别是繁殖性能和抗病性方面表现突出，同时携带优良基因，建议作为繁殖母羊使用。',
+                remarks: '建议加强营养管理，提高生长速度和肉品质。',
+                createTime: '2023-06-19 15:40:00',
+                updateTime: '2023-06-19 15:40:00'
+            },
+            {
+                id: '6',
+                sheepId: '6',
+                sheepCode: 'S20230006',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '萨福克羊',
+                batch: '2023-06',
+                evaluationDate: '2023-06-20 11:25:00',
+                evaluator: '张三',
+                status: 'completed',
+                statusText: '已完成',
+
+                // 常规评估指标得分
+                regularIndicators: {
+                    weight: 95,
+                    dailyGain: 92,
+                    slaughterRate: 90,
+                    meatQuality: 88,
+                    reproductionRate: 85,
+                    appearance: 90,
+                    diseaseResistance: 87,
+                    adaptability: 85
+                },
+                regularScore: 90,
+
+                // 基因评估指标得分
+                geneIndicators: {
+                    geneScore: 88,
+                    geneTestId: 'GT20230006',
+                    geneDetails: '检测到优质肉基因和早熟基因，基因表达优秀，预计对生长速度和肉品质有显著提升作用。'
+                },
+
+                totalScore: 89,
+                grade: 'excellent',
+                gradeText: '优良',
+                comment: '该羊只各项指标表现优秀，特别是生长速度和肉品质方面表现突出，同时携带优良基因，建议作为核心种羊使用。',
+                remarks: '建议加强营养管理，进一步提升生产性能。',
+                createTime: '2023-06-20 11:25:00',
+                updateTime: '2023-06-20 11:25:00'
+            },
+            {
+                id: '7',
+                sheepId: '7',
+                sheepCode: 'S20230007',
+                breedType: 'wool',
+                breedTypeText: '绒羊',
+                breedName: '河西绒山羊',
+                batch: '2023-06',
+                evaluationDate: '2023-06-21 16:10:00',
+                evaluator: '赵六',
+                status: 'completed',
+                statusText: '已完成',
+
+                // 常规评估指标得分
+                regularIndicators: {
+                    woolProduction: 65,
+                    woolFineness: 70,
+                    woolLength: 68,
+                    reproductionPerformance: 75,
+                    appearance: 72,
+                    diseaseResistance: 60,
+                    adaptability: 70
+                },
+                regularScore: 69,
+
+                // 基因评估指标得分
+                geneIndicators: {
+                    geneScore: 65,
+                    geneTestId: 'GT20230007',
+                    geneDetails: '未检测到明显的优良基因，基因表达较差。'
+                },
+
+                totalScore: 67,
+                grade: 'unqualified',
+                gradeText: '不合格',
+                comment: '该羊只各项指标表现较差，特别是产绒性能和抗病性方面表现不佳，不建议作为种羊使用。',
+                remarks: '建议淘汰或转为商品羊。',
+                createTime: '2023-06-21 16:10:00',
+                updateTime: '2023-06-21 16:10:00'
+            },
+            {
+                id: '8',
+                sheepId: '8',
+                sheepCode: 'S20230008',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '夏洛莱羊',
+                batch: '2023-06',
+                evaluationDate: '2023-06-22 09:30:00',
+                evaluator: '张三',
+                status: 'completed',
+                statusText: '已完成',
+
+                // 常规评估指标得分
+                regularIndicators: {
+                    weight: 92,
+                    dailyGain: 88,
+                    slaughterRate: 90,
+                    meatQuality: 95,
+                    reproductionRate: 82,
+                    appearance: 88,
+                    diseaseResistance: 90,
+                    adaptability: 85
+                },
+                regularScore: 90,
+
+                // 基因评估指标得分
+                geneIndicators: {
+                    geneScore: 92,
+                    geneTestId: 'GT20230008',
+                    geneDetails: '检测到优质肉基因和抗病基因，基因表达优秀，预计对肉品质和抗病性有显著提升作用。'
+                },
+
+                totalScore: 91,
+                grade: 'excellent',
+                gradeText: '优良',
+                comment: '该羊只各项指标表现优秀，特别是肉品质和抗病性方面表现突出，同时携带优良基因，建议作为核心种羊使用。',
+                remarks: '建议加强营养管理，进一步提升生产性能。',
+                createTime: '2023-06-22 09:30:00',
+                updateTime: '2023-06-22 09:30:00'
+            },
+            {
+                id: '9',
+                sheepId: '9',
+                sheepCode: 'S20230009',
+                breedType: 'wool',
+                breedTypeText: '绒羊',
+                breedName: '新疆绒山羊',
+                batch: '2023-06',
+                evaluationDate: '2023-06-23 14:20:00',
+                evaluator: '王五',
+                status: 'completed',
+                statusText: '已完成',
+
+                // 常规评估指标得分
+                regularIndicators: {
+                    woolProduction: 85,
+                    woolFineness: 88,
+                    woolLength: 82,
+                    reproductionPerformance: 80,
+                    appearance: 85,
+                    diseaseResistance: 88,
+                    adaptability: 90
+                },
+                regularScore: 85,
+
+                // 基因评估指标得分
+                geneIndicators: {
+                    geneScore: 87,
+                    geneTestId: 'GT20230009',
+                    geneDetails: '检测到优质绒基因和抗逆基因，基因表达良好，预计对绒品质和适应性有显著提升作用。'
+                },
+
+                totalScore: 86,
+                grade: 'excellent',
+                gradeText: '优良',
+                comment: '该羊只各项指标表现优秀，特别是绒品质和适应性方面表现突出，同时携带优良基因，建议作为核心种羊使用。',
+                remarks: '建议加强营养管理，进一步提升产绒性能。',
+                createTime: '2023-06-23 14:20:00',
+                updateTime: '2023-06-23 14:20:00'
+            },
+            {
+                id: '10',
+                sheepId: '10',
+                sheepCode: 'S20230010',
+                breedType: 'meat',
+                breedTypeText: '肉羊',
+                breedName: '杜泊羊',
+                batch: '2023-07',
+                evaluationDate: '',
+                evaluator: '',
+                status: 'pending',
+                statusText: '待评估',
+
+                // 常规评估指标得分
+                regularIndicators: {},
+                regularScore: 0,
+
+                // 基因评估指标得分
+                geneIndicators: {
+                    geneScore: 0,
+                    geneTestId: '',
+                    geneDetails: ''
+                },
+
+                totalScore: 0,
+                grade: '',
+                gradeText: '',
+                comment: '',
+                remarks: '',
+                createTime: '2023-07-01 10:05:00',
+                updateTime: '2023-07-01 10:05:00'
+            }
+        ];
+
+        // 评估设置数据
+        const evaluationSettings = {
+            // 肉羊评估指标权重
+            meatSheepWeights: {
+                // 常规指标权重（总和为100%）
+                regularWeights: {
+                    weight: 15,          // 体重
+                    dailyGain: 20,       // 日增重
+                    slaughterRate: 15,   // 屠宰率
+                    meatQuality: 15,     // 肉品质
+                    reproductionRate: 10, // 繁殖率
+                    appearance: 10,      // 体型外貌
+                    diseaseResistance: 8, // 抗病性
+                    adaptability: 7      // 适应性
+                },
+                // 基因指标权重
+                geneWeight: 30         // 基因指标占总分的权重百分比
+            },
+
+            // 绒羊评估指标权重
+            woolSheepWeights: {
+                // 常规指标权重（总和为100%）
+                regularWeights: {
+                    woolProduction: 20,  // 产绒量
+                    woolFineness: 20,    // 绒细度
+                    woolLength: 15,      // 绒长度
+                    reproductionPerformance: 15, // 繁殖性能
+                    appearance: 10,      // 体型外貌
+                    diseaseResistance: 10, // 抗病性
+                    adaptability: 10     // 适应性
+                },
+                // 基因指标权重
+                geneWeight: 30         // 基因指标占总分的权重百分比
+            },
+
+            // 评估等级分数线
+            gradeThresholds: {
+                excellent: 85,         // 优良分数线（≥85分）
+                qualified: 70          // 合格分数线（≥70分，<85分）
+                // 不合格：<70分
+            }
+        };
+
+        // 当前编辑的评估ID
+        let currentEditId = null;
+
+        // 当前选中的评估ID列表
+        let selectedIds = [];
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化表格
+            updateEvaluationTable();
+
+            // 初始化羊只选择下拉框
+            initSheepSelect();
+
+            // 设置事件监听
+            setupEventListeners();
+        });
+
+        // 更新评估列表表格
+        function updateEvaluationTable() {
+            const tableBody = document.getElementById('evaluation-table-body');
+            tableBody.innerHTML = '';
+
+            mockEvaluationData.forEach(evaluation => {
+                const row = document.createElement('tr');
+
+                // 设置评估等级标签的样式
+                let gradeBadgeClass = '';
+                switch(evaluation.grade) {
+                    case 'excellent':
+                        gradeBadgeClass = 'badge-success';
+                        break;
+                    case 'qualified':
+                        gradeBadgeClass = 'badge-warning';
+                        break;
+                    case 'unqualified':
+                        gradeBadgeClass = 'badge-danger';
+                        break;
+                    default:
+                        gradeBadgeClass = 'badge-gray';
+                }
+
+                // 设置评估状态标签的样式
+                let statusBadgeClass = '';
+                switch(evaluation.status) {
+                    case 'completed':
+                        statusBadgeClass = 'badge-success';
+                        break;
+                    case 'in-progress':
+                        statusBadgeClass = 'badge-warning';
+                        break;
+                    case 'pending':
+                        statusBadgeClass = 'badge-gray';
+                        break;
+                    default:
+                        statusBadgeClass = 'badge-gray';
+                }
+
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <input id="select-${evaluation.id}" name="select-evaluation" type="checkbox" value="${evaluation.id}" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded evaluation-checkbox">
+                            <label for="select-${evaluation.id}" class="sr-only">选择 ${evaluation.id}</label>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${evaluation.sheepCode}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${evaluation.breedTypeText} - ${evaluation.breedName}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${evaluation.batch}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${evaluation.evaluationDate || '-'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${evaluation.regularScore || '-'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${evaluation.geneIndicators.geneScore || '-'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${evaluation.totalScore || '-'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="badge ${gradeBadgeClass}">${evaluation.gradeText || '-'}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${evaluation.evaluator || '-'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="badge ${statusBadgeClass}">${evaluation.statusText}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button type="button" class="text-primary hover:text-blue-800 mr-3 view-evaluation-btn" data-id="${evaluation.id}">
+                            <i class="fa fa-eye"></i> 查看
+                        </button>
+                        <button type="button" class="text-green-600 hover:text-green-800 mr-3 edit-evaluation-btn" data-id="${evaluation.id}">
+                            <i class="fa fa-pencil"></i> 编辑
+                        </button>
+                        <button type="button" class="text-danger hover:text-red-800 delete-evaluation-btn" data-id="${evaluation.id}">
+                            <i class="fa fa-trash"></i> 删除
+                        </button>
+                    </td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+
+            // 重新绑定表格中的按钮事件
+            bindTableButtonEvents();
+        }
+
+        // 初始化羊只选择下拉框
+        function initSheepSelect() {
+            const sheepSelect = document.getElementById('sheep-select');
+
+            // 清空现有选项
+            sheepSelect.innerHTML = '';
+
+            // 添加默认选项
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = '请选择羊只';
+            sheepSelect.appendChild(defaultOption);
+
+            // 添加羊只选项
+            mockSheepData.forEach(sheep => {
+                const option = document.createElement('option');
+                option.value = sheep.id;
+                option.textContent = `${sheep.code} - ${sheep.breedTypeText} - ${sheep.breedName}`;
+                sheepSelect.appendChild(option);
+            });
+        }
+
+        // 设置事件监听
+        function setupEventListeners() {
+            // 移动端菜单
+            document.getElementById('mobile-menu-button').addEventListener('click', function() {
+                document.getElementById('mobile-menu').classList.remove('-translate-x-full');
+                document.getElementById('mobile-menu-overlay').classList.remove('hidden');
+            });
+
+            document.getElementById('mobile-menu-close').addEventListener('click', function() {
+                document.getElementById('mobile-menu').classList.add('-translate-x-full');
+                document.getElementById('mobile-menu-overlay').classList.add('hidden');
+            });
+
+            document.getElementById('mobile-menu-overlay').addEventListener('click', function() {
+                document.getElementById('mobile-menu').classList.add('-translate-x-full');
+                document.getElementById('mobile-menu-overlay').classList.add('hidden');
+            });
+
+            // 新增评估按钮
+            document.getElementById('add-evaluation-btn').addEventListener('click', function() {
+                openAddEvaluationModal();
+            });
+
+            // 批量评估按钮
+            document.getElementById('batch-evaluation-btn').addEventListener('click', function() {
+                alert('批量评估功能将在实际系统中实现');
+            });
+
+            // 评估指标设置按钮
+            document.getElementById('settings-btn').addEventListener('click', function() {
+                document.getElementById('settings-modal').classList.remove('hidden');
+            });
+
+            // 导出评估报告按钮
+            document.getElementById('export-report-btn').addEventListener('click', function() {
+                if (selectedIds.length > 0) {
+                    alert(`正在导出 ${selectedIds.length} 条评估记录的报告\n导出功能将在实际系统中实现`);
+                } else {
+                    alert('请先选择要导出的评估记录');
+                }
+            });
+
+            // 批量删除按钮
+            document.getElementById('batch-delete-btn').addEventListener('click', function() {
+                if (selectedIds.length > 0) {
+                    document.getElementById('delete-confirm-text').textContent = `您确定要删除选中的 ${selectedIds.length} 条评估记录吗？此操作不可撤销。`;
+                    document.getElementById('confirm-delete-modal').classList.remove('hidden');
+                } else {
+                    alert('请先选择要删除的评估记录');
+                }
+            });
+
+            // 搜索按钮
+            document.getElementById('search-btn').addEventListener('click', function() {
+                // 实际系统中这里会根据搜索条件过滤数据
+                alert('搜索功能将在实际系统中实现');
+            });
+
+            // 重置筛选按钮
+            document.getElementById('reset-filter-btn').addEventListener('click', function() {
+                document.getElementById('search-text').value = '';
+                document.getElementById('filter-breed-type').value = 'all';
+                document.getElementById('filter-grade').value = 'all';
+                document.getElementById('filter-status').value = 'all';
+                document.getElementById('filter-start-date').value = '';
+                document.getElementById('filter-end-date').value = '';
+            });
+
+            // 保存评估按钮
+            document.getElementById('save-evaluation-btn').addEventListener('click', function() {
+                saveEvaluation();
+            });
+
+            // 取消保存按钮
+            document.getElementById('cancel-evaluation-btn').addEventListener('click', function() {
+                document.getElementById('evaluation-modal').classList.add('hidden');
+            });
+
+            // 保存设置按钮
+            document.getElementById('save-settings-btn').addEventListener('click', function() {
+                saveSettings();
+                document.getElementById('settings-modal').classList.add('hidden');
+            });
+
+            // 恢复默认设置按钮
+            document.getElementById('reset-settings-btn').addEventListener('click', function() {
+                resetSettings();
+            });
+
+            // 取消设置按钮
+            document.getElementById('cancel-settings-btn').addEventListener('click', function() {
+                document.getElementById('settings-modal').classList.add('hidden');
+            });
+
+            // 确认删除按钮
+            document.getElementById('confirm-delete-btn').addEventListener('click', function() {
+                deleteEvaluation(selectedIds);
+                document.getElementById('confirm-delete-modal').classList.add('hidden');
+            });
+
+            // 取消删除按钮
+            document.getElementById('cancel-delete-btn').addEventListener('click', function() {
+                document.getElementById('confirm-delete-modal').classList.add('hidden');
+            });
+
+            // 关闭详情按钮
+            document.getElementById('close-detail-btn').addEventListener('click', function() {
+                document.getElementById('detail-modal').classList.add('hidden');
+            });
+
+            // 打印详情按钮
+            document.getElementById('print-detail-btn').addEventListener('click', function() {
+                alert('打印功能将在实际系统中实现');
+            });
+
+            // 全选复选框
+            document.getElementById('select-all').addEventListener('change', function() {
+                const isChecked = this.checked;
+                document.querySelectorAll('.evaluation-checkbox').forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                });
+                updateSelectedIds();
+            });
+
+            // 羊只选择变化
+            document.getElementById('sheep-select').addEventListener('change', function() {
+                updateIndicatorFields();
+            });
+
+            // 评估状态变化
+            document.getElementById('evaluation-status').addEventListener('change', function() {
+                const status = this.value;
+                const isCompleted = status === 'completed';
+
+                // 如果状态改为已完成，自动计算总分和等级
+                if (isCompleted) {
+                    calculateTotalScore();
+                }
+            });
+
+            // 设置标签页切换
+            document.querySelectorAll('.settings-tab-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+
+                    // 切换标签页按钮样式
+                    document.querySelectorAll('.settings-tab-btn').forEach(btn => {
+                        btn.classList.remove('border-primary', 'text-primary');
+                        btn.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+                    });
+                    this.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+                    this.classList.add('border-primary', 'text-primary');
+
+                    // 切换标签页内容
+                    document.querySelectorAll('.settings-tab-content').forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    document.getElementById(tabId).classList.remove('hidden');
+                });
+            });
+
+            // 初始化滑块事件
+            initSliderEvents();
+        }
+
+        // 初始化滑块事件
+        function initSliderEvents() {
+            // 肉羊常规指标滑块
+            const meatSliders = [
+                'indicator-weight', 'indicator-daily-gain', 'indicator-slaughter-rate',
+                'indicator-meat-quality', 'indicator-reproduction-rate', 'indicator-appearance',
+                'indicator-disease-resistance', 'indicator-adaptability'
+            ];
+
+            meatSliders.forEach(sliderId => {
+                const slider = document.getElementById(sliderId);
+                const valueDisplay = document.getElementById(`${sliderId}-value`);
+
+                if (slider && valueDisplay) {
+                    slider.addEventListener('input', function() {
+                        valueDisplay.textContent = this.value;
+                        calculateMeatRegularScore();
+                    });
+                }
+            });
+
+            // 绒羊常规指标滑块
+            const woolSliders = [
+                'indicator-wool-production', 'indicator-wool-fineness', 'indicator-wool-length',
+                'indicator-reproduction-performance', 'indicator-wool-appearance',
+                'indicator-wool-disease-resistance', 'indicator-wool-adaptability'
+            ];
+
+            woolSliders.forEach(sliderId => {
+                const slider = document.getElementById(sliderId);
+                const valueDisplay = document.getElementById(`${sliderId}-value`);
+
+                if (slider && valueDisplay) {
+                    slider.addEventListener('input', function() {
+                        valueDisplay.textContent = this.value;
+                        calculateWoolRegularScore();
+                    });
+                }
+            });
+
+            // 基因指标滑块
+            const geneScoreSlider = document.getElementById('gene-score');
+            const geneScoreValue = document.getElementById('gene-score-value');
+
+            if (geneScoreSlider && geneScoreValue) {
+                geneScoreSlider.addEventListener('input', function() {
+                    geneScoreValue.textContent = this.value;
+                    calculateTotalScore();
+                });
+            }
+
+            // 设置页面中的滑块
+            setupSettingsSliderEvents();
+        }
+
+        // 设置页面中的滑块事件
+        function setupSettingsSliderEvents() {
+            // 肉羊常规指标权重滑块
+            const meatWeightSliders = [
+                'weight-weight', 'daily-gain-weight', 'slaughter-rate-weight',
+                'meat-quality-weight', 'reproduction-rate-weight', 'appearance-weight',
+                'disease-resistance-weight', 'adaptability-weight'
+            ];
+
+            meatWeightSliders.forEach(sliderId => {
+                const slider = document.getElementById(sliderId);
+                const valueDisplay = document.getElementById(`${sliderId}-value`);
+
+                if (slider && valueDisplay) {
+                    slider.addEventListener('input', function() {
+                        valueDisplay.textContent = this.value;
+                        calculateMeatRegularWeightTotal();
+                    });
+                }
+            });
+
+            // 绒羊常规指标权重滑块
+            const woolWeightSliders = [
+                'wool-production-weight', 'wool-fineness-weight', 'wool-length-weight',
+                'reproduction-performance-weight', 'wool-appearance-weight',
+                'wool-disease-resistance-weight', 'wool-adaptability-weight'
+            ];
+
+            woolWeightSliders.forEach(sliderId => {
+                const slider = document.getElementById(sliderId);
+                const valueDisplay = document.getElementById(`${sliderId}-value`);
+
+                if (slider && valueDisplay) {
+                    slider.addEventListener('input', function() {
+                        valueDisplay.textContent = this.value;
+                        calculateWoolRegularWeightTotal();
+                    });
+                }
+            });
+
+            // 基因指标权重滑块
+            const meatGeneWeightSlider = document.getElementById('meat-gene-weight');
+            const meatGeneWeightValue = document.getElementById('meat-gene-weight-value');
+            const meatRegularWeightValue = document.getElementById('meat-regular-weight-value');
+
+            if (meatGeneWeightSlider && meatGeneWeightValue && meatRegularWeightValue) {
+                meatGeneWeightSlider.addEventListener('input', function() {
+                    meatGeneWeightValue.textContent = this.value;
+                    meatRegularWeightValue.textContent = 100 - parseInt(this.value);
+                });
+            }
+
+            const woolGeneWeightSlider = document.getElementById('wool-gene-weight');
+            const woolGeneWeightValue = document.getElementById('wool-gene-weight-value');
+            const woolRegularWeightValue = document.getElementById('wool-regular-weight-value');
+
+            if (woolGeneWeightSlider && woolGeneWeightValue && woolRegularWeightValue) {
+                woolGeneWeightSlider.addEventListener('input', function() {
+                    woolGeneWeightValue.textContent = this.value;
+                    woolRegularWeightValue.textContent = 100 - parseInt(this.value);
+                });
+            }
+        }
+
+        // 绑定表格中的按钮事件
+        function bindTableButtonEvents() {
+            // 查看按钮
+            document.querySelectorAll('.view-evaluation-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    openDetailModal(id);
+                });
+            });
+
+            // 编辑按钮
+            document.querySelectorAll('.edit-evaluation-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    openEditEvaluationModal(id);
+                });
+            });
+
+            // 删除按钮
+            document.querySelectorAll('.delete-evaluation-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    document.getElementById('delete-confirm-text').textContent = `您确定要删除评估记录 ID: ${id} 吗？此操作不可撤销。`;
+                    selectedIds = [id];
+                    document.getElementById('confirm-delete-modal').classList.remove('hidden');
+                });
+            });
+
+            // 评估复选框
+            document.querySelectorAll('.evaluation-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    updateSelectedIds();
+                });
+            });
+        }
+
+        // 更新选中的评估ID列表
+        function updateSelectedIds() {
+            selectedIds = [];
+            document.querySelectorAll('.evaluation-checkbox:checked').forEach(checkbox => {
+                selectedIds.push(checkbox.value);
+            });
+
+            // 更新全选复选框状态
+            const allCheckbox = document.getElementById('select-all');
+            const totalCheckboxes = document.querySelectorAll('.evaluation-checkbox').length;
+
+            if (selectedIds.length === 0) {
+                allCheckbox.checked = false;
+                allCheckbox.indeterminate = false;
+            } else if (selectedIds.length === totalCheckboxes) {
+                allCheckbox.checked = true;
+                allCheckbox.indeterminate = false;
+            } else {
+                allCheckbox.checked = false;
+                allCheckbox.indeterminate = true;
+            }
+
+            // 更新批量删除按钮状态
+            const batchDeleteBtn = document.getElementById('batch-delete-btn');
+            if (selectedIds.length > 0) {
+                batchDeleteBtn.disabled = false;
+                batchDeleteBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                batchDeleteBtn.disabled = true;
+                batchDeleteBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        // 打开新增评估模态框
+        function openAddEvaluationModal() {
+            // 重置表单
+            document.getElementById('evaluation-form').reset();
+            document.getElementById('evaluation-id').value = '';
+            document.getElementById('modal-title').textContent = '新增评估';
+
+            // 隐藏所有指标字段
+            document.getElementById('meat-sheep-indicators').classList.add('hidden');
+            document.getElementById('wool-sheep-indicators').classList.add('hidden');
+
+            // 设置当前编辑ID为null
+            currentEditId = null;
+
+            // 设置默认评估时间为当前时间
+            const now = new Date();
+            const dateTimeString = now.toISOString().slice(0, 16);
+            document.getElementById('evaluation-date').value = dateTimeString;
+
+            // 显示模态框
+            document.getElementById('evaluation-modal').classList.remove('hidden');
+        }
+
+        // 打开编辑评估模态框
+        function openEditEvaluationModal(id) {
+            // 查找要编辑的评估数据
+            const evaluation = mockEvaluationData.find(item => item.id === id);
+            if (!evaluation) return;
+
+            // 设置当前编辑ID
+            currentEditId = id;
+
+            // 填充表单数据
+            document.getElementById('evaluation-id').value = evaluation.id;
+            document.getElementById('sheep-select').value = evaluation.sheepId;
+            document.getElementById('evaluation-batch').value = evaluation.batch;
+
+            // 设置评估时间
+            if (evaluation.evaluationDate) {
+                const dateTimeString = evaluation.evaluationDate.replace(' ', 'T');
+                document.getElementById('evaluation-date').value = dateTimeString;
+            } else {
+                document.getElementById('evaluation-date').value = '';
+            }
+
+            document.getElementById('evaluator').value = evaluation.evaluator || '';
+            document.getElementById('evaluation-status').value = evaluation.status;
+
+            // 设置基因指标数据
+            document.getElementById('gene-score').value = evaluation.geneIndicators.geneScore || 0;
+            document.getElementById('gene-score-value').textContent = evaluation.geneIndicators.geneScore || 0;
+            document.getElementById('gene-test-id').value = evaluation.geneIndicators.geneTestId || '';
+            document.getElementById('gene-details').value = evaluation.geneIndicators.geneDetails || '';
+
+            // 设置评估结果数据
+            document.getElementById('total-score').value = evaluation.totalScore || '';
+            document.getElementById('evaluation-grade').value = evaluation.gradeText || '';
+            document.getElementById('evaluation-comment').value = evaluation.comment || '';
+            document.getElementById('evaluation-remarks').value = evaluation.remarks || '';
+
+            // 更新指标字段
+            updateIndicatorFields();
+
+            // 如果是肉羊，填充肉羊指标数据
+            if (evaluation.breedType === 'meat') {
+                const indicators = evaluation.regularIndicators;
+                if (indicators) {
+                    document.getElementById('indicator-weight').value = indicators.weight || 80;
+                    document.getElementById('indicator-weight-value').textContent = indicators.weight || 80;
+
+                    document.getElementById('indicator-daily-gain').value = indicators.dailyGain || 80;
+                    document.getElementById('indicator-daily-gain-value').textContent = indicators.dailyGain || 80;
+
+                    document.getElementById('indicator-slaughter-rate').value = indicators.slaughterRate || 80;
+                    document.getElementById('indicator-slaughter-rate-value').textContent = indicators.slaughterRate || 80;
+
+                    document.getElementById('indicator-meat-quality').value = indicators.meatQuality || 80;
+                    document.getElementById('indicator-meat-quality-value').textContent = indicators.meatQuality || 80;
+
+                    document.getElementById('indicator-reproduction-rate').value = indicators.reproductionRate || 80;
+                    document.getElementById('indicator-reproduction-rate-value').textContent = indicators.reproductionRate || 80;
+
+                    document.getElementById('indicator-appearance').value = indicators.appearance || 80;
+                    document.getElementById('indicator-appearance-value').textContent = indicators.appearance || 80;
+
+                    document.getElementById('indicator-disease-resistance').value = indicators.diseaseResistance || 80;
+                    document.getElementById('indicator-disease-resistance-value').textContent = indicators.diseaseResistance || 80;
+
+                    document.getElementById('indicator-adaptability').value = indicators.adaptability || 80;
+                    document.getElementById('indicator-adaptability-value').textContent = indicators.adaptability || 80;
+
+                    // 计算常规指标总分
+                    calculateMeatRegularScore();
+                }
+            }
+            // 如果是绒羊，填充绒羊指标数据
+            else if (evaluation.breedType === 'wool') {
+                const indicators = evaluation.regularIndicators;
+                if (indicators) {
+                    document.getElementById('indicator-wool-production').value = indicators.woolProduction || 80;
+                    document.getElementById('indicator-wool-production-value').textContent = indicators.woolProduction || 80;
+
+                    document.getElementById('indicator-wool-fineness').value = indicators.woolFineness || 80;
+                    document.getElementById('indicator-wool-fineness-value').textContent = indicators.woolFineness || 80;
+
+                    document.getElementById('indicator-wool-length').value = indicators.woolLength || 80;
+                    document.getElementById('indicator-wool-length-value').textContent = indicators.woolLength || 80;
+
+                    document.getElementById('indicator-reproduction-performance').value = indicators.reproductionPerformance || 80;
+                    document.getElementById('indicator-reproduction-performance-value').textContent = indicators.reproductionPerformance || 80;
+
+                    document.getElementById('indicator-wool-appearance').value = indicators.appearance || 80;
+                    document.getElementById('indicator-wool-appearance-value').textContent = indicators.appearance || 80;
+
+                    document.getElementById('indicator-wool-disease-resistance').value = indicators.diseaseResistance || 80;
+                    document.getElementById('indicator-wool-disease-resistance-value').textContent = indicators.diseaseResistance || 80;
+
+                    document.getElementById('indicator-wool-adaptability').value = indicators.adaptability || 80;
+                    document.getElementById('indicator-wool-adaptability-value').textContent = indicators.adaptability || 80;
+
+                    // 计算常规指标总分
+                    calculateWoolRegularScore();
+                }
+            }
+
+            // 设置模态框标题
+            document.getElementById('modal-title').textContent = '编辑评估';
+
+            // 显示模态框
+            document.getElementById('evaluation-modal').classList.remove('hidden');
+        }
+
+        // 更新指标字段显示
+        function updateIndicatorFields() {
+            const sheepSelect = document.getElementById('sheep-select');
+            const selectedSheepId = sheepSelect.value;
+
+            // 隐藏所有指标字段
+            document.getElementById('meat-sheep-indicators').classList.add('hidden');
+            document.getElementById('wool-sheep-indicators').classList.add('hidden');
+
+            if (selectedSheepId) {
+                // 查找选中的羊只
+                const sheep = mockSheepData.find(item => item.id === selectedSheepId);
+                if (sheep) {
+                    // 根据羊只品种类型显示对应的指标字段
+                    if (sheep.breedType === 'meat') {
+                        document.getElementById('meat-sheep-indicators').classList.remove('hidden');
+                        calculateMeatRegularScore();
+                    } else if (sheep.breedType === 'wool') {
+                        document.getElementById('wool-sheep-indicators').classList.remove('hidden');
+                        calculateWoolRegularScore();
+                    }
+                }
+            }
+
+            // 重新计算总分
+            calculateTotalScore();
+        }
+
+        // 计算肉羊常规指标总分
+        function calculateMeatRegularScore() {
+            const weight = parseInt(document.getElementById('indicator-weight').value) || 0;
+            const dailyGain = parseInt(document.getElementById('indicator-daily-gain').value) || 0;
+            const slaughterRate = parseInt(document.getElementById('indicator-slaughter-rate').value) || 0;
+            const meatQuality = parseInt(document.getElementById('indicator-meat-quality').value) || 0;
+            const reproductionRate = parseInt(document.getElementById('indicator-reproduction-rate').value) || 0;
+            const appearance = parseInt(document.getElementById('indicator-appearance').value) || 0;
+            const diseaseResistance = parseInt(document.getElementById('indicator-disease-resistance').value) || 0;
+            const adaptability = parseInt(document.getElementById('indicator-adaptability').value) || 0;
+
+            // 获取权重设置
+            const weights = evaluationSettings.meatSheepWeights.regularWeights;
+
+            // 计算加权平均分
+            const totalScore = Math.round(
+                (weight * weights.weight +
+                dailyGain * weights.dailyGain +
+                slaughterRate * weights.slaughterRate +
+                meatQuality * weights.meatQuality +
+                reproductionRate * weights.reproductionRate +
+                appearance * weights.appearance +
+                diseaseResistance * weights.diseaseResistance +
+                adaptability * weights.adaptability) / 100
+            );
+
+            // 更新显示
+            document.getElementById('regular-score').textContent = totalScore;
+
+            // 重新计算总分
+            calculateTotalScore();
+
+            return totalScore;
+        }
+
+        // 计算绒羊常规指标总分
+        function calculateWoolRegularScore() {
+            const woolProduction = parseInt(document.getElementById('indicator-wool-production').value) || 0;
+            const woolFineness = parseInt(document.getElementById('indicator-wool-fineness').value) || 0;
+            const woolLength = parseInt(document.getElementById('indicator-wool-length').value) || 0;
+            const reproductionPerformance = parseInt(document.getElementById('indicator-reproduction-performance').value) || 0;
+            const appearance = parseInt(document.getElementById('indicator-wool-appearance').value) || 0;
+            const diseaseResistance = parseInt(document.getElementById('indicator-wool-disease-resistance').value) || 0;
+            const adaptability = parseInt(document.getElementById('indicator-wool-adaptability').value) || 0;
+
+            // 获取权重设置
+            const weights = evaluationSettings.woolSheepWeights.regularWeights;
+
+            // 计算加权平均分
+            const totalScore = Math.round(
+                (woolProduction * weights.woolProduction +
+                woolFineness * weights.woolFineness +
+                woolLength * weights.woolLength +
+                reproductionPerformance * weights.reproductionPerformance +
+                appearance * weights.appearance +
+                diseaseResistance * weights.diseaseResistance +
+                adaptability * weights.adaptability) / 100
+            );
+
+            // 更新显示
+            document.getElementById('wool-regular-score').textContent = totalScore;
+
+            // 重新计算总分
+            calculateTotalScore();
+
+            return totalScore;
+        }
+
+        // 计算综合评估总分
+        function calculateTotalScore() {
+            const sheepSelect = document.getElementById('sheep-select');
+            const selectedSheepId = sheepSelect.value;
+
+            if (!selectedSheepId) {
+                document.getElementById('total-score').value = '';
+                document.getElementById('evaluation-grade').value = '';
+                return;
+            }
+
+            // 查找选中的羊只
+            const sheep = mockSheepData.find(item => item.id === selectedSheepId);
+            if (!sheep) {
+                document.getElementById('total-score').value = '';
+                document.getElementById('evaluation-grade').value = '';
+                return;
+            }
+
+            // 获取常规指标得分
+            let regularScore = 0;
+            if (sheep.breedType === 'meat') {
+                regularScore = parseInt(document.getElementById('regular-score').textContent) || 0;
+            } else if (sheep.breedType === 'wool') {
+                regularScore = parseInt(document.getElementById('wool-regular-score').textContent) || 0;
+            }
+
+            // 获取基因指标得分
+            const geneScore = parseInt(document.getElementById('gene-score').value) || 0;
+
+            // 获取权重设置
+            let geneWeight = 30; // 默认值
+            if (sheep.breedType === 'meat') {
+                geneWeight = evaluationSettings.meatSheepWeights.geneWeight;
+            } else if (sheep.breedType === 'wool') {
+                geneWeight = evaluationSettings.woolSheepWeights.geneWeight;
+            }
+
+            // 计算总分
+            const totalScore = Math.round(
+                regularScore * (100 - geneWeight) / 100 +
+                geneScore * geneWeight / 100
+            );
+
+            // 确定等级
+            let grade = '';
+            let gradeText = '';
+
+            if (totalScore >= evaluationSettings.gradeThresholds.excellent) {
+                grade = 'excellent';
+                gradeText = '优良';
+            } else if (totalScore >= evaluationSettings.gradeThresholds.qualified) {
+                grade = 'qualified';
+                gradeText = '合格';
+            } else if (totalScore > 0) {
+                grade = 'unqualified';
+                gradeText = '不合格';
+            }
+
+            // 更新显示
+            document.getElementById('total-score').value = totalScore || '';
+            document.getElementById('evaluation-grade').value = gradeText || '';
+
+            return {
+                totalScore,
+                grade,
+                gradeText
+            };
+        }
+
+        // 保存评估数据
+        function saveEvaluation() {
+            // 表单验证
+            const form = document.getElementById('evaluation-form');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            // 获取表单数据
+            const id = document.getElementById('evaluation-id').value;
+            const sheepId = document.getElementById('sheep-select').value;
+            const batch = document.getElementById('evaluation-batch').value;
+            const evaluationDate = document.getElementById('evaluation-date').value.replace('T', ' ');
+            const evaluator = document.getElementById('evaluator').value;
+            const status = document.getElementById('evaluation-status').value;
+
+            // 获取基因指标数据
+            const geneScore = parseInt(document.getElementById('gene-score').value);
+            const geneTestId = document.getElementById('gene-test-id').value;
+            const geneDetails = document.getElementById('gene-details').value;
+
+            // 获取评估结果数据
+            const totalScore = parseInt(document.getElementById('total-score').value);
+            const gradeText = document.getElementById('evaluation-grade').value;
+            const comment = document.getElementById('evaluation-comment').value;
+            const remarks = document.getElementById('evaluation-remarks').value;
+
+            // 查找选中的羊只
+            const sheep = mockSheepData.find(item => item.id === sheepId);
+            if (!sheep) {
+                alert('请选择有效的羊只');
+                return;
+            }
+
+            // 确定等级
+            let grade = '';
+            if (gradeText === '优良') {
+                grade = 'excellent';
+            } else if (gradeText === '合格') {
+                grade = 'qualified';
+            } else if (gradeText === '不合格') {
+                grade = 'unqualified';
+            }
+
+            // 获取常规指标得分和详情
+            let regularScore = 0;
+            let regularIndicators = {};
+
+            if (sheep.breedType === 'meat') {
+                regularScore = parseInt(document.getElementById('regular-score').textContent);
+                regularIndicators = {
+                    weight: parseInt(document.getElementById('indicator-weight').value),
+                    dailyGain: parseInt(document.getElementById('indicator-daily-gain').value),
+                    slaughterRate: parseInt(document.getElementById('indicator-slaughter-rate').value),
+                    meatQuality: parseInt(document.getElementById('indicator-meat-quality').value),
+                    reproductionRate: parseInt(document.getElementById('indicator-reproduction-rate').value),
+                    appearance: parseInt(document.getElementById('indicator-appearance').value),
+                    diseaseResistance: parseInt(document.getElementById('indicator-disease-resistance').value),
+                    adaptability: parseInt(document.getElementById('indicator-adaptability').value)
+                };
+            } else if (sheep.breedType === 'wool') {
+                regularScore = parseInt(document.getElementById('wool-regular-score').textContent);
+                regularIndicators = {
+                    woolProduction: parseInt(document.getElementById('indicator-wool-production').value),
+                    woolFineness: parseInt(document.getElementById('indicator-wool-fineness').value),
+                    woolLength: parseInt(document.getElementById('indicator-wool-length').value),
+                    reproductionPerformance: parseInt(document.getElementById('indicator-reproduction-performance').value),
+                    appearance: parseInt(document.getElementById('indicator-wool-appearance').value),
+                    diseaseResistance: parseInt(document.getElementById('indicator-wool-disease-resistance').value),
+                    adaptability: parseInt(document.getElementById('indicator-wool-adaptability').value)
+                };
+            }
+
+            // 构建评估数据对象
+            const evaluationData = {
+                sheepId,
+                sheepCode: sheep.code,
+                breedType: sheep.breedType,
+                breedTypeText: sheep.breedTypeText,
+                breedName: sheep.breedName,
+                batch,
+                evaluationDate,
+                evaluator,
+                status,
+                statusText: status === 'completed' ? '已完成' : (status === 'in-progress' ? '进行中' : '待评估'),
+
+                // 常规评估指标得分
+                regularIndicators,
+                regularScore,
+
+                // 基因评估指标得分
+                geneIndicators: {
+                    geneScore,
+                    geneTestId,
+                    geneDetails
+                },
+
+                totalScore,
+                grade,
+                gradeText,
+                comment,
+                remarks,
+                updateTime: getCurrentDateTime()
+            };
+
+            // 保存数据
+            if (id) {
+                // 编辑现有数据
+                const index = mockEvaluationData.findIndex(e => e.id === id);
+                if (index !== -1) {
+                    mockEvaluationData[index] = { ...mockEvaluationData[index], ...evaluationData, id };
+                    alert(`评估记录 ${id} 已更新`);
+                }
+            } else {
+                // 添加新数据
+                const newId = (mockEvaluationData.length + 1).toString();
+                mockEvaluationData.push({ ...evaluationData, id: newId, createTime: getCurrentDateTime() });
+                alert(`评估记录已添加`);
+            }
+
+            // 关闭模态框
+            document.getElementById('evaluation-modal').classList.add('hidden');
+
+            // 更新表格
+            updateEvaluationTable();
+        }
+
+        // 删除评估数据
+        function deleteEvaluation(ids) {
+            if (!Array.isArray(ids)) {
+                ids = [ids];
+            }
+
+            // 从数据中删除
+            ids.forEach(id => {
+                const index = mockEvaluationData.findIndex(evaluation => evaluation.id === id);
+                if (index !== -1) {
+                    mockEvaluationData.splice(index, 1);
+                }
+            });
+
+            // 更新表格
+            updateEvaluationTable();
+
+            // 重置选中状态
+            selectedIds = [];
+            document.getElementById('select-all').checked = false;
+            document.getElementById('batch-delete-btn').disabled = true;
+            document.getElementById('batch-delete-btn').classList.add('opacity-50', 'cursor-not-allowed');
+
+            // 显示删除成功消息
+            alert(`已成功删除 ${ids.length} 条评估记录`);
+        }
+
+        // 打开查看评估详情模态框
+        function openDetailModal(id) {
+            // 查找要查看的评估数据
+            const evaluation = mockEvaluationData.find(item => item.id === id);
+            if (!evaluation) return;
+
+            // 填充详情数据
+            document.getElementById('detail-sheep-code').textContent = evaluation.sheepCode;
+            document.getElementById('detail-breed').textContent = `${evaluation.breedTypeText} - ${evaluation.breedName}`;
+            document.getElementById('detail-batch').textContent = evaluation.batch;
+            document.getElementById('detail-date').textContent = evaluation.evaluationDate || '-';
+            document.getElementById('detail-evaluator').textContent = evaluation.evaluator || '-';
+            document.getElementById('detail-status').textContent = evaluation.statusText;
+
+            document.getElementById('detail-regular-score').textContent = evaluation.regularScore || '-';
+            document.getElementById('detail-gene-score').textContent = evaluation.geneIndicators.geneScore || '-';
+            document.getElementById('detail-total-score').textContent = evaluation.totalScore || '-';
+            document.getElementById('detail-grade').textContent = evaluation.gradeText || '-';
+
+            document.getElementById('detail-gene-test-id').textContent = evaluation.geneIndicators.geneTestId || '-';
+            document.getElementById('detail-gene-details').textContent = evaluation.geneIndicators.geneDetails || '-';
+
+            document.getElementById('detail-comment').textContent = evaluation.comment || '-';
+            document.getElementById('detail-remarks').textContent = evaluation.remarks || '-';
+
+            // 生成常规指标详情
+            const regularIndicatorsContainer = document.getElementById('detail-regular-indicators');
+            regularIndicatorsContainer.innerHTML = '';
+
+            if (evaluation.regularIndicators) {
+                const indicators = evaluation.regularIndicators;
+                const table = document.createElement('table');
+                table.className = 'min-w-full divide-y divide-gray-200';
+
+                // 表头
+                const thead = document.createElement('thead');
+                thead.className = 'bg-gray-50';
+                thead.innerHTML = `
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指标名称</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">得分</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">评价</th>
+                    </tr>
+                `;
+                table.appendChild(thead);
+
+                // 表体
+                const tbody = document.createElement('tbody');
+                tbody.className = 'bg-white divide-y divide-gray-200';
+
+                // 根据羊只品种类型生成不同的指标详情
+                if (evaluation.breedType === 'meat') {
+                    addIndicatorRow(tbody, '体重', indicators.weight);
+                    addIndicatorRow(tbody, '日增重', indicators.dailyGain);
+                    addIndicatorRow(tbody, '屠宰率', indicators.slaughterRate);
+                    addIndicatorRow(tbody, '肉品质', indicators.meatQuality);
+                    addIndicatorRow(tbody, '繁殖率', indicators.reproductionRate);
+                    addIndicatorRow(tbody, '体型外貌', indicators.appearance);
+                    addIndicatorRow(tbody, '抗病性', indicators.diseaseResistance);
+                    addIndicatorRow(tbody, '适应性', indicators.adaptability);
+                } else if (evaluation.breedType === 'wool') {
+                    addIndicatorRow(tbody, '产绒量', indicators.woolProduction);
+                    addIndicatorRow(tbody, '绒细度', indicators.woolFineness);
+                    addIndicatorRow(tbody, '绒长度', indicators.woolLength);
+                    addIndicatorRow(tbody, '繁殖性能', indicators.reproductionPerformance);
+                    addIndicatorRow(tbody, '体型外貌', indicators.appearance);
+                    addIndicatorRow(tbody, '抗病性', indicators.diseaseResistance);
+                    addIndicatorRow(tbody, '适应性', indicators.adaptability);
+                }
+
+                table.appendChild(tbody);
+                regularIndicatorsContainer.appendChild(table);
+            } else {
+                regularIndicatorsContainer.innerHTML = '<p class="text-gray-500">暂无常规指标详情</p>';
+            }
+
+            // 设置模态框标题
+            document.getElementById('detail-modal-title').textContent = `评估详情 - ${evaluation.sheepCode}`;
+
+            // 显示模态框
+            document.getElementById('detail-modal').classList.remove('hidden');
+        }
+
+        // 添加指标行
+        function addIndicatorRow(tbody, name, score) {
+            const tr = document.createElement('tr');
+
+            // 根据得分生成评价
+            let evaluation = '';
+            if (score >= 90) {
+                evaluation = '优秀';
+            } else if (score >= 80) {
+                evaluation = '良好';
+            } else if (score >= 70) {
+                evaluation = '一般';
+            } else if (score >= 60) {
+                evaluation = '及格';
+            } else {
+                evaluation = '较差';
+            }
+
+            tr.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${name}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${score}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${evaluation}</td>
+            `;
+
+            tbody.appendChild(tr);
+        }
+
+        // 保存设置
+        function saveSettings() {
+            // 获取肉羊常规指标权重
+            const meatWeights = {
+                weight: parseInt(document.getElementById('weight-weight').value),
+                dailyGain: parseInt(document.getElementById('daily-gain-weight').value),
+                slaughterRate: parseInt(document.getElementById('slaughter-rate-weight').value),
+                meatQuality: parseInt(document.getElementById('meat-quality-weight').value),
+                reproductionRate: parseInt(document.getElementById('reproduction-rate-weight').value),
+                appearance: parseInt(document.getElementById('appearance-weight').value),
+                diseaseResistance: parseInt(document.getElementById('disease-resistance-weight').value),
+                adaptability: parseInt(document.getElementById('adaptability-weight').value)
+            };
+
+            // 获取绒羊常规指标权重
+            const woolWeights = {
+                woolProduction: parseInt(document.getElementById('wool-production-weight').value),
+                woolFineness: parseInt(document.getElementById('wool-fineness-weight').value),
+                woolLength: parseInt(document.getElementById('wool-length-weight').value),
+                reproductionPerformance: parseInt(document.getElementById('reproduction-performance-weight').value),
+                appearance: parseInt(document.getElementById('wool-appearance-weight').value),
+                diseaseResistance: parseInt(document.getElementById('wool-disease-resistance-weight').value),
+                adaptability: parseInt(document.getElementById('wool-adaptability-weight').value)
+            };
+
+            // 获取基因指标权重
+            const meatGeneWeight = parseInt(document.getElementById('meat-gene-weight').value);
+            const woolGeneWeight = parseInt(document.getElementById('wool-gene-weight').value);
+
+            // 获取评估等级分数线
+            const excellentThreshold = parseInt(document.getElementById('excellent-threshold').value);
+            const qualifiedThreshold = parseInt(document.getElementById('qualified-threshold').value);
+
+            // 更新设置
+            evaluationSettings.meatSheepWeights.regularWeights = meatWeights;
+            evaluationSettings.woolSheepWeights.regularWeights = woolWeights;
+            evaluationSettings.meatSheepWeights.geneWeight = meatGeneWeight;
+            evaluationSettings.woolSheepWeights.geneWeight = woolGeneWeight;
+            evaluationSettings.gradeThresholds.excellent = excellentThreshold;
+            evaluationSettings.gradeThresholds.qualified = qualifiedThreshold;
+
+            alert('评估指标设置已保存');
+        }
+
+        // 恢复默认设置
+        function resetSettings() {
+            // 恢复肉羊常规指标权重
+            document.getElementById('weight-weight').value = 15;
+            document.getElementById('weight-weight-value').textContent = '15';
+
+            document.getElementById('daily-gain-weight').value = 20;
+            document.getElementById('daily-gain-weight-value').textContent = '20';
+
+            document.getElementById('slaughter-rate-weight').value = 15;
+            document.getElementById('slaughter-rate-weight-value').textContent = '15';
+
+            document.getElementById('meat-quality-weight').value = 15;
+            document.getElementById('meat-quality-weight-value').textContent = '15';
+
+            document.getElementById('reproduction-rate-weight').value = 10;
+            document.getElementById('reproduction-rate-weight-value').textContent = '10';
+
+            document.getElementById('appearance-weight').value = 10;
+            document.getElementById('appearance-weight-value').textContent = '10';
+
+            document.getElementById('disease-resistance-weight').value = 8;
+            document.getElementById('disease-resistance-weight-value').textContent = '8';
+
+            document.getElementById('adaptability-weight').value = 7;
+            document.getElementById('adaptability-weight-value').textContent = '7';
+
+            // 恢复绒羊常规指标权重
+            document.getElementById('wool-production-weight').value = 20;
+            document.getElementById('wool-production-weight-value').textContent = '20';
+
+            document.getElementById('wool-fineness-weight').value = 20;
+            document.getElementById('wool-fineness-weight-value').textContent = '20';
+
+            document.getElementById('wool-length-weight').value = 15;
+            document.getElementById('wool-length-weight-value').textContent = '15';
+
+            document.getElementById('reproduction-performance-weight').value = 15;
+            document.getElementById('reproduction-performance-weight-value').textContent = '15';
+
+            document.getElementById('wool-appearance-weight').value = 10;
+            document.getElementById('wool-appearance-weight-value').textContent = '10';
+
+            document.getElementById('wool-disease-resistance-weight').value = 10;
+            document.getElementById('wool-disease-resistance-weight-value').textContent = '10';
+
+            document.getElementById('wool-adaptability-weight').value = 10;
+            document.getElementById('wool-adaptability-weight-value').textContent = '10';
+
+            // 恢复基因指标权重
+            document.getElementById('meat-gene-weight').value = 30;
+            document.getElementById('meat-gene-weight-value').textContent = '30';
+            document.getElementById('meat-regular-weight-value').textContent = '70';
+
+            document.getElementById('wool-gene-weight').value = 30;
+            document.getElementById('wool-gene-weight-value').textContent = '30';
+            document.getElementById('wool-regular-weight-value').textContent = '70';
+
+            // 恢复评估等级分数线
+            document.getElementById('excellent-threshold').value = 85;
+            document.getElementById('qualified-threshold').value = 70;
+
+            // 更新权重总和显示
+            calculateMeatRegularWeightTotal();
+            calculateWoolRegularWeightTotal();
+        }
+
+        // 计算肉羊常规指标权重总和
+        function calculateMeatRegularWeightTotal() {
+            const weight = parseInt(document.getElementById('weight-weight').value) || 0;
+            const dailyGain = parseInt(document.getElementById('daily-gain-weight').value) || 0;
+            const slaughterRate = parseInt(document.getElementById('slaughter-rate-weight').value) || 0;
+            const meatQuality = parseInt(document.getElementById('meat-quality-weight').value) || 0;
+            const reproductionRate = parseInt(document.getElementById('reproduction-rate-weight').value) || 0;
+            const appearance = parseInt(document.getElementById('appearance-weight').value) || 0;
+            const diseaseResistance = parseInt(document.getElementById('disease-resistance-weight').value) || 0;
+            const adaptability = parseInt(document.getElementById('adaptability-weight').value) || 0;
+
+            const total = weight + dailyGain + slaughterRate + meatQuality + reproductionRate + appearance + diseaseResistance + adaptability;
+
+            document.getElementById('meat-regular-total').textContent = total;
+        }
+
+        // 计算绒羊常规指标权重总和
+        function calculateWoolRegularWeightTotal() {
+            const woolProduction = parseInt(document.getElementById('wool-production-weight').value) || 0;
+            const woolFineness = parseInt(document.getElementById('wool-fineness-weight').value) || 0;
+            const woolLength = parseInt(document.getElementById('wool-length-weight').value) || 0;
+            const reproductionPerformance = parseInt(document.getElementById('reproduction-performance-weight').value) || 0;
+            const appearance = parseInt(document.getElementById('wool-appearance-weight').value) || 0;
+            const diseaseResistance = parseInt(document.getElementById('wool-disease-resistance-weight').value) || 0;
+            const adaptability = parseInt(document.getElementById('wool-adaptability-weight').value) || 0;
+
+            const total = woolProduction + woolFineness + woolLength + reproductionPerformance + appearance + diseaseResistance + adaptability;
+
+            document.getElementById('wool-regular-total').textContent = total;
+        }
+
+        // 获取当前日期时间
+        function getCurrentDateTime() {
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        }
+    </script>
+</body>
+</html>
